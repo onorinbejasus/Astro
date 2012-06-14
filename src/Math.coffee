@@ -82,6 +82,10 @@ class math
 		console.log "q,p: ",Q,P
 		
 		det = 1.0/this.dot(P,E_1)
+		
+		if(1.0/det > -0.00001 && a < 0.00001)
+			return "Not intersection"
+			
 		console.log "det: ",det
 
 		t = det * this.dot(Q, E_2)
@@ -89,9 +93,15 @@ class math
 		v = det * this.dot(Q,direction)
 		console.log "t,u,v: ", t, u, v
 
+		if (u < 0.0 || u > 1.0)
+			return "Not intersected!"
 		
-		if u >= 0.0 && v >= 0.0 && (u+v) < 1.0 
+		if (v < 0.0 || u + v > 1.0)
+			return "Not intersected!"
+		
+		if (t > 0.00001)
 			return "Hit!"
+	
 		else 
 			return "Not intersected!"
 		
