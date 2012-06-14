@@ -75,7 +75,7 @@ class SkyView extends WebGL
 		console.log key.x, key.y
 		near = @Math.norm(@Math.unProj(key.x, key.y, 0, matrices[0], matrices[1], matrices[2]))
 		far = @Math.norm(@Math.unProj(key.x, key.y, 1, matrices[0], matrices[1], matrices[2]))
-		dir = @Math.norm(@Math.subtract(near,far))
+		dir = @Math.norm(@Math.subtract(far,near))
 		tri = @HTM.getTriangles()		
 		for triangle in tri
 			console.log @Math.intersectTri([0,0,0], dir,triangle, near, far)

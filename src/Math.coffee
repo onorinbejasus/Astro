@@ -64,7 +64,7 @@ class math
 	
 		console.log "dir: ",direction
 		console.log "tri: ", triangle
-		###
+
 		v_0 = triangle[2]
 		v_1 = triangle[1]
 		v_2 = triangle[0]
@@ -88,24 +88,7 @@ class math
 		u = det * this.dot(P,T)
 		v = det * this.dot(Q,direction)
 		console.log "t,u,v: ", t, u, v
-		###
-		
-		v_0 = this.subtract(triangle[2], triangle[1])
-		v_1 = this.subtract(triangle[0], triangle[1])
-		v_2 = this.subtract(direction, triangle[1])
 
-		dot00 = this.dot(v_0,v_0)
-		dot01 = this.dot(v_0,v_1)
-		dot02 = this.dot(v_0,v_2)
-		dot11 = this.dot(v_1,v_1)
-		dot12 = this.dot(v_1,v_2)
-		
-		invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01)
-		
-		u = (dot11 * dot02 - dot01 * dot12) * invDenom
-		v = (dot00 * dot12 - dot01 * dot02) * invDenom
-		
-		console.log u, v
 		
 		if u >= 0.0 && v >= 0.0 && (u+v) < 1.0 
 			return "Hit!"
