@@ -16,8 +16,8 @@ class SkyView extends WebGL
 		@level = 0
 		
 		@HTM = new HTM(@level, @gl, @Math)
-		@rotation = [0.0, 0.0, 0.0]
-		@translation = [0.0, 0.0, -5.0]
+		@rotation = [0.0, 0.0, 0.0,1.0]
+		@translation = [0.0, 0.0, -5.0, 1.0]
 		@renderMode = @gl.TRIANGLES
 		
 		this.render()
@@ -70,8 +70,15 @@ class SkyView extends WebGL
 	
 	mousePress: (key) =>
 		matrices = this.getMatrices()
-		near = @Math.unProj(key.x, @canvas.height - key.y, 0, matrices[0], matrices[1], matrices[2])
-		far = @Math.unProj(key.x, @canvas.height - key.y, 1, matrices[0], matrices[1], matrices[2])
+		near = []#@Math.unProj(key.x, @gl.viewportHeight - key.y, 0, matrices[0], matrices[1], matrices[2])
+		far = [] #@Math.unProj(key.x, @gl.viewportHeight - key.y, 1, matrices[0], matrices[1], matrices[2])
+		
+		success = GLU.unProject(key.x, @gl.viewportHeight - key.y,
+			0.0, matrices[0], matrices[1], matrices[2], near)
+		
+		success = GLU.unProject(key.x, @gl.viewportHeight - key.y,
+			1.0, matrices[0], matrices[1], matrices[2], far)
+		console.log near, far
 		dir = @Math.norm(@Math.subtract(far,near))
 		tri = @HTM.getTriangles()		
 		for triangle in tri

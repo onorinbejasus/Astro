@@ -41,9 +41,13 @@ class math
 		inf = []		
 		# invert the model view and projection matrices
 		m = mat4.set(mod_mat, mat4.create())
-		mat4.inverse(m,m)
-		mat4.multiply(proj_mat, m, m)
-		mat4.inverse(m,m)
+		console.log "m set: ", m
+		b = mat4.inverse(m)
+		console.log "b inverse: ", b
+		mat4.multiply(proj_mat, b, b)
+		console.log "m mult: ", m
+		c = mat4.inverse(b)
+		console.log "c inverse: ", c		
 				
 		inf.push ( (winX - viewport[0])/viewport[2] * 2.0 - 1.0 )
 		inf.push ( (winY - viewport[1])/viewport[3] * 2.0 - 1.0 )
@@ -93,5 +97,3 @@ class math
 			else
 				console.log "Hit!"
 		return
-		
-		
