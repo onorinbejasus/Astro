@@ -5,7 +5,7 @@ class math
 		Math.pow(Math.pow(v1[0] + v2[0], 2) + Math.pow(v1[1] + v2[1], 2) + Math.pow(v1[2] + v2[2], 2), 0.5)
 	# | norm v1 |
 	norm: (v1) =>
-		mag = Math.sqrt(Math.pow(v1[0],2) + Math.pow(v1[1],2) + Math.pow(v1[2],2))
+		mag = Math.sqrt(Math.pow(v1[0],2) + Math.pow(v1[1],2) + Math.pow(v1[2],2)+1)
 		[v1[0]/mag,v1[1]/mag,v1[2]/mag]
 	# v1 - v2
 	subtract: (v1, v2)=>
@@ -87,11 +87,9 @@ class math
 
 		if(u < 0.0 || u > 1.0)
 			console.log "no intersection"
-			return
 		else
 			if(v < 0.0 || u+v > 1.0)
 				console.log "no intersection"
-				return
 			else
 				console.log "Hit!"
 		return
