@@ -65,9 +65,9 @@ class math
 		console.log "dir: ",direction
 		console.log "tri: ", triangle
 
-		v_0 = triangle[2]
+		v_0 = triangle[0]
 		v_1 = triangle[1]
-		v_2 = triangle[0]
+		v_2 = triangle[2]
 		console.log "vertices: ",v_0,v_1,v_2
 		
 		E_1 = this.subtract(v_1, v_0)
@@ -81,10 +81,12 @@ class math
 		P = this.cross(direction, E_2)
 		console.log "q,p: ",Q,P
 		
-		det = 1.0/this.dot(P,E_1)
+		det = this.dot(P,E_1)
 		
-		if(1.0/det > -0.00001 && a < 0.00001)
+		if(det > -0.00001 && det < 0.00001)
 			return "Not intersection"
+		
+		det = 1.0/det
 			
 		console.log "det: ",det
 
