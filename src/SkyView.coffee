@@ -37,8 +37,6 @@ class SkyView extends WebGL
 	
 	keyPressed: (key) =>
 
-		console.log this.getScale(), this.getLevel()
-
 		switch String.fromCharCode(key.which)
 			
 			when 'i' then @rotation[0]++
@@ -73,10 +71,10 @@ class SkyView extends WebGL
 	mousePress: (key) =>
 		matrices = this.getMatrices()
 		console.log key.x, key.y
-		near = @Math.norm(@Math.unProj(key.x, key.y, 0, matrices[0], matrices[1], matrices[2]))
-		far = @Math.norm(@Math.unProj(key.x, key.y, 1, matrices[0], matrices[1], matrices[2]))
+		near = @Math.unProj(key.x, @canvas.height - key.y, 0, matrices[0], matrices[1], matrices[2])
+		far = @Math.unProj(key.x,@canvas.height - key.y, 1, matrices[0], matrices[1], matrices[2])
 		dir = @Math.norm(@Math.subtract(far,near))
 		tri = @HTM.getTriangles()		
 		for triangle in tri
-			console.log @Math.intersectTri([0,0,0], dir,triangle, near, far)
+			@Math.intersectTri([0,0,0], dir,triangle)
 		return

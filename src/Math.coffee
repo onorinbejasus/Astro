@@ -60,50 +60,40 @@ class math
 				
 		return [out[0]*out[3], out[1]*out[3], out[2]*out[3]]
 	
-	intersectTri: (position, direction, triangle, near, far) =>
-	
-		console.log "dir: ",direction
-		console.log "tri: ", triangle
+	intersectTri: (orig,dir,verts) =>
+		
+		a = verts[0]
+		b = verts[1]
+		c = verts[2]
 
-		v_0 = triangle[0]
-		v_1 = triangle[1]
-		v_2 = triangle[2]
-		console.log "vertices: ",v_0,v_1,v_2
-		
-		E_1 = this.subtract(v_1, v_0)
-		E_2 = this.subtract(v_2, v_0)
-		console.log "e1,e2: ",E_1,E_2
+		eihf = (a[1]-c[1])*dir[2] - dir[1]*(a[2]-c[2])
+		gfdi = dir[0]*(a[2]-c[2]) - (a[0]-c[0])*dir[2]
+		dheg = (a[0]-c[0])*dir[1] - (a[1]-c[1])*dir[0]
+		M = (a[0]-b[0])*eihf + (a[1]-b[1])*gfdi + (a[2]-b[2])*dheg
 
-		T = this.subtract(position, v_0)
-		console.log "T: ",T
+		akjb = (a[0]-b[0])*(a[1]-orig[1]) - (a[0]-orig[0])*(a[1]-b[1])
+		jcal = (a[0]-orig[0])*(a[2]-b[2]) - (a[0]-b[0])*(a[2]-orig[2])
+		blkc = (a[1]-b[1])*(a[2]-orig[2]) - (a[1]-orig[1])*(a[2]-b[2])
 
-		Q = this.cross(T, E_1)
-		P = this.cross(direction, E_2)
-		console.log "q,p: ",Q,P
-		
-		det = this.dot(P,E_1)
-		
-		if(det > -0.00001 && det < 0.00001)
-			return "Not intersection"
-		
-		det = 1.0/det
-			
-		console.log "det: ",det
+		betatop = (a[0]-orig[0])*eihf + (a[1]-orig[1])*gfdi + (a[2]-orig[2])*dheg
+		gammatop = dir[2]*akjb + dir[1]*jcal + dir[0]*blkc
+		ttop = (a[2]-c[2])*akjb + (a[1]-c[1])*jcal + (a[0]-c[0])*blkc
 
-		t = det * this.dot(Q, E_2)
-		u = det * this.dot(P,T)
-		v = det * this.dot(Q,direction)
-		console.log "t,u,v: ", t, u, v
+		u = betatop/M
+		v = gammatop/M
+		t = ttop/M
 
-		if (u < 0.0 || u > 1.0)
-			return "Not intersected!"
+		console.log "t,u,v: ",t,u,v
+
+		if(u < 0.0 || u > 1.0)
+			console.log "no intersection"
+			return
+		else
+			if(v < 0.0 || u+v > 1.0)
+				console.log "no intersection"
+				return
+			else
+				console.log "Hit!"
+		return
 		
-		if (v < 0.0 || u + v > 1.0)
-			return "Not intersected!"
-		
-		if (t > 0.00001)
-			return "Hit!"
-	
-		else 
-			return "Not intersected!"
 		
