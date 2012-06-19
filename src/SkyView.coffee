@@ -75,6 +75,7 @@ class SkyView extends WebGL
 		#calculate the near and far clipping plane distances
 		near = []
 		far = [] 
+		
 		success = GLU.unProject(key.x, @gl.viewportHeight - key.y,
 			0.0, matrices[0], matrices[1], matrices[2], near)
 		
@@ -85,15 +86,22 @@ class SkyView extends WebGL
 		dir = @Math.subtract(far,near)
 				
 		# set up the origin
-		origin = [0.0,0.0,0.0]
+		origin = [0.0,0.0,0.0,1.0]
 		
 		# unproject the origin to the scene
-		origin = @Math.subtract(origin,@translation)
+		inverse = mat4.set(matrices[0],mat4.create())
+		inverse = mat4.inverse(inverse)
+		
+		console.log "inverse :", inverse
+		
+		origin = @Math.multiply(origin,inverse)
+		
+		console.log "origin: ", origin
 				
 		#normalize direction vector
 		dir = @Math.norm(dir)
 		
-		console.log dir
+		console.log "direction: ", dir
 		
 		# grab the triangles and see if ray intersects with them
 		tri = @HTM.getTriangles()		

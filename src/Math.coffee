@@ -37,6 +37,16 @@ class math
 	# v1 x v2
 	cross: (v1, v2)=>
 		[v1[1]*v2[2]-v1[2]*v2[1], v1[2]*v2[0]-v1[0]*v2[2], v1[0]*v2[1]-v1[1]*v2[0]]	
+		
+	multiply: (a,b)=>
+		c = [0,0,0,0]
+		c[0] = a[0]*b[0] + a[1]*b[4] + a[2]*b[8] + b[12]
+		c[1] = a[0]*b[1] + a[1]*b[5] + a[2]*b[9] + b[13]
+		c[2] = a[0]*b[2] + a[1]*b[6] + a[2]*b[10] + b[14]		
+		c[3] = a[0]*b[3] + a[1]*b[7] + a[2]*b[11] + b[15]
+		
+		return c		
+		
 	intersectTri: (orig,dir,verts) =>
 		
 		a = verts[0]
