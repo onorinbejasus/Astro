@@ -16,8 +16,8 @@ class SkyView extends WebGL
 		@level = 0
 		
 		@HTM = new HTM(@level, @gl, @Math)
-		@rotation = [0.0, 0.0, 0.0,1.0]
-		@translation = [0.0, 0.0, -5.0, 1.0]
+		@rotation = [0.0, 0.0, 0.0,]
+		@translation = [0.0, 0.0, -5.0]
 		@renderMode = @gl.TRIANGLES
 		
 		this.render()
@@ -69,18 +69,34 @@ class SkyView extends WebGL
 		return
 	
 	mousePress: (key) =>
+		#get the projection, model-view and viewport
 		matrices = this.getMatrices()
-		near = []#@Math.unProj(key.x, @gl.viewportHeight - key.y, 0, matrices[0], matrices[1], matrices[2])
-		far = [] #@Math.unProj(key.x, @gl.viewportHeight - key.y, 1, matrices[0], matrices[1], matrices[2])
 		
+		#calculate the near and far clipping plane distances
+		near = []
+		far = [] 
 		success = GLU.unProject(key.x, @gl.viewportHeight - key.y,
 			0.0, matrices[0], matrices[1], matrices[2], near)
 		
 		success = GLU.unProject(key.x, @gl.viewportHeight - key.y,
 			1.0, matrices[0], matrices[1], matrices[2], far)
-		console.log near, far
-		dir = @Math.norm(@Math.subtract(far,near))
+		
+		#calculate the direction vector
+		dir = @Math.subtract(far,near)
+				
+		# set up the origin
+		origin = [0.0,0.0,0.0]
+		
+		# unproject the origin to the scene
+		origin = @Math.subtract(origin,@translation)
+				
+		#normalize direction vector
+		dir = @Math.norm(dir)
+		
+		console.log dir
+		
+		# grab the triangles and see if ray intersects with them
 		tri = @HTM.getTriangles()		
 		for triangle in tri
-			@Math.intersectTri([0,0,0], dir,triangle)
+			@Math.intersectTri(origin, dir, triangle)
 		return
