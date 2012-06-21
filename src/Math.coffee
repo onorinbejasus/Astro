@@ -70,6 +70,8 @@ class math
 		v = gammatop/M
 		t = ttop/M
 		
+		console.log "t", t
+		
 		if(u < 0.0 || u > 1.0)
 			return false
 		else
@@ -77,4 +79,4 @@ class math
 				return false
 			else
 				return true
-		return
+		return false
