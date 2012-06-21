@@ -1,6 +1,7 @@
 class HTM
 	
 	@verts = null
+	@names = null
 	@VertexPositionBuffer = null
 	@VertexColorBuffer = null
 	@initTriangles = null
@@ -10,6 +11,8 @@ class HTM
 	
 	getTriangles:()=>
 		return @initTriangles
+	getNames:()=>
+		return @names
 	
 	debugColor: ()=>
 		
@@ -18,9 +21,8 @@ class HTM
 		colors = [
 			[[1.0, 0.0, 0.0, 1.0],
 			[1.0, 0.0, 0.0, 1.0],
-			[1.0, 0.0, 0.0, 1.0]]
-		]
-		###	
+			[1.0, 0.0, 0.0, 1.0]],
+			
 			[[0.0, 1.0, 0.0, 1.0],
 			[0.0, 1.0, 0.0, 1.0],
 			[0.0, 1.0, 0.0, 1.0]],
@@ -48,9 +50,9 @@ class HTM
 			[[0.0, 0.0, 0.0, 1.0],
 			[0.0, 0.0, 0.0, 1.0],
 			[0.0, 0.0, 0.0, 1.0]] 
-		] ###
+		] 
 
-		depth = 0#Math.pow(4, @levels)
+		depth = Math.pow(4, @levels)
 
 		for num in [depth..0]
 			for j in colors
@@ -63,74 +65,80 @@ class HTM
 
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(color), @gl.STATIC_DRAW)
 		@VertexColorBuffer.itemSize = 4
-		@VertexColorBuffer.numItems = 3#8 * Math.pow(4,@levels) * 3
+		@VertexColorBuffer.numItems = 8 * Math.pow(4,@levels) * 3
 			
 		return
 	
 	createHTM: () =>
 		
 		@verts = []
+		@names = []
+		it = 0
+		
+		initNames = ["S0","S1","S2","S3","N0","N1","N2","N3"]
 		
 		@initTriangles = [
-			# T0
-			[[1.0, 0.0, -5.0],
-			[0.0, 0.0, -5.0],
-			[0.0, 1.0, -5.0]]
-		]
-		###
-			# T1
+			# S0
+			[[1.0, 0.0, 0.0],
+			[0.0, 0.0, -1.0],
+			[0.0, 1.0, 0.0]],
+			# S1
 			[[0.0, 1.0, 0.0],
 			[0.0, 0.0, -1.0],
 			[-1.0, 0.0, 0.0]],
-			# T2
+			# S2
 			[[-1.0, 0.0, 0.0],
 			[ 0.0, 0.0, -1.0],
 			[ 0.0, -1.0, 0.0]],
-			# T4
+			# S3
 			[[0.0, -1.0, 0.0],
 			[0.0, 0.0, -1.0],
 			[1.0, 0.0, 0.0]],
-			# T5
+			# N0
 			[[1.0, 0.0, 0.0],
 			[0.0, 0.0, 1.0],
 			[0.0, -1.0, 0.0]],
-			# T6
+			# N1
 			[[0.0, -1.0, 0.0],
 			[0.0, 0.0, 1.0],
 			[-1.0, 0.0, 0.0]],
-			# T7
+			# N2
 			[[-1.0, 0.0, 0.0],
 			[0.0, 0.0, 1.0],
 			[0.0, 1.0, 0.0 ]],
-			# T8
+			# N3
 			[[0.0, 1.0, 0.0],
 			[0.0, 0.0, 1.0],
 			[1.0, 0.0, 0.0 ]] 
 		] 
-		###
 		
 		if @levels is 0
 			for triangles in @initTriangles # iterate over triangles
 				for vert in triangles # iterate over vertices
 					for component in vert
 						@verts.push component
+			for name in initNames
+				@names.push name
 		else
 			for triangles in @initTriangles
-				this.subdivide(triangles, @levels-1)
+				this.subdivide(triangles, @levels-1, initNames[it++])
 
 		@VertexPositionBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
 
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(@verts), @gl.STATIC_DRAW)
 		@VertexPositionBuffer.itemSize = 3
-		@VertexPositionBuffer.numItems = 3#8 * Math.pow(4,@levels) * 3
+		@VertexPositionBuffer.numItems = 8 * Math.pow(4,@levels) * 3
 		
 		this.debugColor()
-		
+				
 		return
 	
-	subdivide: (v,l) =>
-				
+	subdivide: (v,l,name) =>
+		
+		names = ["#{name}0","#{name}1",
+			"#{name}2","#{name}3"]
+		it = 0
 		# new vertex 1
 		mag = @Math.magnitude(v[1], v[2])
 		
@@ -177,9 +185,11 @@ class HTM
 				for vert in triangles # iterate over vertices
 					for component in vert
 						@verts.push component
+			for name in names
+				@names.push name
 		else
 			for triangles in newTriangles # iterate over triangles
-				this.subdivide(triangles, l-1)
+				this.subdivide(triangles, l-1, names[it++])
 		return
 	bind: (gl, shaderProgram) =>
 	

@@ -17,7 +17,7 @@ class SkyView extends WebGL
 		
 		@HTM = new HTM(@level, @gl, @Math)
 		@rotation = [0.0, 0.0, 0.0,]
-		@translation = [0.0, 0.0, -5.0]
+		@translation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
 		
 		this.render()
@@ -46,14 +46,9 @@ class SkyView extends WebGL
 			
 			when 'w' 
 				@translation[2] += 0.1
-				if this.getScale() < this.getLevel()
-					@level++
-					@HTM = new HTM(@level,@gl,@Math)
+				
 			when 's'
 				@translation[2] -= 0.1
-				if this.getScale() > this.getLevel()
-					@level--
-					@HTM = new HTM(@level,@gl,@Math)
 					
 			when '0' then @HTM = new HTM(0,@gl,@Math)
 			when '1' then @HTM = new HTM(1,@gl,@Math)
@@ -91,20 +86,23 @@ class SkyView extends WebGL
 		# unproject the origin to the scene
 		inverse = mat4.set(matrices[0],mat4.create())
 		inverse = mat4.inverse(inverse)
-		
-		console.log "inverse :", inverse
-		
-		origin = @Math.multiply(origin,inverse)
-		
-		console.log "origin: ", origin
 				
+		origin = @Math.multiply(origin,inverse)
+						
 		#normalize direction vector
 		dir = @Math.norm(dir)
 		
-		console.log "direction: ", dir
+		# grab the triangles and names and see if ray intersects with them
+		tri = @HTM.getTriangles()
+		names = @HTM.getNames()
 		
-		# grab the triangles and see if ray intersects with them
-		tri = @HTM.getTriangles()		
+		it = -1
 		for triangle in tri
-			@Math.intersectTri(origin, dir, triangle)
+			it++
+			if @Math.intersectTri(origin, dir, triangle)
+				alert "Hit!"
+				alert names[it]
+				break
+			else
+				alert triangle
 		return

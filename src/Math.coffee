@@ -71,10 +71,10 @@ class math
 		t = ttop/M
 		
 		if(u < 0.0 || u > 1.0)
-			console.log "no intersection"
+			return false
 		else
 			if(v < 0.0 || u+v > 1.0)
-				console.log "no intersection"
+				return false
 			else
-				console.log "Hit!"
+				return true
 		return

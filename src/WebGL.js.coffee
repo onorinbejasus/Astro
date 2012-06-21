@@ -98,7 +98,6 @@ class window.WebGL
 		return
 	
 	getMatrices: ()=>
-		console.log @mvMatrix, @pMatrix
 		[@mvMatrix, @pMatrix, [0,0,@gl.viewportWidth, @gl.viewportHeight] ]
 		
 	mvPushMatrix: ()=> 
