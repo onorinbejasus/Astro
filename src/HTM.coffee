@@ -76,9 +76,25 @@ class HTM
 		it = 0
 		
 		initNames = ["S0","S1","S2","S3","N0","N1","N2","N3"]
-		initNames = ["N0","N1","N2","N3"]
+#		initNames = ["N0","N1","N2","N3"]
 		
 		@initTriangles = [
+			# S0
+			[[0.0, 0.0, 1.0],
+			[0.0, -1.0, 0.0],
+			[1.0, 0.0, 0.0]],
+   			# S1
+			[[-1.0, 0.0, 0.0],
+			[0.0, -1.0, 0.0],
+			[0.0, 0.0, 1.0]],
+			# S2
+			[[0.0, 0.0, -1.0],
+			[ 0.0, -1.0, 0.0],
+			[ -1.0, 0.0, 0.0]],
+			# S3
+			[[1.0, 0.0, 0.0],
+			[0.0, -1.0, 0.0],
+			[0.0, 0.0, -1.0]],
 			# N0
 			[[1.0, 0.0, 0.0],
 			[0.0, 1.0, 0.0],
@@ -113,7 +129,7 @@ class HTM
 
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(@verts), @gl.STATIC_DRAW)
 		@VertexPositionBuffer.itemSize = 3
-		@VertexPositionBuffer.numItems = 12#8 * Math.pow(4,@levels) * 3
+		@VertexPositionBuffer.numItems = 8 * Math.pow(4,@levels) * 3
 		
 		this.debugColor()
 				

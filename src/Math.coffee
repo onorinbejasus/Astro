@@ -70,13 +70,13 @@ class math
 		v = gammatop/M
 		t = ttop/M
 		
-		console.log "t", t
-		
-		if(u < 0.0 || u > 1.0)
+		if(u < 0.0 || u > 1.0 || t >= 0)
 			return false
 		else
 			if(v < 0.0 || u+v > 1.0)
 				return false
 			else
+				console.log "t", t
+				console.log "u,v", u, v
 				return true
 		return false
