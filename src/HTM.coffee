@@ -113,14 +113,13 @@ class HTM
 			[1.0, 0.0, 0.0 ]] 
 		]
 
-		
 		if @levels is 0
 			for triangles in @initTriangles # iterate over triangles
 				for vert in triangles # iterate over vertices
 					for component in vert
 						@verts.push component
-			for name in initNames
-				@names.push name
+			@names = initNames
+			
 		else
 			for triangles in @initTriangles
 				this.subdivide(triangles, @levels-1, initNames[it++])

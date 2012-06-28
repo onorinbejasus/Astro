@@ -99,14 +99,12 @@ class SkyView extends WebGL
 		# grab the triangles and names and see if ray intersects with them
 		tri = @HTM.getTriangles()
 		names = @HTM.getNames()
-		
-		console.log "triangles",tri
-		
+				
 		it = -1
 		for triangle in tri
 			it++
-			if @Math.intersectTri(origin, dir, triangle)
-				console.log "Hit!", names[it], triangle
+			if @Math.intersectTri(origin, dir, triangle) is true
+				alert names[it]
 				break
 			else
 				console.log triangle
