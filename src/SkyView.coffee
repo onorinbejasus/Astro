@@ -86,24 +86,20 @@ class SkyView extends WebGL
 		# unproject the origin to the scene
 		inverse = mat4.set(matrices[0],mat4.create())
 		inverse = mat4.inverse(inverse)
-		
-		console.log "inverse", inverse
-				
-		origin = @Math.multiply(origin,inverse)
-		
-		console.log "origin", origin	
 						
+		origin = @Math.multiply(origin,inverse)
+								
 		#normalize direction vector
 		dir = @Math.norm(dir)
 		
 		# grab the triangles and names and see if ray intersects with them
 		tri = @HTM.getTriangles()
 		names = @HTM.getNames()
-				
+		
 		it = -1
 		for triangle in tri
-			it++
-			if @Math.intersectTri(origin, dir, triangle) is true
+			it = it + 1
+			if @Math.intersectTri(origin, dir, triangle)
 				alert names[it]
 				break
 			else
