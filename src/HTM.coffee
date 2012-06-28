@@ -1,6 +1,7 @@
 class HTM
 	
 	@verts = null
+	@tri = null
 	@names = null
 	@VertexPositionBuffer = null
 	@VertexColorBuffer = null
@@ -10,7 +11,7 @@ class HTM
 		this.createHTM()
 	
 	getTriangles:()=>
-		return @initTriangles
+		return @tri
 	getNames:()=>
 		return @names
 	
@@ -73,6 +74,7 @@ class HTM
 		
 		@verts = []
 		@names = []
+		@tri = []
 		it = 0
 		
 		initNames = ["S0","S1","S2","S3","N0","N1","N2","N3"]
@@ -119,7 +121,7 @@ class HTM
 					for component in vert
 						@verts.push component
 			@names = initNames
-			
+			@tri = @initTriangles
 		else
 			for triangles in @initTriangles
 				this.subdivide(triangles, @levels-1, initNames[it++])
@@ -182,15 +184,16 @@ class HTM
 		]
 		
 		if l is 0
-			for triangles in newTriangles # iterate over triangles
-				for vert in triangles # iterate over vertices
+			for triangle in newTriangles # iterate over triangles
+				@tri.push triangle
+				for vert in triangle # iterate over vertices
 					for component in vert
 						@verts.push component
 			for name in names
-				@names.push name
+				@names.push name	
 		else
-			for triangles in newTriangles # iterate over triangles
-				this.subdivide(triangles, l-1, names[it++])
+			for triangle in newTriangles # iterate over triangles
+				this.subdivide(triangle, l-1, names[it++])
 		return
 	bind: (gl, shaderProgram) =>
 	
