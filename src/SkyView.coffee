@@ -52,6 +52,7 @@ class SkyView extends WebGL
 		# OctaMap rendering
 				
 		tri = @HTM.getTriangles()
+		names = @HTM.getNames()
 		
 		@ctx.fillStyle = "red"
 		@ctx.fillRect(0,0,500,500)
@@ -59,21 +60,25 @@ class SkyView extends WebGL
 		for triangle in tri
 			@ctx.beginPath()  
 			
-			console.log "triangle points: ", triangle
-
+			console.log "triangle points: ", names,triangle
+			###
+			console.log "s3 testpoint:"
 			console.log "testpoint0: ", this.getPoint([0.0,-0.707,-0.707])
 			console.log "testpoint1: ", this.getPoint([0.707,0.0,-0.707])
 			console.log "testpoint2: ", this.getPoint([0.707,-0.707,0])
-
+			###
 			point = this.getPoint(triangle[0])
+			if names[0].indexOf("S3") != -1 and @Math.compare(point,[0,0]) then point=[1,-1]
 			console.log "point0: ",point
 			@ctx.moveTo((point[0]+1)*250,(point[1]+1)*250)
 			
 			point = this.getPoint(triangle[1])
+			if names[0].indexOf("S3") != -1 and @Math.compare(point,[0,0]) then point=[1,-1]
 			console.log "point1: ",point
 			@ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
 			
 			point = this.getPoint(triangle[2])
+			if names[0].indexOf("S3") != -1 and @Math.compare(point,[0,0]) then point=[1,-1]
 			console.log "point2: ",point
 			@ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
 		     

@@ -53,6 +53,15 @@ class math
 		
 		return c		
 		
+	compare: (a,b)=>
+		if a.length != b.length then return false
+		#c=a.sort()
+		#d=b.sort()
+		for i in a
+			for j in b
+				if i != j then return false
+		return true
+		
 	intersectTri: (orig,dir,verts) =>
 		
 		a = verts[0]
