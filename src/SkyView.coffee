@@ -50,14 +50,26 @@ class SkyView extends WebGL
 		
 		octamap = document.getElementById('octamap')
 		ctx = octamap.getContext('2d')
-		
-		ctx.fillRect(0,0,500,500)
-		
+				
 		tri = @HTM.getTriangles()
 		
+		ctx.fillStyle = "red"
+		ctx.fillRect(0,0,500,500)
+	
 		for triangle in tri
-			for vert in triangle
-				console.log(this.getPoint(vert))
+			ctx.beginPath()  
+			
+			point = this.getPoint(triangle[0])
+			ctx.moveTo((point[0]+1)*250,(point[1]+1)*250)
+			
+			point = this.getPoint(triangle[1])
+			ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
+			
+			point = this.getPoint(triangle[2])
+			ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
+		     
+			ctx.closePath()
+			ctx.stroke()	
 		
 		return
 	
