@@ -28,11 +28,17 @@ class SkyView extends WebGL
 		180.0/(Math.pow(2,@level+1))
 	getPoint:(vert)=>
 		
-		demon = Math.abs(vert[0]) + Math.abs(vert[1]) + Math.abs(vert[2])
+		denom = Math.abs(vert[0]) + Math.abs(vert[1]) + Math.abs(vert[2])
 		p_prime = [vert[0]/denom,vert[1]/denom,vert[2]/denom]
 		
+		p_dp = [0.0,0.0]
 		
-				
+		if(p_prime[1] >= 0)
+			p_dp = [p_prime[0],p_prime[2]]
+		else
+			p_dp = [Math.sin(p_prime[0])*(1-Math.sin(p_prime[2]))*p_prime[2],
+					Math.sin(p_prime[2])*(1-Math.sin(p_prime[0]))*p_prime[0]]
+		return p_dp
 	render: ()=>
 
 		this.preRender() # set up matrices
@@ -46,6 +52,12 @@ class SkyView extends WebGL
 		ctx = octamap.getContext('2d')
 		
 		ctx.fillRect(0,0,500,500)
+		
+		tri = @HTM.getTriangles()
+		
+		for triangle in tri
+			for vert in triangle
+				console.log(this.getPoint(vert))
 		
 		return
 	
