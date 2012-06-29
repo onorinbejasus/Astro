@@ -20,6 +20,9 @@ class SkyView extends WebGL
 		@translation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
 		
+		octamap = document.getElementById('octamap')
+		@ctx = octamap.getContext('2d')
+		
 		this.render()
 	
 	getScale: =>
@@ -47,29 +50,26 @@ class SkyView extends WebGL
 		@HTM.render(@gl, @renderMode) # render to screen
 		
 		# OctaMap rendering
-		
-		octamap = document.getElementById('octamap')
-		ctx = octamap.getContext('2d')
 				
 		tri = @HTM.getTriangles()
 		
-		ctx.fillStyle = "red"
-		ctx.fillRect(0,0,500,500)
+		@ctx.fillStyle = "red"
+		@ctx.fillRect(0,0,500,500)
 	
 		for triangle in tri
-			ctx.beginPath()  
+			@ctx.beginPath()  
 			
 			point = this.getPoint(triangle[0])
-			ctx.moveTo((point[0]+1)*250,(point[1]+1)*250)
+			@ctx.moveTo((point[0]+1)*250,(point[1]+1)*250)
 			
 			point = this.getPoint(triangle[1])
-			ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
+			@ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
 			
 			point = this.getPoint(triangle[2])
-			ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
+			@ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
 		     
-			ctx.closePath()
-			ctx.stroke()	
+			@ctx.closePath()
+			@ctx.stroke()	
 		
 		return
 	
