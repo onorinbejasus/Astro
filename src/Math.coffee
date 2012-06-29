@@ -37,7 +37,12 @@ class math
 	# v1 x v2
 	cross: (v1, v2)=>
 		[v1[1]*v2[2]-v1[2]*v2[1], v1[2]*v2[0]-v1[0]*v2[2], v1[0]*v2[1]-v1[1]*v2[0]]	
-		
+	#sign function
+	sign: (a)=>
+		if a > 0 then return 1
+		else if a < 0 then return -1
+		else return 0
+	
 	multiply: (a,b)=>
 	
 		c = [0,0,0,0]

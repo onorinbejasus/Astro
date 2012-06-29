@@ -39,8 +39,8 @@ class SkyView extends WebGL
 		if(p_prime[1] >= 0)
 			p_dp = [p_prime[0],p_prime[2]]
 		else
-			p_dp = [Math.sin(p_prime[0])*(1-Math.sin(p_prime[2]))*p_prime[2],
-					Math.sin(p_prime[2])*(1-Math.sin(p_prime[0]))*p_prime[0]]
+			p_dp = [@Math.sign(p_prime[0])*(1-@Math.sign(p_prime[2]))*p_prime[2],
+					@Math.sign(p_prime[2])*(1-@Math.sign(p_prime[0]))*p_prime[0]]
 		return p_dp
 	render: ()=>
 
@@ -59,13 +59,22 @@ class SkyView extends WebGL
 		for triangle in tri
 			@ctx.beginPath()  
 			
+			console.log "triangle points: ", triangle
+
+			console.log "testpoint0: ", this.getPoint([0.0,-0.707,-0.707])
+			console.log "testpoint1: ", this.getPoint([0.707,0.0,-0.707])
+			console.log "testpoint2: ", this.getPoint([0.707,-0.707,0])
+
 			point = this.getPoint(triangle[0])
+			console.log "point0: ",point
 			@ctx.moveTo((point[0]+1)*250,(point[1]+1)*250)
 			
 			point = this.getPoint(triangle[1])
+			console.log "point1: ",point
 			@ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
 			
 			point = this.getPoint(triangle[2])
+			console.log "point2: ",point
 			@ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
 		     
 			@ctx.closePath()
