@@ -26,12 +26,26 @@ class SkyView extends WebGL
 		(180.0 * (1.0-@translation[2]))/2
 	getLevel: =>
 		180.0/(Math.pow(2,@level+1))
+	getPoint:(vert)=>
+		
+		demon = Math.abs(vert[0]) + Math.abs(vert[1]) + Math.abs(vert[2])
+		p_prime = [vert[0]/denom,vert[1]/denom,vert[2]/denom]
+		
+		
+				
 	render: ()=>
 
 		this.preRender() # set up matrices
 		@HTM.bind(@gl, @shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader
 		@HTM.render(@gl, @renderMode) # render to screen
+		
+		# OctaMap rendering
+		
+		octamap = document.getElementById('octamap')
+		ctx = octamap.getContext('2d')
+		
+		ctx.fillRect(0,0,500,500)
 		
 		return
 	
