@@ -22,7 +22,7 @@ class Map
 	
 	drawTriangle: (point, iterator)=>	
 
-		@ctx.fillStyle = @Math.RGBAtoHEX(@colors[iterator][0])
+		@ctx.fillStyle = @Math.RGBAtoHEX(@colors[iterator%8][0])
 
 		@ctx.beginPath()  
 
@@ -63,6 +63,7 @@ class Map
 		@ctx.fillRect(0,0,500,500)
 		
 		it = 0
+		@it = 0
 		
 		for triangle in @tri
 			

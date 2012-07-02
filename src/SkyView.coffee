@@ -35,7 +35,6 @@ class SkyView extends WebGL
 		@HTM.bind(@gl, @shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader
 		@HTM.render(@gl, @renderMode) # render to screen
-		@it = 0
 		
 		# OctaMap rendering
 		@Map.render(@level)
@@ -57,49 +56,31 @@ class SkyView extends WebGL
 					
 			when '0' 
 				@HTM = new HTM(0,@gl,@Math)
-				@level = 0
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)		
+				@level = 0		
 			when '1' 
 				@HTM = new HTM(1,@gl,@Math)
 				@level = 1
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)
 			when '2'
 				@HTM = new HTM(2,@gl,@Math)
 				@level = 2
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)
 			when '3'
 				@HTM = new HTM(3,@gl,@Math)
 				@level = 3
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)
 			when '4'
 				@HTM = new HTM(4,@gl,@Math)
 				@level = 4
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)
 			when '5'
 				@HTM = new HTM(5,@gl,@Math)
 				@level = 5
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)
 			when '6'
 				@HTM = new HTM(6,@gl,@Math)
 				@level = 6
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)
 			when '7'
 				@HTM = new HTM(7,@gl,@Math)
 				@level = 7
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)
 			when '8'
 				@HTM = new HTM(8,@gl,@Math)
 				@level = 8
-				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)
 			
 		this.render()	
 		return
