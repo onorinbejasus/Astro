@@ -6,7 +6,6 @@ class HTM
 	@VertexPositionBuffer = null
 	@VertexColorBuffer = null
 	@initTriangles = null
-	@colors = null
 		
 	constructor: (@levels, @gl, @Math) ->
 		this.createHTM()
@@ -18,13 +17,12 @@ class HTM
 	getNames:()=>
 		return @names
 	getColors:()=>
-		return @colors
+		return @retColors
 	
 	debugColor: ()=>
 		
 		color = []
-		
-		@colors = [
+		colors = [
 			[[1.0, 0.0, 0.0, 1.0],
 			[1.0, 0.0, 0.0, 1.0],
 			[1.0, 0.0, 0.0, 1.0]],
@@ -57,11 +55,14 @@ class HTM
 			[0.0, 0.0, 0.0, 1.0],
 			[0.0, 0.0, 0.0, 1.0]] 
 		] 
-
+		
+		@retColors = colors#[]
+		
 		depth = Math.pow(4, @levels)
-
+		
 		for num in [depth..0]
-			for j in @colors
+			for j in colors
+				#@retColors.push j
 				for k in j
 					for l in k
 						color.push(l)

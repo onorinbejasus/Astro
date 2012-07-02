@@ -7,6 +7,7 @@ class SkyView extends WebGL
 	@translation = null
 	@renderMode = 0
 	@Math = null
+	@it = 0
 	
 	constructor: (options) ->
 	
@@ -19,7 +20,8 @@ class SkyView extends WebGL
 		@rotation = [0.0, 0.0, 0.0,]
 		@translation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
-				
+		@colors = @HTM.getColors()
+
 		octamap = document.getElementById('octamap')
 		@ctx = octamap.getContext('2d')
 		
@@ -43,7 +45,9 @@ class SkyView extends WebGL
 					@Math.sign(p_prime[2])*(1-@Math.sign(p_prime[0]))*p_prime[0]]
 		return p_dp
 		
-	drawTriangle: (point)=>	
+	drawTriangle: (point, iterator)=>	
+			
+		@ctx.fillStyle = @Math.RGBAtoHEX(@colors[iterator][0])
 		
 		@ctx.beginPath()  
 		
@@ -52,7 +56,7 @@ class SkyView extends WebGL
 		@ctx.lineTo((point[2][0]+1)*250,(point[2][1]+1)*250)
 		
 		@ctx.closePath()
-		@ctx.stroke()
+		@ctx.fill()
 		
 	octaCurse:(points,level)=>
 		
@@ -60,43 +64,38 @@ class SkyView extends WebGL
 		p1 = [(points[1][0]+points[2][0])/2, (points[1][1]+points[2][1])/2 ]
 		p2 = [(points[2][0]+points[0][0])/2, (points[2][1]+points[0][1])/2 ]
 		
-		console.log "p0", p0
-		console.log "p1", p1
-		console.log "p2", p2
-		
 		newTri = [
-		
 			[p2,p1,points[2]]
-			[points[0],p0,p2]
 			[p0,points[1],p1]
+			[points[0],p0,p2]
 			[p0,p1,p2]
 		]
 		
 		if level is 0
-			this.drawTriangle(newTri[0])
-			this.drawTriangle(newTri[1])
-			this.drawTriangle(newTri[2])
-			this.drawTriangle(newTri[3])
+			this.drawTriangle(newTri[0],@it++)
+			this.drawTriangle(newTri[1],@it++)
+			this.drawTriangle(newTri[2],@it++)
+			this.drawTriangle(newTri[3],@it++)
 		else
 			this.octaCurse(newTri[0],level-1)
 			this.octaCurse(newTri[1],level-1)
 			this.octaCurse(newTri[2],level-1)
 			this.octaCurse(newTri[3],level-1)
 			
-		
 	render: ()=>
 
 		this.preRender() # set up matrices
 		@HTM.bind(@gl, @shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader
 		@HTM.render(@gl, @renderMode) # render to screen
+		@it = 0
 		
 		# OctaMap rendering
 				
 		tri = @HTM.getInitTriangles()
 		names = @HTM.getNames()
 		
-		@ctx.fillStyle = "red"
+		@ctx.fillStyle = "black"
 		@ctx.fillRect(0,0,500,500)
 		
 		it = 0
@@ -116,12 +115,10 @@ class SkyView extends WebGL
 			console.log "triangle points: ", names,triangle
 			
 			if @level is 0
-				this.drawTriangle([point0,point1,point2])
+				this.drawTriangle([point0,point1,point2],@it++)
 				
 			else 
-				this.octaCurse([point0,point1,point2],@level-1)
-		 
-				
+				this.octaCurse([point0,point1,point2],@level-1,@it)
 		
 		return
 	
@@ -144,7 +141,7 @@ class SkyView extends WebGL
 				@HTM = new HTM(0,@gl,@Math)
 				@level = 0
 				@ctx.fillStyle = "red"
-				@ctx.fillRect(0,0,500,500)			
+				@ctx.fillRect(0,0,500,500)		
 			when '1' 
 				@HTM = new HTM(1,@gl,@Math)
 				@level = 1

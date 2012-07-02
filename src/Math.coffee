@@ -15,7 +15,14 @@ class math
 		else if v1.length is 3
 			return [v1[0]-v2[0],v1[1]-v2[1],v1[2]-v2[2]]
 		else if v1.length is 4
-			return [v1[0]-v2[0],v1[1]-v2[1],v1[2]-v2[2],v1[3]-v2[3]]	
+			return [v1[0]-v2[0],v1[1]-v2[1],v1[2]-v2[2],v1[3]-v2[3]]
+	mult: (v1, scale)=>
+		if v1.length is 2
+			return [v1[0]*scale,v1[1]*scale]
+		else if v1.length is 3
+			return [v1[0]*scale,v1[1]*scale,v1[2]*scale]
+		else if v1.length is 4
+			return [v1[0]*scale,v1[1]*scale,v1[2]*scale,v1[3]*scale]
 	# v1 + v2
 	add: (v1, v2)=>
 		if v1.length is not v2.length then return null
@@ -95,3 +102,22 @@ class math
 				console.log "u,v", u, v
 				return true
 		return false
+	RGBAtoHEX:(color)=>
+		
+		color = this.mult(color,255)
+		
+		red = parseInt(color[0]).toString(16)
+		green = parseInt(color[1]).toString(16)
+		blue = parseInt(color[2]).toString(16)
+		alpha = parseInt(color[3]).toString(16)
+		
+		if red.length is 1
+			red = "#{red}0"
+		if green.length is 1
+			green = "#{green}0"
+		if blue.length is 1
+			blue = "#{blue}0"
+		if alpha.length is 1
+			alpha = "#{alpha}0"
+		
+		hex = "##{red}#{green}#{blue}"
