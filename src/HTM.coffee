@@ -17,12 +17,12 @@ class HTM
 	getNames:()=>
 		return @names
 	getColors:()=>
-		return @retColors
+		return @colors
 	
 	debugColor: ()=>
 		
 		color = []
-		colors = [
+		@colors = [
 			[[1.0, 0.0, 0.0, 1.0],
 			[1.0, 0.0, 0.0, 1.0],
 			[1.0, 0.0, 0.0, 1.0]],
@@ -55,14 +55,11 @@ class HTM
 			[0.0, 0.0, 0.0, 1.0],
 			[0.0, 0.0, 0.0, 1.0]] 
 		] 
-		
-		@retColors = colors#[]
-		
+				
 		depth = Math.pow(4, @levels)
 		
 		for num in [depth..0]
-			for j in colors
-				#@retColors.push j
+			for j in @colors
 				for k in j
 					for l in k
 						color.push(l)
