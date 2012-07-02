@@ -40,9 +40,9 @@ class Map
 		p2 = [(points[2][0]+points[0][0])/2, (points[2][1]+points[0][1])/2 ]
 
 		newTri = [
-			[p2,p1,points[2]]
 			[p0,points[1],p1]
 			[points[0],p0,p2]
+			[p2,p1,points[2]]	
 			[p0,p1,p2]
 		]
 
@@ -53,8 +53,8 @@ class Map
 			this.drawTriangle(newTri[3],@it++)
 		else
 			this.octaCurse(newTri[0],level-1)
-			this.octaCurse(newTri[1],level-1)
 			this.octaCurse(newTri[2],level-1)
+			this.octaCurse(newTri[1],level-1)
 			this.octaCurse(newTri[3],level-1)
 			
 	render: (level) =>
@@ -74,10 +74,10 @@ class Map
 			point2 = this.getPoint(triangle[2])
 			if @names[it++].indexOf("S3") != -1 and @Math.compare(point2,[0,0]) then point2=[1,-1]
 			
-			console.log "point0: ",point0
-			console.log "point1: ",point1
-			console.log "point2: ",point2
-			console.log "triangle points: ", @names, triangle
+			#console.log "point0: ",point0
+			#console.log "point1: ",point1
+			#console.log "point2: ",point2
+			#console.log "triangle points: ", @names, triangle
 			
 			if level is 0
 				this.drawTriangle([point0,point1,point2],@it++)
