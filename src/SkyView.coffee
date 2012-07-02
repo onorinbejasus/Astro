@@ -19,7 +19,7 @@ class SkyView extends WebGL
 		@rotation = [0.0, 0.0, 0.0,]
 		@translation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
-		
+				
 		octamap = document.getElementById('octamap')
 		@ctx = octamap.getContext('2d')
 		
@@ -42,6 +42,48 @@ class SkyView extends WebGL
 			p_dp = [@Math.sign(p_prime[0])*(1-@Math.sign(p_prime[2]))*p_prime[2],
 					@Math.sign(p_prime[2])*(1-@Math.sign(p_prime[0]))*p_prime[0]]
 		return p_dp
+		
+	drawTriangle: (point)=>	
+		
+		@ctx.beginPath()  
+		
+		@ctx.moveTo((point[0][0]+1)*250,(point[0][1]+1)*250)
+		@ctx.lineTo((point[1][0]+1)*250,(point[1][1]+1)*250)
+		@ctx.lineTo((point[2][0]+1)*250,(point[2][1]+1)*250)
+		
+		@ctx.closePath()
+		@ctx.stroke()
+		
+	octaCurse:(points,level)=>
+		
+		p0 = [(points[0][0]+points[1][0])/2, (points[0][1]+points[1][1])/2 ]
+		p1 = [(points[1][0]+points[2][0])/2, (points[1][1]+points[2][1])/2 ]
+		p2 = [(points[2][0]+points[0][0])/2, (points[2][1]+points[0][1])/2 ]
+		
+		console.log "p0", p0
+		console.log "p1", p1
+		console.log "p2", p2
+		
+		newTri = [
+		
+			[p2,p1,points[2]]
+			[points[0],p0,p2]
+			[p0,points[1],p1]
+			[p0,p1,p2]
+		]
+		
+		if level is 0
+			this.drawTriangle(newTri[0])
+			this.drawTriangle(newTri[1])
+			this.drawTriangle(newTri[2])
+			this.drawTriangle(newTri[3])
+		else
+			this.octaCurse(newTri[0],level-1)
+			this.octaCurse(newTri[1],level-1)
+			this.octaCurse(newTri[2],level-1)
+			this.octaCurse(newTri[3],level-1)
+			
+		
 	render: ()=>
 
 		this.preRender() # set up matrices
@@ -51,39 +93,35 @@ class SkyView extends WebGL
 		
 		# OctaMap rendering
 				
-		tri = @HTM.getTriangles()
+		tri = @HTM.getInitTriangles()
 		names = @HTM.getNames()
 		
 		@ctx.fillStyle = "red"
 		@ctx.fillRect(0,0,500,500)
-	
+		
+		it = 0
+		
 		for triangle in tri
-			@ctx.beginPath()  
 			
+			point0 = this.getPoint(triangle[0])
+			if names[it].indexOf("S3") != -1 and @Math.compare(point0,[0,0]) then point0=[1,-1]
+			point1 = this.getPoint(triangle[1])
+			if names[it].indexOf("S3") != -1 and @Math.compare(point1,[0,0]) then point1=[1,-1]
+			point2 = this.getPoint(triangle[2])
+			if names[it++].indexOf("S3") != -1 and @Math.compare(point2,[0,0]) then point2=[1,-1]
+			
+			console.log "point0: ",point0
+			console.log "point1: ",point1
+			console.log "point2: ",point2
 			console.log "triangle points: ", names,triangle
-			###
-			console.log "s3 testpoint:"
-			console.log "testpoint0: ", this.getPoint([0.0,-0.707,-0.707])
-			console.log "testpoint1: ", this.getPoint([0.707,0.0,-0.707])
-			console.log "testpoint2: ", this.getPoint([0.707,-0.707,0])
-			###
-			point = this.getPoint(triangle[0])
-			if names[0].indexOf("S3") != -1 and @Math.compare(point,[0,0]) then point=[1,-1]
-			console.log "point0: ",point
-			@ctx.moveTo((point[0]+1)*250,(point[1]+1)*250)
 			
-			point = this.getPoint(triangle[1])
-			if names[0].indexOf("S3") != -1 and @Math.compare(point,[0,0]) then point=[1,-1]
-			console.log "point1: ",point
-			@ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
-			
-			point = this.getPoint(triangle[2])
-			if names[0].indexOf("S3") != -1 and @Math.compare(point,[0,0]) then point=[1,-1]
-			console.log "point2: ",point
-			@ctx.lineTo((point[0]+1)*250,(point[1]+1)*250)
-		     
-			@ctx.closePath()
-			@ctx.stroke()	
+			if @level is 0
+				this.drawTriangle([point0,point1,point2])
+				
+			else 
+				this.octaCurse([point0,point1,point2],@level-1)
+		 
+				
 		
 		return
 	
@@ -102,15 +140,51 @@ class SkyView extends WebGL
 			when 's'
 				@translation[2] -= 0.1
 					
-			when '0' then @HTM = new HTM(0,@gl,@Math)
-			when '1' then @HTM = new HTM(1,@gl,@Math)
-			when '2' then @HTM = new HTM(2,@gl,@Math)
-			when '3' then @HTM = new HTM(3,@gl,@Math)
-			when '4' then @HTM = new HTM(4,@gl,@Math)
-			when '5' then @HTM = new HTM(5,@gl,@Math)
-			when '6' then @HTM = new HTM(6,@gl,@Math)
-			when '7' then @HTM = new HTM(7,@gl,@Math)
-			when '8' then @HTM = new HTM(8,@gl,@Math)
+			when '0' 
+				@HTM = new HTM(0,@gl,@Math)
+				@level = 0
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)			
+			when '1' 
+				@HTM = new HTM(1,@gl,@Math)
+				@level = 1
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)
+			when '2'
+				@HTM = new HTM(2,@gl,@Math)
+				@level = 2
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)
+			when '3'
+				@HTM = new HTM(3,@gl,@Math)
+				@level = 3
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)
+			when '4'
+				@HTM = new HTM(4,@gl,@Math)
+				@level = 4
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)
+			when '5'
+				@HTM = new HTM(5,@gl,@Math)
+				@level = 5
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)
+			when '6'
+				@HTM = new HTM(6,@gl,@Math)
+				@level = 6
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)
+			when '7'
+				@HTM = new HTM(7,@gl,@Math)
+				@level = 7
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)
+			when '8'
+				@HTM = new HTM(8,@gl,@Math)
+				@level = 8
+				@ctx.fillStyle = "red"
+				@ctx.fillRect(0,0,500,500)
 			
 		this.render()	
 		return
