@@ -22,7 +22,7 @@ class Map
 	
 	drawTriangle: (point, iterator)=>	
 
-		@ctx.fillStyle = @Math.RGBAtoHEX(@colors[iterator%8][0])
+		@ctx.strokeStyle = @Math.RGBAtoHEX(@colors[0][0])
 
 		@ctx.beginPath()  
 
@@ -31,7 +31,7 @@ class Map
 		@ctx.lineTo((point[2][0]+1)*250,(point[2][1]+1)*250)
 
 		@ctx.closePath()
-		@ctx.fill()
+		@ctx.stroke()
 
 	octaCurse:(points,level)=>
 
@@ -59,7 +59,7 @@ class Map
 			
 	render: (level) =>
 		
-		@ctx.fillStyle = "black"
+		@ctx.fillStyle = "red"
 		@ctx.fillRect(0,0,500,500)
 		
 		it = 0

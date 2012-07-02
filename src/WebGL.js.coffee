@@ -124,14 +124,16 @@ class window.WebGL
 		
 		@gl.viewport(0, 0, @gl.viewportWidth, @gl.viewportHeight)
 		@gl.clear(@gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT)
-
+				
 		mat4.perspective(45, @gl.viewportWidth / @gl.viewportHeight, 0.0001, 100.0, @pMatrix)
 		mat4.identity(@mvMatrix)
-		
+				
 		return
 			
 	postRender: (rotation, translation) =>
-				
+		
+		@gl.clearColor(1.0, 0.0, 0.0, 1.0);
+		
 		mat4.translate(@mvMatrix, translation)
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[0]), [1,0,0])
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[1]), [0,1,0])

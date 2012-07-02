@@ -19,7 +19,7 @@ class SkyView extends WebGL
 		@HTM = new HTM(@level, @gl, @Math)
 		@rotation = [0.0, 0.0, 0.0,]
 		@translation = [0.0, 0.0, 0.0]
-		@renderMode = @gl.TRIANGLES
+		@renderMode = @gl.LINES
 		@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
 				
 		this.render()
@@ -38,7 +38,49 @@ class SkyView extends WebGL
 		
 		# OctaMap rendering
 		@Map.render(@level)
+	
+	colorClick: (triangle)=>
 		
+		verts = []
+		color = []
+		
+		for vert in triangles # iterate over vertices
+			for component in vert
+				verts.push component
+		
+		VertexPositionBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
+
+		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(verts), @gl.STATIC_DRAW)
+		VertexPositionBuffer.itemSize = 3
+		VertexPositionBuffer.numItems = 3
+		
+		colors = [
+			[[1.0, 1.0, 0.0, 1.0],
+			[1.0, 1.0, 0.0, 1.0],
+			[1.0, 1.0, 0.0, 1.0]],
+		]
+				
+		for j in colors
+			for k in j
+				for l in k
+					color.push(l)
+		
+		VertexColorBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexColorBuffer)
+
+		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(color), @gl.STATIC_DRAW)
+		VertexColorBuffer.itemSize = 4
+		VertexColorBuffer.numItems = 3
+	
+		gl.bindBuffer(gl.ARRAY_BUFFER, VertexPositionBuffer)
+		gl.vertexAttribPointer(@shaderProgram.vertexPositionAttribute, VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0)
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, VertexColorBuffer)
+		gl.vertexAttribPointer(@shaderProgram.vertexColorAttribute, VertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0)
+	
+		gl.drawArrays(@gl.TRIANGLES, 0, @VertexPositionBuffer.numItems)
+	
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)
@@ -123,7 +165,6 @@ class SkyView extends WebGL
 			it = it + 1
 			if @Math.intersectTri(origin, dir, triangle)
 				alert names[it]
+				this.colorClick(triangle)
 				break
-			else
-				console.log triangle
 		return
