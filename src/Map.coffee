@@ -68,10 +68,19 @@ class Map
 		for triangle in @tri
 			
 			point0 = this.getPoint(triangle[0])
+			if @names[it].indexOf("S0") != -1 and @Math.compare(point0,[0,0]) then point0=[1,1]
+			if @names[it].indexOf("S1") != -1 and @Math.compare(point0,[0,0]) then point0=[-1,1]
+			if @names[it].indexOf("S2") != -1 and @Math.compare(point0,[0,0]) then point0=[-1,-1]
 			if @names[it].indexOf("S3") != -1 and @Math.compare(point0,[0,0]) then point0=[1,-1]
 			point1 = this.getPoint(triangle[1])
+			if @names[it].indexOf("S0") != -1 and @Math.compare(point1,[0,0]) then point1=[1,1]
+			if @names[it].indexOf("S1") != -1 and @Math.compare(point1,[0,0]) then point1=[-1,1]
+			if @names[it].indexOf("S2") != -1 and @Math.compare(point1,[0,0]) then point1=[-1,-1]
 			if @names[it].indexOf("S3") != -1 and @Math.compare(point1,[0,0]) then point1=[1,-1]
 			point2 = this.getPoint(triangle[2])
+			if @names[it].indexOf("S0") != -1 and @Math.compare(point2,[0,0]) then point2=[1,1]
+			if @names[it].indexOf("S1") != -1 and @Math.compare(point2,[0,0]) then point2=[-1,1]
+			if @names[it].indexOf("S2") != -1 and @Math.compare(point2,[0,0]) then point2=[-1,-1]
 			if @names[it++].indexOf("S3") != -1 and @Math.compare(point2,[0,0]) then point2=[1,-1]
 			
 			#console.log "point0: ",point0

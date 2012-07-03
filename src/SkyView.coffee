@@ -20,8 +20,9 @@ class SkyView extends WebGL
 		@rotation = [0.0, 0.0, 0.0,]
 		@translation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.LINES
+		
 		@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
-				
+		
 		this.render()
 	
 	getScale: =>
@@ -44,12 +45,12 @@ class SkyView extends WebGL
 		verts = []
 		color = []
 		
-		for vert in triangles # iterate over vertices
+		for vert in triangle # iterate over vertices
 			for component in vert
 				verts.push component
 		
 		VertexPositionBuffer = @gl.createBuffer()
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, VertexPositionBuffer)
 
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(verts), @gl.STATIC_DRAW)
 		VertexPositionBuffer.itemSize = 3
@@ -67,19 +68,19 @@ class SkyView extends WebGL
 					color.push(l)
 		
 		VertexColorBuffer = @gl.createBuffer()
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexColorBuffer)
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, VertexColorBuffer)
 
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(color), @gl.STATIC_DRAW)
 		VertexColorBuffer.itemSize = 4
 		VertexColorBuffer.numItems = 3
 	
-		gl.bindBuffer(gl.ARRAY_BUFFER, VertexPositionBuffer)
-		gl.vertexAttribPointer(@shaderProgram.vertexPositionAttribute, VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0)
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, VertexPositionBuffer)
+		@gl.vertexAttribPointer(@shaderProgram.vertexPositionAttribute, VertexPositionBuffer.itemSize, @gl.FLOAT, false, 0, 0)
 		
-		gl.bindBuffer(gl.ARRAY_BUFFER, VertexColorBuffer)
-		gl.vertexAttribPointer(@shaderProgram.vertexColorAttribute, VertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0)
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, VertexColorBuffer)
+		@gl.vertexAttribPointer(@shaderProgram.vertexColorAttribute, VertexColorBuffer.itemSize, @gl.FLOAT, false, 0, 0)
 	
-		gl.drawArrays(@gl.TRIANGLES, 0, @VertexPositionBuffer.numItems)
+		@gl.drawArrays(@gl.TRIANGLES, 0, VertexPositionBuffer.numItems)
 	
 	keyPressed: (key) =>
 
@@ -160,11 +161,14 @@ class SkyView extends WebGL
 		tri = @HTM.getTriangles()
 		names = @HTM.getNames()
 		
+		console.log tri
+		
 		it = -1
 		for triangle in tri
 			it = it + 1
 			if @Math.intersectTri(origin, dir, triangle)
-				alert names[it]
+				console.log names[it]
+				this.render()
 				this.colorClick(triangle)
 				break
 		return
