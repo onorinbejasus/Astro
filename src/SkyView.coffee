@@ -8,6 +8,7 @@ class SkyView extends WebGL
 	@renderMode = 0
 	@Math = null
 	@it = 0
+	@selected = "none"
 	
 	constructor: (options) ->
 	
@@ -38,7 +39,7 @@ class SkyView extends WebGL
 		@HTM.render(@gl, @renderMode) # render to screen
 		
 		# OctaMap rendering
-		@Map.render(@level)
+		@Map.render(@level, @selected)
 	
 	colorClick: (triangle)=>
 		
@@ -160,14 +161,13 @@ class SkyView extends WebGL
 		# grab the triangles and names and see if ray intersects with them
 		tri = @HTM.getTriangles()
 		names = @HTM.getNames()
-		
-		console.log tri
-		
+				
 		it = -1
 		for triangle in tri
 			it = it + 1
 			if @Math.intersectTri(origin, dir, triangle)
 				console.log names[it]
+				@selected = names[it]
 				this.render()
 				this.colorClick(triangle)
 				break

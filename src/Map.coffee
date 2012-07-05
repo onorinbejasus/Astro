@@ -20,21 +20,41 @@ class Map
 					@Math.sign(p_prime[2])*(1-@Math.sign(p_prime[0]))*p_prime[0]]
 		return p_dp
 	
-	drawTriangle: (point, iterator)=>	
+	drawTriangle: (point, flag)=>	
 
 		@ctx.strokeStyle = @Math.RGBAtoHEX(@colors[0][0])
+		
+		if flag is true
+			
+			@ctx.fillStyle = "yellow"
+			
+			@ctx.beginPath()  
 
-		@ctx.beginPath()  
+			@ctx.moveTo((point[0][0]+1)*250,(point[0][1]+1)*250)
+			@ctx.lineTo((point[1][0]+1)*250,(point[1][1]+1)*250)
+			@ctx.lineTo((point[2][0]+1)*250,(point[2][1]+1)*250)
 
-		@ctx.moveTo((point[0][0]+1)*250,(point[0][1]+1)*250)
-		@ctx.lineTo((point[1][0]+1)*250,(point[1][1]+1)*250)
-		@ctx.lineTo((point[2][0]+1)*250,(point[2][1]+1)*250)
+			@ctx.closePath()
+			@ctx.fill()
+		
+		else
+			@ctx.beginPath()  
 
-		@ctx.closePath()
-		@ctx.stroke()
+			@ctx.moveTo((point[0][0]+1)*250,(point[0][1]+1)*250)
+			@ctx.lineTo((point[1][0]+1)*250,(point[1][1]+1)*250)
+			@ctx.lineTo((point[2][0]+1)*250,(point[2][1]+1)*250)
 
-	octaCurse:(points,level)=>
+			@ctx.closePath()
+			@ctx.stroke()
+			
 
+	octaCurse:(points,level,name,selected)=>
+	
+		names = ["#{name}0","#{name}1",
+			"#{name}2","#{name}3"]
+		
+		it = 0
+		
 		p0 = [(points[0][0]+points[1][0])/2, (points[0][1]+points[1][1])/2 ]
 		p1 = [(points[1][0]+points[2][0])/2, (points[1][1]+points[2][1])/2 ]
 		p2 = [(points[2][0]+points[0][0])/2, (points[2][1]+points[0][1])/2 ]
@@ -45,25 +65,28 @@ class Map
 			[p2,p1,points[2]]	
 			[p0,p1,p2]
 		]
+		
+		for tri in newTri
+			if level is 0
+				if names[it++] == selected
+					this.drawTriangle(tri,true)
+				else
+					this.drawTriangle(tri,false)
+			else
+				this.octaCurse(tri,level-1,names[it++],selected)
 
-		if level is 0
-			this.drawTriangle(newTri[0],@it++)
-			this.drawTriangle(newTri[1],@it++)
-			this.drawTriangle(newTri[2],@it++)
-			this.drawTriangle(newTri[3],@it++)
-		else
-			this.octaCurse(newTri[0],level-1)
-			this.octaCurse(newTri[2],level-1)
-			this.octaCurse(newTri[1],level-1)
-			this.octaCurse(newTri[3],level-1)
 			
-	render: (level) =>
+	render: (level, selected) =>
 		
 		@ctx.fillStyle = "red"
 		@ctx.fillRect(0,0,500,500)
 		
+		console.log selected
+		
 		it = 0
 		@it = 0
+		
+		initNames = ["S0","S1","S2","S3","N0","N1","N2","N3"]
 		
 		for triangle in @tri
 			
@@ -89,9 +112,13 @@ class Map
 			#console.log "triangle points: ", @names, triangle
 			
 			if level is 0
-				this.drawTriangle([point0,point1,point2],@it++)
+				if selected == initNames[@it++]	
+					this.drawTriangle([point0,point1,point2],true)
+				else
+					this.drawTriangle([point0,point1,point2],false)
+				
 				
 			else 
-				this.octaCurse([point0,point1,point2],level-1,@it)
+				this.octaCurse([point0,point1,point2],level-1, initNames[@it++], selected)
 		
 		return

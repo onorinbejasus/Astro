@@ -209,9 +209,19 @@ class HTM
 			[w0, w1, w2]   # 3
 		]
 		
+		mutTriangles = [
+		
+			[v[0], w2, w1], # 0
+			[v[1], w0, w2], # 1
+			[v[2], w1, w0], # 2
+			[w0, w1, w2]   # 3
+		]
+		
+		it = 0
+		
 		if l is 0
-			for triangle in newTriangles # iterate over triangles
-				@tri.push triangle
+			for triangle in mutTriangles # iterate over triangles
+				@tri.push newTriangles[it++]
 				triangle.splice(2,0,triangle[1])
 				triangle.push triangle[3]
 				triangle.push triangle[0]
