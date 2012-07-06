@@ -16,7 +16,7 @@ class SkyView extends WebGL
 		
 		@Math = new math()
 		@level = 0
-		
+				
 		@HTM = new HTM(@level, @gl, @Math)
 		@rotation = [0.0, 0.0, 0.0,]
 		@translation = [0.0, 0.0, 0.0]
@@ -24,23 +24,25 @@ class SkyView extends WebGL
 		
 		@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
 		
-		document.getElementById("scale").value = (1-@translation[2])*45.0
-		
-		newurl ="./lib/db/remote/SDSS.php?scale=#{1.8}&ra=#{degX}&dec=#{degY}&width=1024&height=1024&opt="
-		
-		
+		document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+			
 		this.render()
 	
 	setScale: ()=>
 		@translation[2] = 1-(document.getElementById("scale").value/45.0)
 	setRotation: ()=>
-		@rotation[1] = parseFloat(document.getElementById("RA").value)
+		@rotation[1] = 90-parseFloat(document.getElementById("RA").value)
 		@rotation[0] = parseFloat(document.getElementById("Dec").value)
 	setLevel: ()=>
 		@level = parseInt(document.getElementById("level").value)
 		@HTM = new HTM(@level, @gl, @Math)
 
 	render: ()=>
+		
+		radius = parseFloat(document.getElementById("scale").value)
+		
+		$.get("./SDSSFieldQuery.php?ra=#{@rotation[1]}&dec=#{@rotation[0]}&radius=
+			30&zoom=0");
 				
 		this.preRender() # set up matrices
 		@HTM.bind(@gl, @shaderProgram) # bind vertices
@@ -104,11 +106,72 @@ class SkyView extends WebGL
 			
 			when 'w' 
 				@translation[2] += 0.1
+				this.render()	
 				
 			when 's'
 				@translation[2] -= 0.1
-		
-		this.render()	
+				this.render()	
+				
+			when '1'
+				@level = 1
+				document.getElementById('level').value = 1
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
+			when '2'
+				@level = 2
+				document.getElementById('level').value = 2
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
+			when '3'
+				@level = 3
+				document.getElementById('level').value = 3
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
+			when '4'
+				@level = 4
+				document.getElementById('level').value = 4
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
+			when '5'
+				@level = 5
+				document.getElementById('level').value = 5
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
+			when '6'
+				@level = 6
+				document.getElementById('level').value = 6
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()	
+			when '7'
+				@level = 7
+				document.getElementById('level').value = 7
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
+			when '8'
+				@level = 8
+				document.getElementById('level').value = 8
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
+			when '9'
+				@level = 9
+				document.getElementById('level').value = 9
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
+			when '0'
+				@level = 0
+				document.getElementById('level').value = 0
+				@HTM = new HTM(@level,@gl,@Math)
+				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+				this.render()
 		
 		return
 	

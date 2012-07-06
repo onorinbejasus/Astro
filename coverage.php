@@ -2,6 +2,11 @@
 
 header("Content-type: text/html");
 
+$_GET["ra"] = 39.3008;
+$_GET["dec"] = -79.610616;
+$_GET["scale"] = 30;
+
+
 function parseRange($output){
 	
 	echo $output;
@@ -9,7 +14,8 @@ function parseRange($output){
 }
 $file = "http://astro.cs.pitt.edu/Tim/panickos/astro-demo/lib/db/remote/searchSDSS.php";
 
-$the_query = "SELECT * FROM dbo.fHtmCoverRegion('CIRCLE LATLON 39.3008 -76.610616 30')";
+$the_query = "SELECT * FROM dbo.fHtmCoverRegion('REGION CIRCLE J2000 " . $_GET["ra"] . " " . $_GET["dec"] . " " . $_GET["scale"] . "')";
+
 //	echo $the_query;		
 $url = $file;
 $ch = curl_init();
