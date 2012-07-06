@@ -89,6 +89,9 @@
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	$output = curl_exec($ch);
 	curl_close($ch);
+	
+	echo $output;
+	
 	getImages($output);
 	
 ?>

@@ -18,7 +18,7 @@ class SkyView extends WebGL
 		@level = 0
 				
 		@HTM = new HTM(@level, @gl, @Math)
-		@rotation = [0.0, 0.0, 0.0,]
+		@rotation = [0.0, 90.0, 0.0,]
 		@translation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.LINES
 		
@@ -40,8 +40,9 @@ class SkyView extends WebGL
 	render: ()=>
 		
 		radius = parseFloat(document.getElementById("scale").value)
+		ra = 90-parseFloat(document.getElementById("RA").value)
 		
-		$.get("./SDSSFieldQuery.php?ra=#{@rotation[1]}&dec=#{@rotation[0]}&radius=
+		$.get("./SDSSFieldQuery.php?ra=#{ra}&dec=#{@rotation[0]}&radius=
 			30&zoom=0");
 				
 		this.preRender() # set up matrices
@@ -99,10 +100,37 @@ class SkyView extends WebGL
 
 		switch String.fromCharCode(key.which)
 			
-			when 'i' then @rotation[0]++ 
-			when 'k' then @rotation[0]-- 
-			when 'l' then @rotation[1]++ 
-			when 'j' then @rotation[1]-- 
+			when 'i'
+				@rotation[0]-- 
+				document.getElementById("Dec").value = -@rotation[0]
+				this.render()
+			when 'k'
+				@rotation[0]++
+				document.getElementById("Dec").value = -@rotation[0]
+				this.render()
+			when 'l'
+				@rotation[1]++
+				document.getElementById("RA").value = 90-@rotation[1]
+				
+				if document.getElementById("RA").value < 0
+					document.getElementById("RA").value = 360 + 90-@rotation[1] 
+				
+				else if document.getElementById("RA").value > 360
+					document.getElementById("RA").value = 90-@rotation[1] - 360
+				
+				this.render() 
+			
+			when 'j'
+				@rotation[1]-- 
+				document.getElementById("RA").value = 90-@rotation[1]
+				
+				if document.getElementById("RA").value > 360
+					document.getElementById("RA").value = 90-@rotation[1] - 360
+				
+				else if document.getElementById("RA").value < 0
+					document.getElementById("RA").value = 360 + 90-@rotation[1]
+				
+				this.render()
 			
 			when 'w' 
 				@translation[2] += 0.1
