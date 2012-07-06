@@ -69,6 +69,7 @@ class Map
 		for tri in newTri
 			if level is 0
 				if names[it++] == selected
+					console.log names[it-1]
 					this.drawTriangle(tri,true)
 				else
 					this.drawTriangle(tri,false)
@@ -80,9 +81,7 @@ class Map
 		
 		@ctx.fillStyle = "red"
 		@ctx.fillRect(0,0,500,500)
-		
-		console.log selected
-		
+				
 		it = 0
 		@it = 0
 		

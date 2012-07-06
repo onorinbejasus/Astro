@@ -24,18 +24,28 @@ class SkyView extends WebGL
 		
 		@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
 		
+		document.getElementById("scale").value = (1-@translation[2])*45.0
+		
+		newurl ="./lib/db/remote/SDSS.php?scale=#{1.8}&ra=#{degX}&dec=#{degY}&width=1024&height=1024&opt="
+		
+		
 		this.render()
 	
-	getScale: =>
-		(180.0 * (1.0-@translation[2]))/2
-	getLevel: =>
-		180.0/(Math.pow(2,@level+1))
-			
-	render: ()=>
+	setScale: ()=>
+		@translation[2] = 1-(document.getElementById("scale").value/45.0)
+	setRotation: ()=>
+		@rotation[1] = parseFloat(document.getElementById("RA").value)
+		@rotation[0] = parseFloat(document.getElementById("Dec").value)
+	setLevel: ()=>
+		@level = parseInt(document.getElementById("level").value)
+		@HTM = new HTM(@level, @gl, @Math)
 
+	render: ()=>
+				
 		this.preRender() # set up matrices
 		@HTM.bind(@gl, @shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader
+		
 		@HTM.render(@gl, @renderMode) # render to screen
 		
 		# OctaMap rendering
@@ -87,49 +97,26 @@ class SkyView extends WebGL
 
 		switch String.fromCharCode(key.which)
 			
-			when 'i' then @rotation[0]++
+			when 'i' then @rotation[0]++ 
 			when 'k' then @rotation[0]-- 
-			when 'l' then @rotation[1]++
-			when 'j' then @rotation[1]--
+			when 'l' then @rotation[1]++ 
+			when 'j' then @rotation[1]-- 
 			
 			when 'w' 
 				@translation[2] += 0.1
 				
 			when 's'
 				@translation[2] -= 0.1
-					
-			when '0' 
-				@HTM = new HTM(0,@gl,@Math)
-				@level = 0		
-			when '1' 
-				@HTM = new HTM(1,@gl,@Math)
-				@level = 1
-			when '2'
-				@HTM = new HTM(2,@gl,@Math)
-				@level = 2
-			when '3'
-				@HTM = new HTM(3,@gl,@Math)
-				@level = 3
-			when '4'
-				@HTM = new HTM(4,@gl,@Math)
-				@level = 4
-			when '5'
-				@HTM = new HTM(5,@gl,@Math)
-				@level = 5
-			when '6'
-				@HTM = new HTM(6,@gl,@Math)
-				@level = 6
-			when '7'
-				@HTM = new HTM(7,@gl,@Math)
-				@level = 7
-			when '8'
-				@HTM = new HTM(8,@gl,@Math)
-				@level = 8
-			
+		
 		this.render()	
+		
 		return
 	
 	mousePress: (key) =>
+		
+		if key.x > 500 || key.y >500
+			return
+		
 		#get the projection, model-view and viewport
 		matrices = this.getMatrices()
 		
