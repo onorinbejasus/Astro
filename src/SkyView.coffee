@@ -25,6 +25,10 @@ class SkyView extends WebGL
 		@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
 		
 		document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+		
+		image = document.getElementById("test")
+		Projection p = new Projection()
+		p.getHeader(image)
 			
 		this.render()
 	
@@ -40,7 +44,7 @@ class SkyView extends WebGL
 	render: ()=>
 		
 		radius = parseFloat(document.getElementById("scale").value)
-		ra = 90-parseFloat(document.getElementById("RA").value)
+		ra = parseFloat(document.getElementById("RA").value)
 		
 		$.get("./SDSSFieldQuery.php?ra=#{ra}&dec=#{@rotation[0]}&radius=
 			30&zoom=0");
@@ -101,7 +105,7 @@ class SkyView extends WebGL
 		switch String.fromCharCode(key.which)
 			
 			when 'i'
-				@rotation[0]-- 
+				@rotation[0]--
 				document.getElementById("Dec").value = -@rotation[0]
 				this.render()
 			when 'k'

@@ -7,14 +7,21 @@
 /* parse the xml to get the fields to wget with*/
 
 	function parseSDSS($output) {
+			
+			$element = explode("<row>", $output);
 
+			foreach($element as $el){
+				echo $el;
+				echo "\n";
+			}
+			
       $xml = new SimpleXMLElement($output);
         
 				$xpath_run = "//field[@col='run']";
         $xpath_camcol  = "//field[@col='camcol']";
 				$xpath_rerun = "//field[@col='rerun']";
         $xpath_field  = "//field[@col='field']";
-
+				
         $out_run = $xml->xpath($xpath_run);
         $out_camcol = $xml->xpath($xpath_camcol);
 				$out_rerun = $xml->xpath($xpath_rerun);
@@ -89,9 +96,7 @@
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	$output = curl_exec($ch);
 	curl_close($ch);
-	
-	echo $output;
-	
+		
 	getImages($output);
 	
 ?>
