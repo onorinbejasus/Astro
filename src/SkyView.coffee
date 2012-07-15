@@ -12,26 +12,29 @@ class SkyView extends WebGL
 	
 	constructor: (options) ->
 	
+		#init webgl
 		super(options)
 		
-		@Math = new math()
-		@level = 0
-				
-		@HTM = new HTM(@level, @gl, @Math)
+		#init htm variables
 		@rotation = [0.0, 90.0, 0.0,]
 		@translation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.LINES
+		@level = 0
 		
+		# init math, htm, map and projection
+		@Math = new math()		
+		@HTM = new HTM(@level, @gl, @Math)
+		@proj = new Projection()
 		@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
 		
+		#set initial scale
 		document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 		
-		image = document.getElementById("test")
-		Projection p = new Projection()
-		p.getHeader(image)
-			
+		#render
 		this.render()
-	
+				
+		return
+		
 	setScale: ()=>
 		@translation[2] = 1-(document.getElementById("scale").value/45.0)
 	setRotation: ()=>
@@ -43,12 +46,14 @@ class SkyView extends WebGL
 
 	render: ()=>
 		
+		## retrieve RA and radius ##
 		radius = parseFloat(document.getElementById("scale").value)
 		ra = parseFloat(document.getElementById("RA").value)
 		
+		# select the images
 		$.get("./SDSSFieldQuery.php?ra=#{ra}&dec=#{@rotation[0]}&radius=
 			30&zoom=0");
-				
+						
 		this.preRender() # set up matrices
 		@HTM.bind(@gl, @shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader

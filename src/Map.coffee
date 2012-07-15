@@ -167,9 +167,7 @@ class Map extends WebGL
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(@color), @gl.STATIC_DRAW)
 		@VertexColorBuffer.itemSize = 4
 		@VertexColorBuffer.numItems = 6#8 * Math.pow(4,level) * 6
-		
-		console.log @verts
-		
+				
 		# bind and draw
 		this.preRender()
 		this.bind()
