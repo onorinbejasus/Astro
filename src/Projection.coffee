@@ -2,7 +2,7 @@ class Projection
 	constructor:->
 		@parameters = null
 		this.getHeader("./images/testframe.jpeg")
-		this.imageToNative(499,499)
+		coords = this.unproject(499,499)
 
 	getHeader:(image)=>
 		@parameters = new Object
@@ -35,7 +35,7 @@ class Projection
 		
 		return
 	
-	imageToNative: (xsize, ysize)=>
+	unproject: (xsize, ysize)=>
 		
 		xpix = [0..xsize]
 		ypix = [0..ysize]
@@ -63,3 +63,12 @@ class Projection
 				
 				long[i][j] = Math.atan2(-y[i][j],x[i][j])
 				lat[i][j] = Math.PI/2.0
+				
+				r = Math.sqrt(Math.pow(x[i][j],2),Math.pow(y[i][j],2))
+				
+				if r > lat[i][j]
+					lat[i][j] = Math.atan((180.0/Math.PI)/r)
+					
+		return [lat,long]
+		
+		
