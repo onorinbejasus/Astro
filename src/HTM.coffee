@@ -3,8 +3,15 @@ class HTM
 	@verts = null
 	@tri = null
 	@names = null
+	
 	@VertexPositionBuffer = null
 	@VertexColorBuffer = null
+	@VertexIndexBuffer = null
+	@VertexTextureCoordBuffer = null
+	@VertexNormalBuffer = null
+	
+	@Texture = null
+	
 	@initTriangles = null
 		
 	constructor: (@levels, @gl, @Math) ->
@@ -79,7 +86,9 @@ class HTM
 			[1.0, 0.0, 0.0 ]] 
 		]
 				
-		this.createHTM()
+		#this.createHTM()
+		this.createSphere()
+		this.initTexture("./images/toast.png")
 		
 	getInitTriangles:()=>
 		return @initTriangles
@@ -90,6 +99,23 @@ class HTM
 	getColors:()=>
 		return @colors
 	
+	handleLoadedTexture: (texture)=>
+		
+		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
+		@gl.bindTexture(@gl.TEXTURE_2D, texture)
+		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR_MIPMAP_NEAREST)
+		@gl.generateMipmap(@gl.TEXTURE_2D)
+		@gl.bindTexture(@gl.TEXTURE_2D, null)
+	
+	initTexture: (image) =>
+		@Texture = @gl.createTexture()
+		@Texture.image = new Image()
+		@Texture.image.onload = ()=> 
+			this.handleLoadedTexture(@Texture)
+		@Texture.image.src = image
+    
 	debugColor: ()=>
 		
 		color = []
@@ -234,18 +260,116 @@ class HTM
 			for triangle in newTriangles # iterate over triangles
 				this.subdivide(triangle, l-1, names[it++])
 		return
-	bind: (gl, shaderProgram) =>
 	
-		gl.bindBuffer(gl.ARRAY_BUFFER, @VertexPositionBuffer)
-		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, @VertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0)
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, @VertexColorBuffer)
-		gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, @VertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0)
-		
-		return
-		
-	render: (gl, renderMode) =>
+	
+	createSphere: ()=>
+	
+		latitudeBands = 30
+		longitudeBands = 30
+		radius = 2
 
-		gl.drawArrays(renderMode, 0, @VertexPositionBuffer.numItems)
+		vertexPositionData = []
+		normalData = []
+		textureCoordData = []
+		
+		for latNumber in [0..latitudeBands]
+			theta = latNumber * Math.PI / latitudeBands
+			sinTheta = Math.sin(theta)
+			cosTheta = Math.cos(theta)
+
+			for longNumber in [0..longitudeBands]
+				phi = longNumber * 2 * Math.PI / longitudeBands
+				sinPhi = Math.sin(phi)
+				cosPhi = Math.cos(phi)
+
+				x = cosPhi * sinTheta
+				y = cosTheta
+				z = sinPhi * sinTheta
+				u = 1 - (longNumber / longitudeBands)
+				v = 1 - (latNumber / latitudeBands)
+
+				normalData.push(x);
+				normalData.push(y);
+				normalData.push(z);
+				textureCoordData.push(u);
+				textureCoordData.push(v);
+				vertexPositionData.push(radius * x)
+				vertexPositionData.push(radius * y)
+				vertexPositionData.push(radius * z)
+
+		indexData = []
+		for latNumber in [0..latitudeBands-1]
+			for longNumber in [0..longitudeBands-1]
+				
+				first = (latNumber * (longitudeBands + 1)) + longNumber
+				second = first + longitudeBands + 1
+				indexData.push(first)
+				indexData.push(second)
+				indexData.push(first + 1)
+
+				indexData.push(second)
+				indexData.push(second + 1)
+				indexData.push(first + 1)
+
+		@VertexNormalBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexNormalBuffer)
+		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(normalData), @gl.STATIC_DRAW)
+		@VertexNormalBuffer.itemSize = 3
+		@VertexNormalBuffer.numItems = normalData.length / 3
+
+		@VertexTextureCoordBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer)
+		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
+		@VertexTextureCoordBuffer.itemSize = 2
+		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
+
+		@VertexPositionBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
+		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), @gl.STATIC_DRAW)
+		@VertexPositionBuffer.itemSize = 3
+		@VertexPositionBuffer.numItems = vertexPositionData.length / 3
+
+		@VertexIndexBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
+		@gl.bufferData(@gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), @gl.STATIC_DRAW)
+		@VertexIndexBuffer.itemSize = 1
+		@VertexIndexBuffer.numItems = indexData.length
 		
 		return
+	
+	bindHTM: (shaderProgram) =>
+	
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
+		@gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, @VertexPositionBuffer.itemSize, @gl.FLOAT, false, 0, 0)
+		
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexColorBuffer)
+		@gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, @VertexColorBuffer.itemSize, @gl.FLOAT, false, 0, 0)
+		
+		return
+	
+	bindSphere: (shaderProgram)=>
+		
+		@gl.activeTexture(@gl.TEXTURE0)
+		@gl.bindTexture(@gl.TEXTURE_2D, @Texture)
+		@gl.uniform1i(shaderProgram.samplerUniform, 0)
+
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
+		@gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, @VertexPositionBuffer.itemSize, @gl.FLOAT, false, 0, 0)
+
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer);
+		@gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, @VertexTextureCoordBuffer.itemSize, @gl.FLOAT, false, 0, 0)
+
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexNormalBuffer)
+		@gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, @VertexNormalBuffer.itemSize, @gl.FLOAT, false, 0, 0)
+
+		@gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
+				
+		return
+	
+	renderHTM: (renderMode) =>
+
+		@gl.drawArrays(renderMode, 0, @VertexPositionBuffer.numItems)
+		
+		return
+	renderSphere: (renderMode) =>
+		@gl.drawElements(renderMode, @VertexIndexBuffer.numItems, @gl.UNSIGNED_SHORT, 0)

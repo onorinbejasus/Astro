@@ -82,10 +82,10 @@ class Projection
 				phi = 0.0 
 				theta = 90.0 * dtor
 				
-				lonpole = if @parameters.crval2 > 0.0 then 0.0 else 180.0*dtor
+				lonpole = if @parameters.crval1 > 0.0 then 0.0 else 180.0*dtor
 				latpole = 90.0 * dtor
-				rapole = @parameters.crval1 * dtor
-				decpole = @parameters.crval2 * dtor
+				rapole = @parameters.crval2 * dtor
+				decpole = @parameters.crval1 * dtor
 				
 				r11 = -1.0*Math.sin(rapole)*Math.sin(lonpole) - 
 					Math.cos(rapole)*Math.cos(lonpole)*Math.sin(decpole)

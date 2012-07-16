@@ -18,14 +18,14 @@ class SkyView extends WebGL
 		#init htm variables
 		@rotation = [0.0, 90.0, 0.0,]
 		@translation = [0.0, 0.0, 0.0]
-		@renderMode = @gl.LINES
+		@renderMode = @gl.TRIANGLES
 		@level = 0
 		
 		# init math, htm, map and projection
 		@Math = new math()		
 		@HTM = new HTM(@level, @gl, @Math)
 		@proj = new Projection()
-		@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
+		#@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
 		
 		#set initial scale
 		document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
@@ -55,13 +55,14 @@ class SkyView extends WebGL
 			30&zoom=0");
 						
 		this.preRender() # set up matrices
-		@HTM.bind(@gl, @shaderProgram) # bind vertices
+		
+		@HTM.bindSphere(@shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader
 		
-		@HTM.render(@gl, @renderMode) # render to screen
+		@HTM.renderSphere(@renderMode) # render to screen
 		
 		# OctaMap rendering
-		@Map.render(@level, @selected)
+		#@Map.render(@level, @selected)
 	
 	colorClick: (triangle)=>
 		

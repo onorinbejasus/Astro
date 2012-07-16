@@ -44,7 +44,7 @@ class window.WebGL
 		if(id is "vertex")
 			$.ajax
 				async: false,
-				url: './src/shader.vs',
+				url: './src/shaders/sphere.vs',
 				success: (data)=>
 					source = $(data).html()
 					shader = @gl.createShader(@gl.VERTEX_SHADER)
@@ -54,7 +54,7 @@ class window.WebGL
 		else
 			$.ajax
 				async: false,
-				url: './src/shader.fs',
+				url: './src/shaders/sphere.fs',
 				success: (data)=>
 					source = $(data).html()
 					shader = @gl.createShader(@gl.FRAGMENT_SHADER)
@@ -62,11 +62,11 @@ class window.WebGL
 				,
 				dataType: 'html'
 
-	
 		@gl.shaderSource(shader, source)
 		@gl.compileShader(shader)
 
 		if not @gl.getShaderParameter(shader, @gl.COMPILE_STATUS)
+			alert "shaders!"
 			alert @gl.getShaderInfoLog(shader)
 			return null
 
@@ -90,11 +90,20 @@ class window.WebGL
 		@shaderProgram.vertexPositionAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexPosition")
 		@gl.enableVertexAttribArray(@shaderProgram.vertexPositionAttribute)
 		
-		@shaderProgram.vertexColorAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexColor")
-		@gl.enableVertexAttribArray(@shaderProgram.vertexColorAttribute)
+#		@shaderProgram.vertexColorAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexColor")
+#		@gl.enableVertexAttribArray(@shaderProgram.vertexColorAttribute)
+		
+		@shaderProgram.textureCoordAttribute = @gl.getAttribLocation(@shaderProgram, "aTextureCoord")
+		@gl.enableVertexAttribArray(@shaderProgram.textureCoordAttribute);
+
+		@shaderProgram.vertexNormalAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexNormal");
+		@gl.enableVertexAttribArray(@shaderProgram.vertexNormalAttribute);
 		
 		@shaderProgram.pMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uPMatrix")
 		@shaderProgram.mvMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uMVMatrix")
+		@shaderProgram.nMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uNMatrix");
+		@shaderProgram.samplerUniform = @gl.getUniformLocation(@shaderProgram, "uSampler");
+		
 		return
 	
 	handleLoadedTexture:(texture) => 
