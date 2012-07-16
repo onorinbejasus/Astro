@@ -55,10 +55,10 @@ class Projection
 				
 				# Step 2
 				
-				x = @parameters.cd11 * (xpix[i]-@parameters.crpix1) +
+				y = @parameters.cd11 * (xpix[i]-@parameters.crpix1) +
 					@parameters.cd12 * (ypix[j]-@parameters.crpix2)
 					
-				y = @parameters.cd21 * (xpix[i]-@parameters.crpix1) +
+				x = @parameters.cd21 * (xpix[i]-@parameters.crpix1) +
 					@parameters.cd22 * (ypix[j]-@parameters.crpix2)
 				
 				# Step 3
@@ -68,7 +68,7 @@ class Projection
 				
 				r = Math.sqrt(Math.pow(x,2),Math.pow(y,2))
 				
-				if r > lat
+				if r > 0.0
 					lat = Math.atan((180.0/Math.PI)/r)
 				
 				# Step 4
@@ -116,4 +116,8 @@ class Projection
 					ra[i][j] += 360.0
 				else if ra[i][j] > 360.0
 					ra[i][j] -= 360
+					
+				# Step 5
+				
+				
 				
