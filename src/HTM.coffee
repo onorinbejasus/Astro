@@ -88,7 +88,15 @@ class HTM
 				
 		#this.createHTM()
 		this.createSphere()
-		this.initTexture("./images/toast.png")
+		@proj = new Projection()
+		@proj.getHeader("./images/testframe.jpeg")
+		coords = @proj.unproject(1984,1361)
+		this.setTextureCoords(coords[0],coords[1])
+		
+		this.initTexture("./images/me.jpg")
+		#this.initTexture("./images/toast.png")
+		
+		return
 		
 	getInitTriangles:()=>
 		return @initTriangles
@@ -105,10 +113,12 @@ class HTM
 		@gl.bindTexture(@gl.TEXTURE_2D, texture)
 		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR_MIPMAP_NEAREST)
-		@gl.generateMipmap(@gl.TEXTURE_2D)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
+#		@gl.generateMipmap(@gl.TEXTURE_2D)
 		@gl.bindTexture(@gl.TEXTURE_2D, null)
-	
+
 	initTexture: (image) =>
 		@Texture = @gl.createTexture()
 		@Texture.image = new Image()
@@ -270,7 +280,9 @@ class HTM
 
 		vertexPositionData = []
 		normalData = []
-		textureCoordData = []
+		
+		U = []
+		V = []
 		
 		for latNumber in [0..latitudeBands]
 			theta = latNumber * Math.PI / latitudeBands
@@ -291,8 +303,8 @@ class HTM
 				normalData.push(x);
 				normalData.push(y);
 				normalData.push(z);
-				textureCoordData.push(u);
-				textureCoordData.push(v);
+				U.push(u);
+				V.push(v);
 				vertexPositionData.push(radius * x)
 				vertexPositionData.push(radius * y)
 				vertexPositionData.push(radius * z)
@@ -311,18 +323,14 @@ class HTM
 				indexData.push(second + 1)
 				indexData.push(first + 1)
 
+#		this.setTextureCoords(U,V)
+
 		@VertexNormalBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexNormalBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(normalData), @gl.STATIC_DRAW)
 		@VertexNormalBuffer.itemSize = 3
 		@VertexNormalBuffer.numItems = normalData.length / 3
-
-		@VertexTextureCoordBuffer = @gl.createBuffer()
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer)
-		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
-		@VertexTextureCoordBuffer.itemSize = 2
-		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
-
+		
 		@VertexPositionBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), @gl.STATIC_DRAW)
@@ -337,6 +345,22 @@ class HTM
 		
 		return
 	
+	setTextureCoords: (u,v) =>
+	
+		textureCoordData = [ ]
+		
+		for U in u
+			textureCoordData.push U
+			textureCoordData.push v[_i]
+			
+		@VertexTextureCoordBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer)
+		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
+		@VertexTextureCoordBuffer.itemSize = 2
+		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
+		
+		return 
+		
 	bindHTM: (shaderProgram) =>
 	
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)

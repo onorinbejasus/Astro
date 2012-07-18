@@ -24,7 +24,6 @@ class SkyView extends WebGL
 		# init math, htm, map and projection
 		@Math = new math()		
 		@HTM = new HTM(@level, @gl, @Math)
-		@proj = new Projection()
 		#@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
 		
 		#set initial scale

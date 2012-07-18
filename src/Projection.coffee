@@ -1,8 +1,6 @@
 class Projection
 	constructor:->
 		@parameters = null
-		this.getHeader("./images/testframe.jpeg")
-		coords = this.unproject(499,499)
 
 	getHeader:(image)=>
 		@parameters = new Object
@@ -45,11 +43,17 @@ class Projection
 		
 		ra = [0..xsize] 
 		dec = [0..xsize] 		
+		
+		u = [0..xsize] 
+		v = [0..xsize]	
 			
 		for i in [0..xsize]
 			
 			ra[i] = [0..ysize]
-			dec[i] = [0..ysize]			
+			dec[i] = [0..ysize]	
+			
+			u[i] = [0..ysize]
+			v[i] = [0..ysize]		
 			
 			for j in [0..ysize]
 				
@@ -119,5 +123,7 @@ class Projection
 					
 				# Step 5
 				
+				u[i][j] = ra[i][j] * (1.0/360.0)
+				v[i][j] = dec[i][j] * (1.0/180.0) + 0.5
 				
-				
+		return [u,v]
