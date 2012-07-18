@@ -274,8 +274,8 @@ class HTM
 	
 	createSphere: ()=>
 	
-		latitudeBands = 30
-		longitudeBands = 30
+		latitudeBands = 180
+		longitudeBands = 360
 		radius = 2
 
 		vertexPositionData = []
