@@ -13,7 +13,7 @@ class window.WebGL
 		this.initGL()
 		this.initShaders()
 		
-		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		@gl.clearColor(1.0, 1.0, 0.0, 1.0);
 		@gl.enable(@gl.DEPTH_TEST);
 		
 		@mvMatrix = mat4.create()
@@ -162,7 +162,7 @@ class window.WebGL
 			
 	postRender: (rotation, translation) =>
 		
-		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		@gl.clearColor(1.0, 1.0, 0.0, 1.0);
 		
 		mat4.translate(@mvMatrix, translation)
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[0]), [1,0,0])

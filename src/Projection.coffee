@@ -126,4 +126,4 @@ class Projection
 				u[i][j] = ra[i][j] * (1.0/360.0)
 				v[i][j] = dec[i][j] * (1.0/180.0) + 0.5
 				
-		return [u,v]
+		return [ra,dec]

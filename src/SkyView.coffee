@@ -28,7 +28,7 @@ class SkyView extends WebGL
 		
 		#set initial scale
 		document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-		
+				
 		#render
 		this.render()
 				

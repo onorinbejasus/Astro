@@ -87,14 +87,15 @@ class HTM
 		]
 				
 		#this.createHTM()
-		this.createSphere()
+		
 		@proj = new Projection()
 		@proj.getHeader("./images/testframe.jpeg")
 		coords = @proj.unproject(1984,1361)
-		this.setTextureCoords(coords[0],coords[1])
 		
-		this.initTexture("./images/me.jpg")
-		#this.initTexture("./images/toast.png")
+		#this.initTexture("./images/me.jpg")
+		this.initTexture("./images/toast.png")
+		
+		this.createSphere(coords[0], coords[1])
 		
 		return
 		
@@ -271,8 +272,7 @@ class HTM
 				this.subdivide(triangle, l-1, names[it++])
 		return
 	
-	
-	createSphere: ()=>
+	createSphere: (ra, dec)=>
 	
 		latitudeBands = 180
 		longitudeBands = 360
@@ -281,86 +281,136 @@ class HTM
 		vertexPositionData = []
 		normalData = []
 		
-		U = []
-		V = []
+		textureCoordData = []
 		
-		for latNumber in [0..latitudeBands]
-			theta = latNumber * Math.PI / latitudeBands
-			sinTheta = Math.sin(theta)
-			cosTheta = Math.cos(theta)
-
-			for longNumber in [0..longitudeBands]
-				phi = longNumber * 2 * Math.PI / longitudeBands
-				sinPhi = Math.sin(phi)
-				cosPhi = Math.cos(phi)
-
-				x = cosPhi * sinTheta
-				y = cosTheta
-				z = sinPhi * sinTheta
-				u = 1 - (longNumber / longitudeBands)
-				v = 1 - (latNumber / latitudeBands)
-
-				normalData.push(x);
-				normalData.push(y);
-				normalData.push(z);
-				U.push(u);
-				V.push(v);
-				vertexPositionData.push(radius * x)
-				vertexPositionData.push(radius * y)
-				vertexPositionData.push(radius * z)
-
-		indexData = []
-		for latNumber in [0..latitudeBands-1]
-			for longNumber in [0..longitudeBands-1]
+		### if ra and dec are specified for the sphere, 
+			use them ###
+		
+		if ra? and dec?
+						
+			raLen = parseInt(1984)
+			decLen = parseInt(1361)
+			
+			for i in [0..1984] 
 				
-				first = (latNumber * (longitudeBands + 1)) + longNumber
-				second = first + longitudeBands + 1
-				indexData.push(first)
-				indexData.push(second)
-				indexData.push(first + 1)
+				for j in [0..1361] 
+				
+					theta = ra[i][j] * Math.PI 
+					phi = dec[i][j] * 2 * Math.PI 
+					
+					sinTheta = Math.sin(theta)
+					cosTheta = Math.cos(theta)
+					
+					sinPhi = Math.sin(phi)
+					cosPhi = Math.cos(phi)
+					
+					x = cosPhi * sinTheta
+					y = cosTheta
+					z = sinPhi * sinTheta
+										
+					u = 1 - (i / raLen)
+					v = 1 - (j / decLen)
+					
+					normalData.push(x)
+					normalData.push(y)
+					normalData.push(z)
+					textureCoordData.push(u)
+					textureCoordData.push(v)
+					vertexPositionData.push(radius * x)
+					vertexPositionData.push(radius * y)
+					vertexPositionData.push(radius * z)
+			
+			indexData = []
+			
+			for latNumber in [0..1984-1]
+				
+				for longNumber in [0..1361-1]
 
-				indexData.push(second)
-				indexData.push(second + 1)
-				indexData.push(first + 1)
+					first = (latNumber * (raLen+1)) + longNumber
+					second = first + decLen + 1
+					indexData.push(first)
+					indexData.push(second)
+					indexData.push(first + 1)
 
-#		this.setTextureCoords(U,V)
+					indexData.push(second)
+					indexData.push(second + 1)
+					indexData.push(first + 1)
+			console.log indexData
+		# else create a normal sphere
+		
+		else
+			for latNumber in [0..latitudeBands]
+				theta = latNumber * Math.PI / latitudeBands
+				sinTheta = Math.sin(theta)
+				cosTheta = Math.cos(theta)
+
+				for longNumber in [0..longitudeBands]
+					phi = longNumber * 2 * Math.PI / longitudeBands
+					sinPhi = Math.sin(phi)
+					cosPhi = Math.cos(phi)
+
+					x = cosPhi * sinTheta
+					y = cosTheta
+					z = sinPhi * sinTheta
+					u = 1 - (longNumber / longitudeBands)
+					v = 1 - (latNumber / latitudeBands)
+
+					normalData.push(x)
+					normalData.push(y)
+					normalData.push(z)
+					textureCoordData.push(u)
+					textureCoordData.push(v)
+					vertexPositionData.push(radius * x)
+					vertexPositionData.push(radius * y)
+					vertexPositionData.push(radius * z)
+
+			indexData = []
+			for latNumber in [0..latitudeBands-1]
+				for longNumber in [0..longitudeBands-1]
+				
+					first = (latNumber * (longitudeBands + 1)) + longNumber
+					second = first + longitudeBands + 1
+					indexData.push(first)
+					indexData.push(second)
+					indexData.push(first + 1)
+
+					indexData.push(second)
+					indexData.push(second + 1)
+					indexData.push(first + 1)
 
 		@VertexNormalBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexNormalBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(normalData), @gl.STATIC_DRAW)
 		@VertexNormalBuffer.itemSize = 3
 		@VertexNormalBuffer.numItems = normalData.length / 3
-		
+				
 		@VertexPositionBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), @gl.STATIC_DRAW)
 		@VertexPositionBuffer.itemSize = 3
 		@VertexPositionBuffer.numItems = vertexPositionData.length / 3
-
+		
+		console.log "verts", vertexPositionData.length / 3
+				
 		@VertexIndexBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
 		@gl.bufferData(@gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), @gl.STATIC_DRAW)
 		@VertexIndexBuffer.itemSize = 1
 		@VertexIndexBuffer.numItems = indexData.length
 		
-		return
-	
-	setTextureCoords: (u,v) =>
-	
-		textureCoordData = [ ]
+		console.log "index", indexData.length 
 		
-		for U in u
-			textureCoordData.push U
-			textureCoordData.push v[_i]
-			
 		@VertexTextureCoordBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
 		@VertexTextureCoordBuffer.itemSize = 2
 		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
 		
-		return 
-		
+		console.log "texture", textureCoordData.length / 2 
+				
+				
+		return
+	
 	bindHTM: (shaderProgram) =>
 	
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
