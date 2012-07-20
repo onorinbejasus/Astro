@@ -121,3 +121,16 @@ class math
 			alpha = "#{alpha}0"
 		
 		hex = "##{red}#{green}#{blue}"
+	
+	arg:(x,y)=>
+		
+		if x > 0
+			return Math.atan(y/x)
+		else if x is 0 and y > 0
+			return Math.PI/2.0
+		else if x is 0 and y < 0
+			return -Math.PI/2.0
+		else if x < 0 and y >= 0
+			return Math.PI + Math.atan(y/x)
+		else if x < 0 and y < 0
+			return -Math.PI + Math.atan(y/x)

@@ -14,7 +14,7 @@ class HTM
 	
 	@initTriangles = null
 		
-	constructor: (@levels, @gl, @Math) ->
+	constructor: (@levels, @gl, @Math, type) ->
 		
 		@mutableTri = [
 			# S0
@@ -88,15 +88,18 @@ class HTM
 				
 		#this.createHTM()
 		
-		@proj = new Projection()
-		@proj.getHeader("./images/testframe.jpeg")
-		coords = @proj.unproject(1984,1361)
+		if type == "sky"
+			@proj = new Projection(@Math)
+			@proj.getHeader("./images/testframe.jpeg")
+			coords = @proj.unproject(1984,1361)
 		
-		#this.initTexture("./images/me.jpg")
-		this.initTexture("./images/toast.png")
+			this.initTexture("./images/testframe.jpeg")
+			this.createSphere(coords[0], coords[1])
 		
-		this.createSphere(coords[0], coords[1])
-		
+		else if type == "sphere"
+			this.createSphere()
+			this.initTexture("./images/toast.png")
+			
 		return
 		
 	getInitTriangles:()=>
@@ -276,7 +279,7 @@ class HTM
 	
 		latitudeBands = 180
 		longitudeBands = 360
-		radius = 2
+		radius = 4
 
 		vertexPositionData = []
 		normalData = []
@@ -287,29 +290,45 @@ class HTM
 			use them ###
 		
 		if ra? and dec?
-						
-			raLen = parseInt(1984)
-			decLen = parseInt(1361)
 			
-			for i in [0..1984] 
-				
-				for j in [0..1361] 
-				
-					theta = ra[i][j] * Math.PI 
-					phi = dec[i][j] * 2 * Math.PI 
+			minX = 100
+			maxX = -100
+			minY = 100
+			maxY = -100
+			minZ = 100
+			maxZ = -100
 					
+			raLen = parseInt(1984/30)-1
+			decLen = parseInt(1361/30)-1
+			
+			for i in [0..1984] by 30 
+				
+				for j in [0..1361] by 30
+					
+					phi = ra[i][j] * Math.PI/180.0 
+					theta = dec[i][j] * Math.PI/180.0 
+
 					sinTheta = Math.sin(theta)
 					cosTheta = Math.cos(theta)
 					
 					sinPhi = Math.sin(phi)
 					cosPhi = Math.cos(phi)
 					
-					x = cosPhi * sinTheta
-					y = cosTheta
-					z = sinPhi * sinTheta
-										
-					u = 1 - (i / raLen)
-					v = 1 - (j / decLen)
+					x = sinPhi * sinTheta
+					y = cosTheta 
+					z = cosPhi * sinTheta 
+								
+					if x > maxX then maxX = x
+					if y > maxY then maxY = y
+					if z > maxZ then maxZ = z
+					
+					if x < minX then minX = x
+					if y < minY then minY = y
+					if z < minZ then minZ = z
+					
+																						
+					u = 1 - (i / 1984)
+					v = 1 - (j / 1361)
 					
 					normalData.push(x)
 					normalData.push(y)
@@ -319,14 +338,16 @@ class HTM
 					vertexPositionData.push(radius * x)
 					vertexPositionData.push(radius * y)
 					vertexPositionData.push(radius * z)
+					
+			console.log "min", minX, minY, minZ
+			console.log "max", maxX, maxY, maxZ
 			
 			indexData = []
-			
-			for latNumber in [0..1984-1]
+			for latNumber in [0..raLen]
 				
-				for longNumber in [0..1361-1]
+				for longNumber in [0..decLen]
 
-					first = (latNumber * (raLen+1)) + longNumber
+					first = (latNumber * (decLen+1)) + longNumber
 					second = first + decLen + 1
 					indexData.push(first)
 					indexData.push(second)
@@ -335,7 +356,7 @@ class HTM
 					indexData.push(second)
 					indexData.push(second + 1)
 					indexData.push(first + 1)
-			console.log indexData
+					
 		# else create a normal sphere
 		
 		else
@@ -354,7 +375,7 @@ class HTM
 					z = sinPhi * sinTheta
 					u = 1 - (longNumber / longitudeBands)
 					v = 1 - (latNumber / latitudeBands)
-
+										
 					normalData.push(x)
 					normalData.push(y)
 					normalData.push(z)
@@ -377,7 +398,7 @@ class HTM
 					indexData.push(second)
 					indexData.push(second + 1)
 					indexData.push(first + 1)
-
+		
 		@VertexNormalBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexNormalBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(normalData), @gl.STATIC_DRAW)
@@ -389,26 +410,19 @@ class HTM
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), @gl.STATIC_DRAW)
 		@VertexPositionBuffer.itemSize = 3
 		@VertexPositionBuffer.numItems = vertexPositionData.length / 3
-		
-		console.log "verts", vertexPositionData.length / 3
-				
+						
 		@VertexIndexBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
 		@gl.bufferData(@gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), @gl.STATIC_DRAW)
 		@VertexIndexBuffer.itemSize = 1
 		@VertexIndexBuffer.numItems = indexData.length
-		
-		console.log "index", indexData.length 
-		
+				
 		@VertexTextureCoordBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
 		@VertexTextureCoordBuffer.itemSize = 2
 		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
 		
-		console.log "texture", textureCoordData.length / 2 
-				
-				
 		return
 	
 	bindHTM: (shaderProgram) =>

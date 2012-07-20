@@ -16,16 +16,16 @@ class SkyView extends WebGL
 		super(options)
 		
 		#init htm variables
-		@rotation = [0.0, 90.0, 0.0,]
-		@translation = [0.0, 0.0, 0.0]
-		@renderMode = @gl.TRIANGLES
+		@rotation = [-89, 49.0, 0.0,]
+		@translation = [0.0, 0.0, 3.7]
+		@renderMode = @gl.POINTS
 		@level = 0
 		
 		# init math, htm, map and projection
 		@Math = new math()		
-		@HTM = new HTM(@level, @gl, @Math)
+		@HTM = new HTM(@level, @gl, @Math, "sky")
 		#@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
-		
+		@sphere = new HTM(@level, @gl, @Math, "sphere")
 		#set initial scale
 		document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				
@@ -57,9 +57,11 @@ class SkyView extends WebGL
 		
 		@HTM.bindSphere(@shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader
-		
 		@HTM.renderSphere(@renderMode) # render to screen
 		
+		@sphere.bindSphere(@shaderProgram)
+		@sphere.renderSphere(@renderMode)
+
 		# OctaMap rendering
 		#@Map.render(@level, @selected)
 	
@@ -209,7 +211,9 @@ class SkyView extends WebGL
 				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
-		
+			when 'r'
+				console.log @rotation
+				console.log @translation
 		return
 	
 	mousePress: (key) =>

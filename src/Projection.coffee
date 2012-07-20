@@ -1,5 +1,5 @@
 class Projection
-	constructor:->
+	constructor:(@Math)->
 		@parameters = null
 
 	getHeader:(image)=>
@@ -38,24 +38,24 @@ class Projection
 		rtod = 57.29577951308323
 		dtor = 0.0174532925
 		
-		xpix = [0..xsize]
-		ypix = [0..ysize]
+		xpix = [1..xsize]
+		ypix = [1..ysize]
 		
-		ra = [0..xsize] 
-		dec = [0..xsize] 		
+		ra = [0..xsize-1] 
+		dec = [0..xsize-1] 		
 		
-		u = [0..xsize] 
-		v = [0..xsize]	
+		u = [0..xsize-1] 
+		v = [0..xsize-1]	
+					
+		for i in [0..xsize-1]
 			
-		for i in [0..xsize]
+			ra[i] = [0..ysize-1]
+			dec[i] = [0..ysize-1]	
 			
-			ra[i] = [0..ysize]
-			dec[i] = [0..ysize]	
+			u[i] = [0..ysize-1]
+			v[i] = [0..ysize-1]		
 			
-			u[i] = [0..ysize]
-			v[i] = [0..ysize]		
-			
-			for j in [0..ysize]
+			for j in [0..ysize-1]
 				
 				# Step 2
 				
@@ -67,7 +67,7 @@ class Projection
 				
 				# Step 3
 				
-				long = Math.atan2(-y,x)
+				long = @Math.arg(-y,x)
 				lat = (Math.PI/2.0) * dtor
 				
 				r = Math.sqrt(Math.pow(x,2),Math.pow(y,2))
@@ -86,11 +86,11 @@ class Projection
 				phi = 0.0 
 				theta = 90.0 * dtor
 				
-				lonpole = if @parameters.crval1 > 0.0 then 0.0 else 180.0*dtor
+				lonpole = if @parameters.crval1 > theta then 0.0 else 180.0*dtor
 				latpole = 90.0 * dtor
 				rapole = @parameters.crval2 * dtor
 				decpole = @parameters.crval1 * dtor
-				
+								
 				r11 = -1.0*Math.sin(rapole)*Math.sin(lonpole) - 
 					Math.cos(rapole)*Math.cos(lonpole)*Math.sin(decpole)
 				r12 = Math.cos(rapole)*Math.sin(lonpole) - 
@@ -107,14 +107,14 @@ class Projection
 				r32 = Math.sin(rapole)*Math.cos(decpole)
 				r33 = Math.sin(decpole)
 				
-				mat = [ [r11,r12,r13], [r21,r22,r23], [r31,r32,r33] ]
+				mat = [ [r11,r21,r31], [r12,r22,r32], [r13,r23,r33] ]
 				
-				lp = mat[0][0]*l + mat[1][0]*m + mat[2][0]*n
-				mp = mat[0][1]*l + mat[1][1]*m + mat[2][1]*n
-				np = mat[0][2]*l + mat[1][2]*m + mat[2][2]*n
-
+				lp = mat[0][0]*l + mat[0][1]*m + mat[0][2]*n
+				mp = mat[1][0]*l + mat[1][1]*m + mat[1][2]*n
+				np = mat[2][0]*l + mat[2][1]*m + mat[2][2]*n
+								
 				dec[i][j] = Math.asin(np)*rtod
-				ra[i][j] = Math.atan(mp,lp)*rtod
+				ra[i][j] = Math.atan2(mp,lp)*rtod
 				
 				if ra[i][j] < 0.0
 					ra[i][j] += 360.0
