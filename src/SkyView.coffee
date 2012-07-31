@@ -16,9 +16,9 @@ class SkyView extends WebGL
 		super(options)
 		
 		#init htm variables
-		@rotation = [-89, 49.0, 0.0,]
-		@translation = [0.0, 0.0, 3.7]
-		@renderMode = @gl.POINTS
+		@translation = [0.001, 0.003, 0.989]
+		@rotation = [-1.1, -108.2, 0.0]
+		@renderMode = @gl.TRIANGLES
 		@level = 0
 		
 		# init math, htm, map and projection
@@ -31,13 +31,13 @@ class SkyView extends WebGL
 				
 		#render
 		this.render()
-				
+		
 		return
 		
 	setScale: ()=>
 		@translation[2] = 1-(document.getElementById("scale").value/45.0)
 	setRotation: ()=>
-		@rotation[1] = 90-parseFloat(document.getElementById("RA").value)
+		@rotation[1] = parseFloat(document.getElementById("RA").value)
 		@rotation[0] = parseFloat(document.getElementById("Dec").value)
 	setLevel: ()=>
 		@level = parseInt(document.getElementById("level").value)
@@ -54,14 +54,13 @@ class SkyView extends WebGL
 			30&zoom=0");
 						
 		this.preRender() # set up matrices
-		
 		@HTM.bindSphere(@shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader
 		@HTM.renderSphere(@renderMode) # render to screen
 		
-		@sphere.bindSphere(@shaderProgram)
-		@sphere.renderSphere(@renderMode)
-
+		#@sphere.bindSphere(@shaderProgram)
+		#@sphere.renderSphere(@renderMode)
+	
 		# OctaMap rendering
 		#@Map.render(@level, @selected)
 	
@@ -86,7 +85,7 @@ class SkyView extends WebGL
 			[1.0, 1.0, 0.0, 1.0],
 			[1.0, 1.0, 0.0, 1.0]],
 		]
-				
+						
 		for j in colors
 			for k in j
 				for l in k
@@ -112,44 +111,56 @@ class SkyView extends WebGL
 		switch String.fromCharCode(key.which)
 			
 			when 'i'
-				@rotation[0]--
+				@rotation[0] -= 1.0
 				document.getElementById("Dec").value = -@rotation[0]
 				this.render()
 			when 'k'
-				@rotation[0]++
+				@rotation[0] += 1.0
 				document.getElementById("Dec").value = -@rotation[0]
 				this.render()
 			when 'l'
-				@rotation[1]++
-				document.getElementById("RA").value = 90-@rotation[1]
+				@rotation[1] += 1.0
+				document.getElementById("RA").value = @rotation[1]
 				
 				if document.getElementById("RA").value < 0
-					document.getElementById("RA").value = 360 + 90-@rotation[1] 
+					document.getElementById("RA").value = 360 + @rotation[1] 
 				
 				else if document.getElementById("RA").value > 360
-					document.getElementById("RA").value = 90-@rotation[1] - 360
+					document.getElementById("RA").value = @rotation[1] - 360
 				
 				this.render() 
 			
 			when 'j'
-				@rotation[1]-- 
-				document.getElementById("RA").value = 90-@rotation[1]
+				@rotation[1] -= 1.0 
+				document.getElementById("RA").value = @rotation[1]
 				
 				if document.getElementById("RA").value > 360
-					document.getElementById("RA").value = 90-@rotation[1] - 360
+					document.getElementById("RA").value = @rotation[1] - 360
 				
 				else if document.getElementById("RA").value < 0
-					document.getElementById("RA").value = 360 + 90-@rotation[1]
+					document.getElementById("RA").value = 360 + @rotation[1]
 				
 				this.render()
 			
 			when 'w' 
-				@translation[2] += 0.1
+				@translation[2] += 0.001
 				this.render()	
 				
 			when 's'
-				@translation[2] -= 0.1
+				@translation[2] -= 0.001
 				this.render()	
+			when 'x'
+				@translation[0] -= 0.001
+				this.render()
+			when 'X'
+				@translation[0] += 0.001
+				this.render()
+			when 'y'
+				@translation[1] -= 0.001
+				this.render()
+			when 'Y'
+				@translation[1] += 0.001
+				this.render()
 				
 			when '1'
 				@level = 1

@@ -277,9 +277,11 @@ class HTM
 	
 	createSphere: (ra, dec)=>
 	
-		latitudeBands = 180
-		longitudeBands = 360
-		radius = 4
+		console.log ra, dec
+	
+		latitudeBands = 30
+		longitudeBands = 30
+		radius = 1
 
 		vertexPositionData = []
 		normalData = []
@@ -290,95 +292,82 @@ class HTM
 			use them ###
 		
 		if ra? and dec?
+
+			raMin = ra[0]
+			raMax = ra[1]
 			
-			minX = 100
-			maxX = -100
-			minY = 100
-			maxY = -100
-			minZ = 100
-			maxZ = -100
-					
-			raLen = parseInt(1984/30)-1
-			decLen = parseInt(1361/30)-1
+			decMin = dec[0]
+			decMax = dec[1]
 			
-			for i in [0..1984] by 30 
+			diffRA = raMax - raMin
+			diffDec = decMax - decMin
+			
+			console.log diffRA, diffDec
+			
+			coords = [
 				
-				for j in [0..1361] by 30
-					
-					phi = ra[i][j] * Math.PI/180.0 
-					theta = dec[i][j] * Math.PI/180.0 
-
-					sinTheta = Math.sin(theta)
-					cosTheta = Math.cos(theta)
-					
-					sinPhi = Math.sin(phi)
-					cosPhi = Math.cos(phi)
-					
-					x = sinPhi * sinTheta
-					y = cosTheta 
-					z = cosPhi * sinTheta 
-								
-					if x > maxX then maxX = x
-					if y > maxY then maxY = y
-					if z > maxZ then maxZ = z
-					
-					if x < minX then minX = x
-					if y < minY then minY = y
-					if z < minZ then minZ = z
-					
-																						
-					u = 1 - (i / 1984)
-					v = 1 - (j / 1361)
-					
-					normalData.push(x)
-					normalData.push(y)
-					normalData.push(z)
-					textureCoordData.push(u)
-					textureCoordData.push(v)
-					vertexPositionData.push(radius * x)
-					vertexPositionData.push(radius * y)
-					vertexPositionData.push(radius * z)
-					
-			console.log "min", minX, minY, minZ
-			console.log "max", maxX, maxY, maxZ
+				[raMin,decMin]
+				[raMin,decMax]
+				[raMax,decMax]
+				[raMax,decMin]
+			]
 			
-			indexData = []
-			for latNumber in [0..raLen]
+			console.log coords
+						
+			for coord in coords
 				
-				for longNumber in [0..decLen]
+				phi = (90-coord[1]) * Math.PI/180.0 
+				theta = (coord[0]) * Math.PI/180.0 
 
-					first = (latNumber * (decLen+1)) + longNumber
-					second = first + decLen + 1
-					indexData.push(first)
-					indexData.push(second)
-					indexData.push(first + 1)
+				sinTheta = Math.sin(theta)
+				cosTheta = Math.cos(theta)
+				
+				sinPhi = Math.sin(phi)
+				cosPhi = Math.cos(phi)
+				
+				z = sinPhi * sinTheta
+				y = cosPhi
+				x = sinPhi * cosTheta
+				
+				vertexPositionData.push(radius * x)
+				vertexPositionData.push(radius * y)
+				vertexPositionData.push(radius * z)
+			
+			console.log vertexPositionData
+			
+			textureCoordData = [
+				0.0, 0.0,
+				1.0, 0.0,
+				1.0, 1.0,
+				0.0, 1.0,
+			]
+			
+			indexData = [0,1,2,  0,2,3]
 
-					indexData.push(second)
-					indexData.push(second + 1)
-					indexData.push(first + 1)
-					
 		# else create a normal sphere
 		
 		else
+			console.log "sphere"
+		
 			for latNumber in [0..latitudeBands]
-				theta = latNumber * Math.PI / latitudeBands
-				sinTheta = Math.sin(theta)
-				cosTheta = Math.cos(theta)
 
 				for longNumber in [0..longitudeBands]
-					phi = longNumber * 2 * Math.PI / longitudeBands
+					
+					theta = longNumber * 2 * Math.PI / longitudeBands
+					sinTheta = Math.sin(theta)
+					cosTheta = Math.cos(theta)
+					
+					phi = latNumber * Math.PI / latitudeBands
 					sinPhi = Math.sin(phi)
 					cosPhi = Math.cos(phi)
 
-					x = cosPhi * sinTheta
-					y = cosTheta
 					z = sinPhi * sinTheta
+					y = cosPhi
+					x = sinPhi * cosTheta
+					
 					u = 1 - (longNumber / longitudeBands)
 					v = 1 - (latNumber / latitudeBands)
 										
-					normalData.push(x)
-					normalData.push(y)
-					normalData.push(z)
 					textureCoordData.push(u)
 					textureCoordData.push(v)
 					vertexPositionData.push(radius * x)
@@ -398,12 +387,6 @@ class HTM
 					indexData.push(second)
 					indexData.push(second + 1)
 					indexData.push(first + 1)
-		
-		@VertexNormalBuffer = @gl.createBuffer()
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexNormalBuffer)
-		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(normalData), @gl.STATIC_DRAW)
-		@VertexNormalBuffer.itemSize = 3
-		@VertexNormalBuffer.numItems = normalData.length / 3
 				
 		@VertexPositionBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
@@ -447,11 +430,8 @@ class HTM
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer);
 		@gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, @VertexTextureCoordBuffer.itemSize, @gl.FLOAT, false, 0, 0)
 
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexNormalBuffer)
-		@gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, @VertexNormalBuffer.itemSize, @gl.FLOAT, false, 0, 0)
-
 		@gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
-				
+	
 		return
 	
 	renderHTM: (renderMode) =>

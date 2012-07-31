@@ -13,7 +13,7 @@ class window.WebGL
 		this.initGL()
 		this.initShaders()
 		
-		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		@gl.clearColor(1.0, 0.0, 0.0, 1.0);
 		@gl.enable(@gl.DEPTH_TEST);
 		
 		@mvMatrix = mat4.create()
@@ -27,7 +27,9 @@ class window.WebGL
 	initGL: () =>
 		
 		try
-			@gl = @canvas.getContext("experimental-webgl")
+			@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
+		#	@gl = @canvas.getContext("experimental-webgl")
+			
 			@gl.viewportWidth = @canvas.width
 			@gl.viewportHeight = @canvas.height
 		catch e
@@ -96,8 +98,8 @@ class window.WebGL
 		@shaderProgram.textureCoordAttribute = @gl.getAttribLocation(@shaderProgram, "aTextureCoord")
 		@gl.enableVertexAttribArray(@shaderProgram.textureCoordAttribute);
 
-		@shaderProgram.vertexNormalAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexNormal");
-		@gl.enableVertexAttribArray(@shaderProgram.vertexNormalAttribute);
+#		@shaderProgram.vertexNormalAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexNormal");
+#		@gl.enableVertexAttribArray(@shaderProgram.vertexNormalAttribute);
 		
 		@shaderProgram.pMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uPMatrix")
 		@shaderProgram.mvMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uMVMatrix")
@@ -109,10 +111,17 @@ class window.WebGL
 	handleLoadedTexture:(texture) => 
 		
 		@gl.bindTexture(@gl.TEXTURE_2D, texture)
-		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
+		
+		#@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
+		###
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR);
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
+		###
 		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.NEAREST)
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.NEAREST)
+		
 		@gl.bindTexture(@gl.TEXTURE_2D, null)
 		return
 	
@@ -154,15 +163,17 @@ class window.WebGL
 		
 		@gl.viewport(0, 0, @gl.viewportWidth, @gl.viewportHeight)
 		@gl.clear(@gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT)
-				
-		mat4.perspective(45, @gl.viewportWidth / @gl.viewportHeight, 0.0001, 100.0, @pMatrix)
+		
+		mat4.perspective(45, @gl.viewportWidth / @gl.viewportHeight, 0.001, 1000.0, @pMatrix)
 		mat4.identity(@mvMatrix)
 				
 		return
 			
 	postRender: (rotation, translation) =>
 		
-		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		@gl.clearColor(1.0, 0.0, 0.0, 1.0);
+		
+		mat4.scale(@mvMatrix, [100,100,100])
 		
 		mat4.translate(@mvMatrix, translation)
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[0]), [1,0,0])
