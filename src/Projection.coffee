@@ -45,15 +45,12 @@ class Projection
 		dec = [0..1] 		
 			
 		indices = [[0,0],[xsize-1,ysize-1]]
-		console.log @parameters
 		
 		for index in [0..1]
 			
 			i = indices[index][0]
 			j = indices[index][1]
-			
-			console.log i, j
-			
+						
 			# Step 2
 				
 			y = @parameters.cd11 * (xpix[i]-@parameters.crpix1) +

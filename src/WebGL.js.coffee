@@ -173,7 +173,7 @@ class window.WebGL
 		
 		@gl.clearColor(1.0, 0.0, 0.0, 1.0);
 		
-		mat4.scale(@mvMatrix, [100,100,100])
+#		mat4.scale(@mvMatrix, [100,100,100])
 		
 		mat4.translate(@mvMatrix, translation)
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[0]), [1,0,0])
@@ -181,5 +181,5 @@ class window.WebGL
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[2]), [0,0,1])
 		
 		this.setMatrixUniforms()
-				
+		
 		return

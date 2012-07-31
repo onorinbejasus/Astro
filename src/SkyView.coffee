@@ -16,7 +16,7 @@ class SkyView extends WebGL
 		super(options)
 		
 		#init htm variables
-		@translation = [0.001, 0.003, 0.989]
+		@translation = [0.0, 0.0, 0.0]
 		@rotation = [-1.1, -108.2, 0.0]
 		@renderMode = @gl.TRIANGLES
 		@level = 0
@@ -54,12 +54,12 @@ class SkyView extends WebGL
 			30&zoom=0");
 						
 		this.preRender() # set up matrices
-		@HTM.bindSphere(@shaderProgram) # bind vertices
+		@sphere.bindSphere(@shaderProgram) # bind vertices
 		this.postRender(@rotation, @translation) # push matrices to Shader
-		@HTM.renderSphere(@renderMode) # render to screen
+		@sphere.renderSphere(@renderMode) # render to screen
 		
-		#@sphere.bindSphere(@shaderProgram)
-		#@sphere.renderSphere(@renderMode)
+		@HTM.bindSphere(@shaderProgram)
+		@HTM.renderSphere(@renderMode)
 	
 		# OctaMap rendering
 		#@Map.render(@level, @selected)
@@ -143,11 +143,11 @@ class SkyView extends WebGL
 				this.render()
 			
 			when 'w' 
-				@translation[2] += 0.001
+				@translation[2] += 0.01
 				this.render()	
 				
 			when 's'
-				@translation[2] -= 0.001
+				@translation[2] -= 0.01
 				this.render()	
 			when 'x'
 				@translation[0] -= 0.001

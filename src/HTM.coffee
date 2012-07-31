@@ -276,9 +276,7 @@ class HTM
 		return
 	
 	createSphere: (ra, dec)=>
-	
-		console.log ra, dec
-	
+		
 		latitudeBands = 30
 		longitudeBands = 30
 		radius = 1
@@ -301,9 +299,7 @@ class HTM
 			
 			diffRA = raMax - raMin
 			diffDec = decMax - decMin
-			
-			console.log diffRA, diffDec
-			
+						
 			coords = [
 				
 				[raMin,decMin]
@@ -312,8 +308,6 @@ class HTM
 				[raMax,decMin]
 			]
 			
-			console.log coords
-						
 			for coord in coords
 				
 				phi = (90-coord[1]) * Math.PI/180.0 
@@ -332,9 +326,7 @@ class HTM
 				vertexPositionData.push(radius * x)
 				vertexPositionData.push(radius * y)
 				vertexPositionData.push(radius * z)
-			
-			console.log vertexPositionData
-			
+						
 			textureCoordData = [
 				0.0, 0.0,
 				1.0, 0.0,
@@ -347,7 +339,8 @@ class HTM
 		# else create a normal sphere
 		
 		else
-			console.log "sphere"
+		
+			radius = 1.1
 		
 			for latNumber in [0..latitudeBands]
 
