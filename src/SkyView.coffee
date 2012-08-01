@@ -16,8 +16,8 @@ class SkyView extends WebGL
 		super(options)
 		
 		#init htm variables
-		@translation = [0.0, 0.0, 0.968]
-		@rotation = [-51.9, -175.99, 0.0]
+		@translation = [0.0, 0.0, 0.0]
+		@rotation = [-0.8, -162.9, 0.0]
 		@renderMode = @gl.TRIANGLES
 		@level = 0
 		
@@ -25,8 +25,10 @@ class SkyView extends WebGL
 		@Math = new math()		
 		@gridBlocks = []
 		
-		for i in [1..26]
-			@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/#{i}.jpeg")
+		for i in [1..6]
+			@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/testframe#{i}.jpeg")
+		
+		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/testframe.jpeg")
 			
 		@gridBlocks.push new HTM(@level, @gl, @Math, "sphere", "./images/toast.png")
 		

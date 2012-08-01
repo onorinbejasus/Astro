@@ -219,22 +219,13 @@ class HTM
 		### if ra and dec are specified for the sphere, 
 			use them ###		
 		if ra? and dec?
-
-			raMin = ra[0]
-			raMax = ra[1]
-			
-			decMin = dec[0]
-			decMax = dec[1]
-			
-			diffRA = raMax - raMin
-			diffDec = decMax - decMin
 						
 			coords = [
 				
-				[raMin,decMin]
-				[raMin,decMax]
-				[raMax,decMax]
-				[raMax,decMin]
+				[ra[0],dec[0]]
+				[ra[1],dec[1]]
+				[ra[2],dec[2]]
+				[ra[3],dec[3]]
 			]
 			
 			for coord in coords
@@ -256,18 +247,20 @@ class HTM
 				z = sinPhi * sinTheta
 				y = cosPhi
 				x = sinPhi * cosTheta
-				
-				console.log x,y,z
-				
+								
 				vertexPositionData.push(radius * x)
 				vertexPositionData.push(radius * y)
 				vertexPositionData.push(radius * z)
 						
 				textureCoordData = [
+					
 					0.0, 1.0,
-					1.0, 1.0,
-					1.0, 0.0,
 					0.0, 0.0,
+					1.0, 0.0,
+					1.0, 1.0,
+					
+					
+					
 				]
 			
 			indexData = [2,3,0, 1,2,0]

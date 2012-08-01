@@ -31,8 +31,6 @@ class Projection
 		
 		$.ajaxSetup({'async': true});
 	
-		console.log @parameters
-
 		return
 	
 	unproject: (xsize, ysize)=>
@@ -43,12 +41,12 @@ class Projection
 		xpix = [1..xsize]
 		ypix = [1..ysize]
 		
-		ra = [0..1] 
-		dec = [0..1] 		
+		ra = [0..3] 
+		dec = [0..3] 		
 			
-		indices = [[0,0],[xsize-1,ysize-1]]
+		indices = [[0,0],[0,ysize-1],[xsize-1,ysize-1],[xsize-1,0]]
 		
-		for index in [0..1]
+		for index in [0..3]
 			
 			i = indices[index][0]
 			j = indices[index][1]
@@ -116,5 +114,7 @@ class Projection
 				ra[index] += 360.0
 			else if ra[index] > 360.0
 				ra[index] -= 360
-				
+		
+		console.log ra, dec
+						
 		return [ra,dec]
