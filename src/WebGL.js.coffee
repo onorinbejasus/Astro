@@ -107,34 +107,6 @@ class window.WebGL
 		@shaderProgram.samplerUniform = @gl.getUniformLocation(@shaderProgram, "uSampler");
 		
 		return
-	
-	handleLoadedTexture:(texture) => 
-		
-		@gl.bindTexture(@gl.TEXTURE_2D, texture)
-		
-		#@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
-		###
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR);
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
-		###
-		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.NEAREST)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.NEAREST)
-		
-		@gl.bindTexture(@gl.TEXTURE_2D, null)
-		return
-	
-	initTexture: (texture,image)=>
-		
-		texture = gl.createTexture()
-		texture.image = new Image()
-		texture.image.onload = ()=> 
-			handleLoadedTexture(texture)
-		
-		neheTexture.image.src = image;
-		
-		return
 		    
 	getMatrices: ()=>
 		[@mvMatrix, @pMatrix, [0,0,@gl.viewportWidth, @gl.viewportHeight] ]
@@ -159,17 +131,13 @@ class window.WebGL
 	degToRad: (deg)=>
 		deg * Math.PI / 180.0
 
-	preRender: () =>
+	preRender: (rotation, translation) =>
 		
 		@gl.viewport(0, 0, @gl.viewportWidth, @gl.viewportHeight)
 		@gl.clear(@gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT)
 		
 		mat4.perspective(45, @gl.viewportWidth / @gl.viewportHeight, 0.001, 1000.0, @pMatrix)
 		mat4.identity(@mvMatrix)
-				
-		return
-			
-	postRender: (rotation, translation) =>
 		
 		@gl.clearColor(1.0, 0.0, 0.0, 1.0);
 		

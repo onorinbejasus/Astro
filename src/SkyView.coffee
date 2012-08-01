@@ -2,7 +2,7 @@
 
 class SkyView extends WebGL
 	
-	@HTM = 0
+	@gridBlocks = 0
 	@rotation = null
 	@translation = null
 	@renderMode = 0
@@ -16,16 +16,20 @@ class SkyView extends WebGL
 		super(options)
 		
 		#init htm variables
-		@translation = [0.0, 0.0, 0.0]
-		@rotation = [-1.1, -108.2, 0.0]
+		@translation = [0.0, 0.0, 0.968]
+		@rotation = [-51.9, -175.99, 0.0]
 		@renderMode = @gl.TRIANGLES
 		@level = 0
 		
-		# init math, htm, map and projection
+		# init math, grid and projection
 		@Math = new math()		
-		@HTM = new HTM(@level, @gl, @Math, "sky")
-		#@Map = new Map( @HTM.getInitTriangles(), @HTM.getColors(), @Math, @HTM.getNames())
-		@sphere = new HTM(@level, @gl, @Math, "sphere")
+		@gridBlocks = []
+		
+		for i in [1..26]
+			@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/#{i}.jpeg")
+			
+		@gridBlocks.push new HTM(@level, @gl, @Math, "sphere", "./images/toast.png")
+		
 		#set initial scale
 		document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				
@@ -41,7 +45,6 @@ class SkyView extends WebGL
 		@rotation[0] = parseFloat(document.getElementById("Dec").value)
 	setLevel: ()=>
 		@level = parseInt(document.getElementById("level").value)
-		@HTM = new HTM(@level, @gl, @Math)
 
 	render: ()=>
 		
@@ -53,17 +56,12 @@ class SkyView extends WebGL
 		$.get("./SDSSFieldQuery.php?ra=#{ra}&dec=#{@rotation[0]}&radius=
 			30&zoom=0");
 						
-		this.preRender() # set up matrices
-		@sphere.bindSphere(@shaderProgram) # bind vertices
-		this.postRender(@rotation, @translation) # push matrices to Shader
-		@sphere.renderSphere(@renderMode) # render to screen
+		this.preRender(@rotation, @translation) # set up matrices
 		
-		@HTM.bindSphere(@shaderProgram)
-		@HTM.renderSphere(@renderMode)
-	
-		# OctaMap rendering
-		#@Map.render(@level, @selected)
-	
+		for grid in @gridBlocks
+			grid.bindSphere(@shaderProgram)
+			grid.renderSphere(@renderMode)
+				
 	colorClick: (triangle)=>
 		
 		verts = []
@@ -111,19 +109,19 @@ class SkyView extends WebGL
 		switch String.fromCharCode(key.which)
 			
 			when 'i'
-				@rotation[0] -= 1.0
+				@rotation[0] -= 0.1
 				document.getElementById("Dec").value = -@rotation[0]
 				this.render()
 			when 'k'
-				@rotation[0] += 1.0
+				@rotation[0] += 0.1
 				document.getElementById("Dec").value = -@rotation[0]
 				this.render()
 			when 'l'
-				@rotation[1] += 1.0
-				document.getElementById("RA").value = @rotation[1]
+				@rotation[1] += 0.1
+				document.getElementById("RA").value = -@rotation[1]
 				
 				if document.getElementById("RA").value < 0
-					document.getElementById("RA").value = 360 + @rotation[1] 
+					document.getElementById("RA").value = 360 - @rotation[1] 
 				
 				else if document.getElementById("RA").value > 360
 					document.getElementById("RA").value = @rotation[1] - 360
@@ -131,24 +129,57 @@ class SkyView extends WebGL
 				this.render() 
 			
 			when 'j'
-				@rotation[1] -= 1.0 
-				document.getElementById("RA").value = @rotation[1]
+				@rotation[1] -= 0.1 
+				document.getElementById("RA").value = -@rotation[1]
 				
 				if document.getElementById("RA").value > 360
 					document.getElementById("RA").value = @rotation[1] - 360
 				
 				else if document.getElementById("RA").value < 0
-					document.getElementById("RA").value = 360 + @rotation[1]
+					document.getElementById("RA").value = 360 - @rotation[1]
 				
+				this.render()
+				
+			when 'p'
+				@rotation[1] += 1.0
+				document.getElementById("RA").value = -@rotation[1]
+
+				if document.getElementById("RA").value < 0
+					document.getElementById("RA").value = 360 - @rotation[1] 
+
+				else if document.getElementById("RA").value > 360
+					document.getElementById("RA").value = @rotation[1] - 360
+
+				this.render() 
+
+			when 'o'
+				@rotation[1] -= 1.0 
+				document.getElementById("RA").value = -@rotation[1]
+
+				if document.getElementById("RA").value > 360
+					document.getElementById("RA").value = @rotation[1] - 360
+
+				else if document.getElementById("RA").value < 0
+					document.getElementById("RA").value = 360 - @rotation[1]
+
 				this.render()
 			
 			when 'w' 
-				@translation[2] += 0.01
+				@translation[2] += 0.001
 				this.render()	
 				
 			when 's'
-				@translation[2] -= 0.01
+				@translation[2] -= 0.001
 				this.render()	
+				
+			when 'W' 
+				@translation[2] += 0.01
+				this.render()	
+
+			when 'S'
+				@translation[2] -= 0.01
+				this.render()
+				
 			when 'x'
 				@translation[0] -= 0.001
 				this.render()
@@ -161,65 +192,56 @@ class SkyView extends WebGL
 			when 'Y'
 				@translation[1] += 0.001
 				this.render()
+			
 				
 			when '1'
 				@level = 1
 				document.getElementById('level').value = 1
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when '2'
 				@level = 2
 				document.getElementById('level').value = 2
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when '3'
 				@level = 3
 				document.getElementById('level').value = 3
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when '4'
 				@level = 4
 				document.getElementById('level').value = 4
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when '5'
 				@level = 5
 				document.getElementById('level').value = 5
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when '6'
 				@level = 6
 				document.getElementById('level').value = 6
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()	
 			when '7'
 				@level = 7
 				document.getElementById('level').value = 7
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when '8'
 				@level = 8
 				document.getElementById('level').value = 8
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when '9'
 				@level = 9
 				document.getElementById('level').value = 9
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when '0'
 				@level = 0
 				document.getElementById('level').value = 0
-				@HTM = new HTM(@level,@gl,@Math)
 				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
 				this.render()
 			when 'r'
@@ -263,7 +285,7 @@ class SkyView extends WebGL
 		# grab the triangles and names and see if ray intersects with them
 		tri = @HTM.getTriangles()
 		names = @HTM.getNames()
-				
+		###		
 		it = -1
 		for triangle in tri
 			it = it + 1
@@ -273,4 +295,5 @@ class SkyView extends WebGL
 				this.render()
 				this.colorClick(triangle)
 				break
+		###
 		return

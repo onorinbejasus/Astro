@@ -4,7 +4,7 @@ class Projection
 
 	getHeader:(image)=>
 		@parameters = new Object
-		
+				
 		$.ajaxSetup({'async': false});
 
 		# grab the image headers
@@ -30,7 +30,9 @@ class Projection
 		)
 		
 		$.ajaxSetup({'async': true});
-		
+	
+		console.log @parameters
+
 		return
 	
 	unproject: (xsize, ysize)=>

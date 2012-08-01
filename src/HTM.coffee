@@ -14,91 +14,19 @@ class HTM
 	
 	@initTriangles = null
 		
-	constructor: (@levels, @gl, @Math, type) ->
-		
-		@mutableTri = [
-			# S0
-			[[0.0, 0.0, 1.0],
-			[0.0, -1.0, 0.0],
-			[1.0, 0.0, 0.0]],
-   			# S1
-			[[-1.0, 0.0, 0.0],
-			[0.0, -1.0, 0.0],
-			[0.0, 0.0, 1.0]],
-			# S2
-			[[0.0, 0.0, -1.0],
-			[ 0.0, -1.0, 0.0],
-			[ -1.0, 0.0, 0.0]],
-			# S3
-			[[1.0, 0.0, 0.0],
-			[0.0, -1.0, 0.0],
-			[0.0, 0.0, -1.0]],		
-			# N0
-			[[1.0, 0.0, 0.0],
-			[0.0, 1.0, 0.0],
-			[0.0, 0.0, 1.0]],
-			# N1
-			[[0.0, 0.0, 1.0],
-			[0.0, 1.0, 0.0],
-			[-1.0, 0.0, 0.0]],
-			# N2
-			[[-1.0, 0.0, 0.0],
-			[0.0, 1.0, 0.0],
-			[0.0, 0.0, -1.0 ]],
-			# N3
-			[[0.0, 0.0, -1.0],
-			[0.0, 1.0, 0.0],
-			[1.0, 0.0, 0.0 ]] 
-		]
-		
-		@initTriangles = [
-			# S0
-			[[0.0, 0.0, 1.0],
-			[0.0, -1.0, 0.0],
-			[1.0, 0.0, 0.0]],
-   			# S1
-			[[-1.0, 0.0, 0.0],
-			[0.0, -1.0, 0.0],
-			[0.0, 0.0, 1.0]],
-			# S2
-			[[0.0, 0.0, -1.0],
-			[ 0.0, -1.0, 0.0],
-			[ -1.0, 0.0, 0.0]],
-			# S3
-			[[1.0, 0.0, 0.0],
-			[0.0, -1.0, 0.0],
-			[0.0, 0.0, -1.0]],
-			# N0
-			[[1.0, 0.0, 0.0],
-			[0.0, 1.0, 0.0],
-			[0.0, 0.0, 1.0]],
-			# N1
-			[[0.0, 0.0, 1.0],
-			[0.0, 1.0, 0.0],
-			[-1.0, 0.0, 0.0]],
-			# N2
-			[[-1.0, 0.0, 0.0],
-			[0.0, 1.0, 0.0],
-			[0.0, 0.0, -1.0 ]],
-			# N3
-			[[0.0, 0.0, -1.0],
-			[0.0, 1.0, 0.0],
-			[1.0, 0.0, 0.0 ]] 
-		]
+	constructor: (@levels, @gl, @Math, type, texture) ->
 				
-		#this.createHTM()
-		
 		if type == "sky"
 			@proj = new Projection(@Math)
-			@proj.getHeader("./images/testframe.jpeg")
+			@proj.getHeader(texture)
 			coords = @proj.unproject(1984,1361)
 		
-			this.initTexture("./images/testframe.jpeg")
+			this.initTexture(texture)
 			this.createSphere(coords[0], coords[1])
-		
+				
 		else if type == "sphere"
 			this.createSphere()
-			this.initTexture("./images/toast.png")
+			this.initTexture(texture)
 			
 		return
 		
@@ -113,14 +41,15 @@ class HTM
 	
 	handleLoadedTexture: (texture)=>
 		
+
 		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
+		
 		@gl.bindTexture(@gl.TEXTURE_2D, texture)
 		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
-#		@gl.generateMipmap(@gl.TEXTURE_2D)
 		@gl.bindTexture(@gl.TEXTURE_2D, null)
 
 	initTexture: (image) =>
@@ -128,6 +57,7 @@ class HTM
 		@Texture.image = new Image()
 		@Texture.image.onload = ()=> 
 			this.handleLoadedTexture(@Texture)
+		
 		@Texture.image.src = image
     
 	debugColor: ()=>
@@ -287,8 +217,7 @@ class HTM
 		textureCoordData = []
 		
 		### if ra and dec are specified for the sphere, 
-			use them ###
-		
+			use them ###		
 		if ra? and dec?
 
 			raMin = ra[0]
@@ -311,7 +240,12 @@ class HTM
 			for coord in coords
 				
 				phi = (90-coord[1]) * Math.PI/180.0 
-				theta = (coord[0]) * Math.PI/180.0 
+				theta = 0
+				
+				if coord[0] > 270 
+					theta = (270-coord[0]+360) * Math.PI/180.0 
+				else 
+					theta = (270-coord[0]) * Math.PI/180.0 
 
 				sinTheta = Math.sin(theta)
 				cosTheta = Math.cos(theta)
@@ -323,18 +257,20 @@ class HTM
 				y = cosPhi
 				x = sinPhi * cosTheta
 				
+				console.log x,y,z
+				
 				vertexPositionData.push(radius * x)
 				vertexPositionData.push(radius * y)
 				vertexPositionData.push(radius * z)
 						
-			textureCoordData = [
-				0.0, 0.0,
-				1.0, 0.0,
-				1.0, 1.0,
-				0.0, 1.0,
-			]
+				textureCoordData = [
+					0.0, 1.0,
+					1.0, 1.0,
+					1.0, 0.0,
+					0.0, 0.0,
+				]
 			
-			indexData = [0,1,2,  0,2,3]
+			indexData = [2,3,0, 1,2,0]
 
 		# else create a normal sphere
 		
@@ -360,9 +296,10 @@ class HTM
 					
 					u = 1 - (longNumber / longitudeBands)
 					v = 1 - (latNumber / latitudeBands)
-										
+					
 					textureCoordData.push(u)
 					textureCoordData.push(v)
+					
 					vertexPositionData.push(radius * x)
 					vertexPositionData.push(radius * y)
 					vertexPositionData.push(radius * z)
