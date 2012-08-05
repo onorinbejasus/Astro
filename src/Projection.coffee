@@ -3,10 +3,12 @@ class Projection
 		@parameters = null
 
 	getHeader:(image)=>
+		
+		FITS = require('fits')
+		
 		@parameters = new Object
-				
-		$.ajaxSetup({'async': false});
-
+		
+		$.ajaxSetup({'async': false})
 		# grab the image headers
 		$.getJSON("./imageHeader.php?url=#{image}", (data) =>
 			$.each(data, (key, val) =>
@@ -28,9 +30,54 @@ class Projection
 					@parameters.cd22 = val
 			)
 		)
+		$.ajaxSetup({'async': true})
 		
-		$.ajaxSetup({'async': true});
-	
+		###
+		
+		xhr = new XMLHttpRequest()
+		
+		$.ajax(
+			type: "GET",
+			url: fits,
+			dataType: "json",
+			contentType:  "application/json",
+			async: false,
+			success: (xhr, statusText, jqXHR) =>
+				
+				fits = new FITS.File(xhr.response)
+				hdu = fits.getHDU()
+
+				@parameters.crpix1 = hdu.getCard("CRPIX1")
+				@parameters.crpix1 = hdu.header["CRPIX1"]
+
+				@parameters.crpix2 = hdu.getCard("CRPIX2")
+				@parameters.crpix2 = hdu.header["CRPIX2"]
+
+				@parameters.crval1 = hdu.getCard("CRVAL1")
+				@parameters.crval1 = hdu.header["CRVAL1"]
+
+				@parameters.crval2 = hdu.getCard("CRVAL2")
+				@parameters.crval2 = hdu.header["CRVAL2"]
+
+				@parameters.cd11 = hdu.getCard("CD1_1")
+				@parameters.cd11 = hdu.header["CD1_1"]
+
+				@parameters.cd12 = hdu.getCard("CD1_2")
+				@parameters.cd12 = hdu.header["CD1_2"]
+
+				@parameters.cd21 = hdu.getCard("CD2_1")
+				@parameters.cd21 = hdu.header["CD2_1"]
+
+				@parameters.cd22 = hdu.getCard("CD2_2")
+				@parameters.cd22 = hdu.header["CD2_2"]
+
+ 			error: (xhr, status, message) =>
+				alert("Error")
+		)
+				
+		console.log @parameters
+		###
+		
 		return
 	
 	unproject: (xsize, ysize)=>
@@ -46,18 +93,22 @@ class Projection
 			
 		indices = [[0,0],[0,ysize-1],[xsize-1,ysize-1],[xsize-1,0]]
 		
+		console.log "unproject", @parameters
+		
 		for index in [0..3]
 			
 			i = indices[index][0]
 			j = indices[index][1]
-						
+			
 			# Step 2
-				
-			y = @parameters.cd11 * (xpix[i]-@parameters.crpix1) +
+			
+			x = @parameters.cd11 * (xpix[i]-@parameters.crpix1) +
 				@parameters.cd12 * (ypix[j]-@parameters.crpix2)
 				
-			x = @parameters.cd21 * (xpix[i]-@parameters.crpix1) +
+			y = @parameters.cd21 * (xpix[i]-@parameters.crpix1) +
 				@parameters.cd22 * (ypix[j]-@parameters.crpix2)
+			
+			console.log "x,y",x,y
 			
 			# Step 3
 			

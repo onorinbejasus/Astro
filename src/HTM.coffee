@@ -14,7 +14,7 @@ class HTM
 	
 	@initTriangles = null
 		
-	constructor: (@levels, @gl, @Math, type, texture) ->
+	constructor: (@levels, @gl, @Math, type, texture, fits) ->
 				
 		if type == "sky"
 			@proj = new Projection(@Math)
@@ -247,7 +247,9 @@ class HTM
 				z = sinPhi * sinTheta
 				y = cosPhi
 				x = sinPhi * cosTheta
-								
+				
+				console.log x,y,z
+						
 				vertexPositionData.push(radius * x)
 				vertexPositionData.push(radius * y)
 				vertexPositionData.push(radius * z)
