@@ -1,7 +1,7 @@
 <?php
 
 	header("Content-type: image/jpeg");
-
+	
 		error_reporting(-1);
 		
 /* parse the xml to get the fields to wget with*/
@@ -58,6 +58,9 @@
 /* parse the query and wget images */
 
 	function getImages($output){
+		
+		echo "parse images \n";
+		
 		$out = parseSDSS($output);
 	
 		// Construct a file with a list of the jpeg urls, one on each line
@@ -81,7 +84,7 @@
 		*/
 	}
 	
-	$file = "http://astro.cs.pitt.edu/Tim/panickos/astro-demo/lib/db/remote/searchSDSS.php";
+	$file = "http://astro.cs.pitt.edu/astroshelf/lib/db/remote/searchSDSS.php";
 	
 	$the_query = "SELECT distinct n.fieldid, n.distance, f.ra, f.dec, f.run, f.rerun, f.camcol, f.field, dbo.fHTMGetString(f.htmid) as htmid FROM dbo.fGetNearbyFrameEq(" . $_GET["ra"] . "," . $_GET["dec"] . "," . $_GET["radius"] . "," . $_GET["zoom"] . ") as n JOIN Frame as f on n.fieldid = f.fieldid ORDER by n.distance";
 //	echo $the_query;		

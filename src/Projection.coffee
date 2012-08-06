@@ -115,7 +115,7 @@ class Projection
 			long = @Math.arg(-y,x)
 			lat = (Math.PI/2.0) * dtor
 			
-			r = Math.sqrt(Math.pow(x,2),Math.pow(y,2))
+			r = Math.sqrt(Math.pow(x,2)+Math.pow(y,2))
 			
 			if r > 0.0
 				lat = Math.atan((180.0/Math.PI)/r)
@@ -129,7 +129,7 @@ class Projection
 			# TAN begin
 			
 			phi = 0.0 
-			theta = 90.0 * dtor
+			theta = 180.0 * dtor
 			
 			lonpole = if @parameters.crval1 > theta then 0.0 else 180.0*dtor
 			latpole = 90.0 * dtor
