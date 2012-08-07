@@ -17,7 +17,7 @@ class SkyView extends WebGL
 		
 		#init htm variables
 		@translation = [0.0, 0.0, 0.0]
-		@rotation = [-0.8, -161.8, 0.0]
+		@rotation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
 		@level = 0
 		
@@ -29,16 +29,16 @@ class SkyView extends WebGL
 			#console.log i
 			#@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/#{i}.jpeg")
 		
-		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test1.jpeg", "./fitsFiles/test1.fit")
-		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test2.jpeg", "./fitsFiles/test2.fit")
+#		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test1.jpeg", "./fitsFiles/test1.fit")
+#		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test2.jpeg", "./fitsFiles/test2.fit")
 			
-		@gridBlocks.push new HTM(@level, @gl, @Math, "sphere", "./images/toast.png")
+#		@gridBlocks.push new HTM(@level, @gl, @Math, "sphere", "./images/toast.png")
 		
 		#set initial scale
-		document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
+		document.getElementById("scale").value = 1.8
 				
 		#render
-		this.render()
+		this.render(true)
 		
 		return
 		
@@ -50,16 +50,27 @@ class SkyView extends WebGL
 	setLevel: ()=>
 		@level = parseInt(document.getElementById("level").value)
 
-	render: ()=>
+	render: (flag)=>
 		
-		## retrieve RA and radius ##
-		radius = parseFloat(document.getElementById("scale").value)
-		ra = parseFloat(document.getElementById("RA").value)
+		if flag? and flag is true
 		
-		# select the images
-		$.get("./SDSSFieldQuery.php?ra=#{ra}&dec=#{@rotation[0]}&radius=
-			30&zoom=0");
-						
+			## retrieve RA and radius ##
+			radius = parseFloat(document.getElementById("scale").value) / 60.0
+			if radius < 1.0
+				radius = 1.0
+			ra = parseFloat(document.getElementById("RA").value)
+		
+			# select the images
+		
+			$.ajaxSetup({'async': false})	
+			$.getJSON("./SDSSFieldQuery.php?ra=#{ra}&dec=#{@rotation[0]}&radius=
+				#{radius}&zoom=0", (data) =>
+					$.each(data, (key, val)=>
+						@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./sdss/#{val}")
+					)	
+			)
+			$.ajaxSetup({'async': true})
+		
 		this.preRender(@rotation, @translation) # set up matrices
 		
 		for grid in @gridBlocks
@@ -170,7 +181,7 @@ class SkyView extends WebGL
 			
 			when 'w' 
 				@translation[2] += 0.001
-				this.render()	
+				this.render(false)	
 				
 			when 's'
 				@translation[2] -= 0.001
@@ -178,7 +189,7 @@ class SkyView extends WebGL
 				
 			when 'W' 
 				@translation[2] += 0.01
-				this.render()	
+				this.render(false)	
 
 			when 'S'
 				@translation[2] -= 0.01

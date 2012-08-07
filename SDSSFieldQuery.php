@@ -1,6 +1,6 @@
 <?php
 
-	header("Content-type: image/jpeg");
+	header("Content-type: text/plain");
 	
 		error_reporting(-1);
 		
@@ -9,13 +9,8 @@
 	function parseSDSS($output) {
 			
 			$element = explode("<row>", $output);
-
-			foreach($element as $el){
-				echo $el;
-				echo "\n";
-			}
-			
-      $xml = new SimpleXMLElement($output);
+			      
+			$xml = new SimpleXMLElement($output);
         
 				$xpath_run = "//field[@col='run']";
         $xpath_camcol  = "//field[@col='camcol']";
@@ -58,11 +53,13 @@
 /* parse the query and wget images */
 
 	function getImages($output){
-		
-		echo "parse images \n";
-		
+				
 		$out = parseSDSS($output);
-	
+		
+		$File = "sdss-wget.lis";
+		$fh = fopen($File, 'w');
+		$ret_val = array();
+		
 		// Construct a file with a list of the jpeg urls, one on each line
 		foreach($out as $imageFields){
 			/*
@@ -74,14 +71,23 @@
 			$url = "http://das.sdss.org/imaging/" . $imageFields[0] . "/" . $imageFields[2] . "/Zoom/" . $imageFields[1] . "/fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-" . $imageFields[1] . "-" . $imageFields[2] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . "-z00.jpeg";
 			
 			// Testing - prints out each url as a link
-			echo "<a href='$url'/> $url </a> <br />";
-			echo "\n";
+		
+			$name = "fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-" . $imageFields[1] . "-" . $imageFields[2] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . "-z00.jpeg";
+			
+			array_push($ret_val, $name);
+			
+			$stringData = "$url\n";
+			fwrite($fh, $stringData);
+			
 		}
-		/*
+		
+		fclose($fh);
+		
+		echo json_encode($ret_val);
+		
 		$inputfile = "sdss-wget.lis";
-		$cmd = "wget -nd -nH -q -i $inputfile";
+		$cmd = "wget -nd -nH -q -i $inputfile -P ./sdss";
 		exec($cmd);
-		*/
 	}
 	
 	$file = "http://astro.cs.pitt.edu/astroshelf/lib/db/remote/searchSDSS.php";
@@ -99,7 +105,7 @@
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	$output = curl_exec($ch);
 	curl_close($ch);
-		
+			
 	getImages($output);
 	
 ?>
