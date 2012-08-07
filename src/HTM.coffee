@@ -18,7 +18,7 @@ class HTM
 				
 		if type == "sky"
 			@proj = new Projection(@Math)
-			@proj.getHeader(texture)
+			@proj.getHeader(texture,fits)
 			coords = @proj.unproject(1984,1361)
 		
 			this.initTexture(texture)

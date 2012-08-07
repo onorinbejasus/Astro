@@ -16,8 +16,8 @@ class SkyView extends WebGL
 		super(options)
 		
 		#init htm variables
-		@translation = [0.0, 0.0, 0.0]
-		@rotation = [0.0, 0.0, 0.0]
+		@translation = [0.0, 0.0, 0.3333]
+		@rotation = [-52.0, -176.0, 0.0]
 		@renderMode = @gl.TRIANGLES
 		@level = 0
 		
@@ -29,13 +29,13 @@ class SkyView extends WebGL
 			#console.log i
 			#@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/#{i}.jpeg")
 		
-#		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test1.jpeg", "./fitsFiles/test1.fit")
-#		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test2.jpeg", "./fitsFiles/test2.fit")
+		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test1.jpeg", "./fitsFiles/test1.fit")
+		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test2.jpeg", "./fitsFiles/test2.fit")
 			
 #		@gridBlocks.push new HTM(@level, @gl, @Math, "sphere", "./images/toast.png")
 		
 		#set initial scale
-		document.getElementById("scale").value = 1.8
+		document.getElementById("scale").value = (1)*3600
 				
 		#render
 		this.render(true)
@@ -59,66 +59,26 @@ class SkyView extends WebGL
 			if radius < 1.0
 				radius = 1.0
 			ra = parseFloat(document.getElementById("RA").value)
+			dec = parseFloat(document.getElementById("Dec").value)
 		
 			# select the images
-		
+		###
 			$.ajaxSetup({'async': false})	
-			$.getJSON("./SDSSFieldQuery.php?ra=#{ra}&dec=#{@rotation[0]}&radius=
+			$.getJSON("./SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
 				#{radius}&zoom=0", (data) =>
 					$.each(data, (key, val)=>
+						console.log val
 						@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./sdss/#{val}")
 					)	
 			)
 			$.ajaxSetup({'async': true})
-		
+		###
 		this.preRender(@rotation, @translation) # set up matrices
 		
 		for grid in @gridBlocks
 			grid.bindSphere(@shaderProgram)
 			grid.renderSphere(@renderMode)
 				
-	colorClick: (triangle)=>
-		
-		verts = []
-		color = []
-		
-		for vert in triangle # iterate over vertices
-			for component in vert
-				verts.push component
-		
-		VertexPositionBuffer = @gl.createBuffer()
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, VertexPositionBuffer)
-
-		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(verts), @gl.STATIC_DRAW)
-		VertexPositionBuffer.itemSize = 3
-		VertexPositionBuffer.numItems = 3
-		
-		colors = [
-			[[1.0, 1.0, 0.0, 1.0],
-			[1.0, 1.0, 0.0, 1.0],
-			[1.0, 1.0, 0.0, 1.0]],
-		]
-						
-		for j in colors
-			for k in j
-				for l in k
-					color.push(l)
-		
-		VertexColorBuffer = @gl.createBuffer()
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, VertexColorBuffer)
-
-		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(color), @gl.STATIC_DRAW)
-		VertexColorBuffer.itemSize = 4
-		VertexColorBuffer.numItems = 3
-	
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, VertexPositionBuffer)
-		@gl.vertexAttribPointer(@shaderProgram.vertexPositionAttribute, VertexPositionBuffer.itemSize, @gl.FLOAT, false, 0, 0)
-		
-		@gl.bindBuffer(@gl.ARRAY_BUFFER, VertexColorBuffer)
-		@gl.vertexAttribPointer(@shaderProgram.vertexColorAttribute, VertexColorBuffer.itemSize, @gl.FLOAT, false, 0, 0)
-	
-		@gl.drawArrays(@gl.TRIANGLES, 0, VertexPositionBuffer.numItems)
-	
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)

@@ -13,7 +13,7 @@ class window.WebGL
 		this.initGL()
 		this.initShaders()
 		
-		@gl.clearColor(1.0, 0.0, 0.0, 1.0);
+		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
 		@gl.enable(@gl.DEPTH_TEST);
 		
 		@mvMatrix = mat4.create()
@@ -27,8 +27,8 @@ class window.WebGL
 	initGL: () =>
 		
 		try
-			@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
-		#	@gl = @canvas.getContext("experimental-webgl")
+		#	@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
+			@gl = @canvas.getContext("experimental-webgl")
 			
 			@gl.viewportWidth = @canvas.width
 			@gl.viewportHeight = @canvas.height
@@ -139,7 +139,7 @@ class window.WebGL
 		mat4.perspective(45, @gl.viewportWidth / @gl.viewportHeight, 0.001, 1000.0, @pMatrix)
 		mat4.identity(@mvMatrix)
 		
-		@gl.clearColor(1.0, 0.0, 0.0, 1.0);
+		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
 		
 #		mat4.scale(@mvMatrix, [100,100,100])
 		
