@@ -1,3 +1,44 @@
+class TextureProxy
+	###
+	A TextureProxy uses an already loaded temporary image while
+	another image is loading. 
+	###
+	constructor: (gl, img_url, temp_img_texture) ->
+		@texture = temp_img_texture
+
+		on_texture_load = (texture) ->
+			@texture = texture
+
+		@initTexture(gl, img_url, on_texture_load)
+	
+	###
+	@function: initTexture
+	@description: Creates a GL_TEXTURE in GPU using the image specified.
+	@param: GL_CONTEXT gl- used to create a texture
+	@param: String image - URL of an image to be used.
+	@param: function load_callback- Use for callbacks when onload is triggered
+			to get the texture, all loaded.
+	@return: Nothing. Use the texture callback.
+	###
+	initTexture: (gl, image, load_callback) ->
+		texture = gl.createTexture()
+		texture.image = new Image()
+		texture.image.onload = ()=> 
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+			gl.bindTexture(gl.TEXTURE_2D, texture)
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.bindTexture(gl.TEXTURE_2D, null)	
+
+			if load_callback
+				load_callback(texture)
+		
+		texture.image.src = image
+
+
 class HTM
 	
 	@verts = null
@@ -44,25 +85,16 @@ class HTM
 		return
 	getSet:()=>
 		return @set
-	handleLoadedTexture: (texture)=>
-		
-		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
-		
-		@gl.bindTexture(@gl.TEXTURE_2D, texture)
-		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
-		@gl.bindTexture(@gl.TEXTURE_2D, null)
+
 
 	initTexture: (image) =>
+		# TODO: SEAN ~ Turn this into a TextureProxy, need to do config for default texture loading!
 		@Texture = @gl.createTexture()
 		@Texture.image = new Image()
-		@Texture.image.onload = ()=> 
+		@Texture.image.onload = ()=>
 			this.handleLoadedTexture(@Texture)
-		
 		@Texture.image.src = image
+		
     
 	debugColor: ()=>
 		
