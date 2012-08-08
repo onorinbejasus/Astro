@@ -29,8 +29,8 @@ class SkyView extends WebGL
 			#console.log i
 			#@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/#{i}.jpeg")
 		
-		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test1.jpeg", "./fitsFiles/test1.fit")
-		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test2.jpeg", "./fitsFiles/test2.fit")
+#		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test1.jpeg", "./fitsFiles/test1.fit")
+#		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test2.jpeg", "./fitsFiles/test2.fit")
 			
 #		@gridBlocks.push new HTM(@level, @gl, @Math, "sphere", "./images/toast.png")
 		
@@ -62,7 +62,7 @@ class SkyView extends WebGL
 			dec = parseFloat(document.getElementById("Dec").value)
 		
 			# select the images
-		###
+		
 			$.ajaxSetup({'async': false})	
 			$.getJSON("./SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
 				#{radius}&zoom=0", (data) =>
@@ -72,13 +72,18 @@ class SkyView extends WebGL
 					)	
 			)
 			$.ajaxSetup({'async': true})
-		###	
+		
 		this.preRender(@rotation, @translation) # set up matrices
 		
+		console.log @gridBlocks.size
+		
 		for grid in @gridBlocks
-			if grid.getSet() is true
+			if grid.getSet() == true
+				console.log "render"
 				grid.bindSphere(@shaderProgram)
 				grid.renderSphere(@renderMode)
+				
+		return
 				
 	keyPressed: (key) =>
 

@@ -7,7 +7,7 @@ class Projection
 		FITS = require('fits')
 		
 		@parameters = new Object
-		###
+		
 		$.ajaxSetup({'async': false})
 		# grab the image headers
 		$.getJSON("./imageHeader.php?url=#{image}", (data) =>
@@ -74,7 +74,7 @@ class Projection
 			HTM.setFlag()
 			
 		xhr.send()
-
+		###
 		return
 	
 	unproject: (xsize, ysize) =>

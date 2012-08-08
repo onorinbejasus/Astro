@@ -21,10 +21,6 @@ class HTM
 		if type == "sky"
 			@proj = new Projection(@Math)
 			
-			init = this.initTexture
-			create = this.createSphere
-			set = this.setFlag()
-			
 			@set = false
 			@proj.init(texture,fits,this)
 			
