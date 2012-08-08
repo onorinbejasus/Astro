@@ -2,7 +2,7 @@ class Projection
 	constructor:(@Math)->
 		@parameters = null
 
-	getHeader:(image,fits)=>
+	init:(image,fits,HTM)=>
 		
 		FITS = require('fits')
 		
@@ -33,10 +33,10 @@ class Projection
 		$.ajaxSetup({'async': true})
 		###
 		
-		xhr = new XMLHttpRequest();
-		xhr.open('GET', fits, false);
-
+		xhr = new XMLHttpRequest()
+		
 		xhr.responseType = 'arraybuffer';
+		xhr.open('GET', fits)
 
 		xhr.onload = (e) =>
 
@@ -66,15 +66,21 @@ class Projection
 
 			@parameters.cd22 = hdu.getCard("CD2_2")
 			@parameters.cd22 = hdu.header["CD2_2"]
-		
+			
+			coords = this.unproject(1984,1361)
+			
+			HTM.initTexture(image)
+			HTM.createSphere(coords[0],coords[1])
+			HTM.setFlag()
+			
 		xhr.send()
-		
-		console.log @parameters
-		
+
 		return
 	
 	unproject: (xsize, ysize) =>
 
+		console.log @parameters
+	
 		rtod = 57.29577951308323
 		dtor = 0.0174532925
 

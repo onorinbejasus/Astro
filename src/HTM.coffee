@@ -13,21 +13,26 @@ class HTM
 	@Texture = null
 	
 	@initTriangles = null
+	
+	@set = null
 		
 	constructor: (@levels, @gl, @Math, type, texture, fits) ->
 				
 		if type == "sky"
 			@proj = new Projection(@Math)
-			@proj.getHeader(texture,fits)
-			coords = @proj.unproject(1984,1361)
-		
-			this.initTexture(texture)
-			this.createSphere(coords[0], coords[1])
-				
+			
+			init = this.initTexture
+			create = this.createSphere
+			set = this.setFlag()
+			
+			@set = false
+			@proj.init(texture,fits,this)
+			
+		###
 		else if type == "sphere"
 			this.createSphere()
 			this.initTexture(texture)
-			
+		###	
 		return
 		
 	getInitTriangles:()=>
@@ -38,10 +43,13 @@ class HTM
 		return @names
 	getColors:()=>
 		return @colors
-	
+	setFlag:()=>
+		@set = true
+		return
+	getSet:()=>
+		return @set
 	handleLoadedTexture: (texture)=>
 		
-
 		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
 		
 		@gl.bindTexture(@gl.TEXTURE_2D, texture)

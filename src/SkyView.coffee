@@ -49,7 +49,7 @@ class SkyView extends WebGL
 		@rotation[0] = parseFloat(document.getElementById("Dec").value)
 	setLevel: ()=>
 		@level = parseInt(document.getElementById("level").value)
-
+		
 	render: (flag)=>
 		
 		if flag? and flag is true
@@ -72,12 +72,13 @@ class SkyView extends WebGL
 					)	
 			)
 			$.ajaxSetup({'async': true})
-		###
+		###	
 		this.preRender(@rotation, @translation) # set up matrices
 		
 		for grid in @gridBlocks
-			grid.bindSphere(@shaderProgram)
-			grid.renderSphere(@renderMode)
+			if grid.getSet() is true
+				grid.bindSphere(@shaderProgram)
+				grid.renderSphere(@renderMode)
 				
 	keyPressed: (key) =>
 
