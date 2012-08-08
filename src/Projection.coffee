@@ -31,6 +31,7 @@ class Projection
 			)
 		)
 		$.ajaxSetup({'async': true})
+		
 		###
 		
 		xhr = new XMLHttpRequest()
@@ -66,15 +67,15 @@ class Projection
 
 			@parameters.cd22 = hdu.getCard("CD2_2")
 			@parameters.cd22 = hdu.header["CD2_2"]
+		###	
+		coords = this.unproject(1984,1361)
 			
-			coords = this.unproject(1984,1361)
+		HTM.initTexture(image)
+		HTM.createSphere(coords[0],coords[1])
+		HTM.setFlag()
 			
-			HTM.initTexture(image)
-			HTM.createSphere(coords[0],coords[1])
-			HTM.setFlag()
-			
-		xhr.send()
-		###
+	#	xhr.send()
+		
 		return
 	
 	unproject: (xsize, ysize) =>

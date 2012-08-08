@@ -74,9 +74,7 @@ class SkyView extends WebGL
 			$.ajaxSetup({'async': true})
 		
 		this.preRender(@rotation, @translation) # set up matrices
-		
-		console.log @gridBlocks.size
-		
+				
 		for grid in @gridBlocks
 			if grid.getSet() == true
 				console.log "render"
