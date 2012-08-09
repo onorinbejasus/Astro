@@ -46,8 +46,8 @@ class SkyView extends WebGL
 			if radius < 1.0
 				radius = 1.0
 			
-			ra = @rotation[1]
-			dec = @rotation[0]
+			ra = -@rotation[1]
+			dec = -@rotation[0]
 		
 			# select the images
 		
