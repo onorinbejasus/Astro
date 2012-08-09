@@ -8,8 +8,17 @@ class window.WebGL
 	
 	constructor: (options) ->
 	
-		@canvas = if options.canvas? then options.canvas else null
-				
+		@canvas = if options.canvas? then options.canvas 
+		
+		else 
+			@canvas = document.createElement("canvas")
+		
+			@canvas.width = options.clientWidth
+			@canvas.height = options.clientHeight
+			@canvas.style.backgroundColor = "rgb(0,0,0)"
+		
+			options.appendChild(@canvas)
+		
 		this.initGL()
 		this.initShaders()
 		
@@ -27,8 +36,8 @@ class window.WebGL
 	initGL: () =>
 		
 		try
-		#	@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
-			@gl = @canvas.getContext("experimental-webgl")
+			@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
+		#	@gl = @canvas.getContext("experimental-webgl")
 			
 			@gl.viewportWidth = @canvas.width
 			@gl.viewportHeight = @canvas.height

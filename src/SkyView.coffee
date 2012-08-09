@@ -25,7 +25,7 @@ class SkyView extends WebGL
 		@Math = new math()		
 		@gridBlocks = []
 		
-		#for i in [1..26]
+		#for i in [1..26]	
 			#console.log i
 			#@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/#{i}.jpeg")
 		
@@ -35,7 +35,7 @@ class SkyView extends WebGL
 #		@gridBlocks.push new HTM(@level, @gl, @Math, "sphere", "./images/toast.png")
 		
 		#set initial scale
-		document.getElementById("scale").value = (1)*3600
+#		document.getElementById("scale").value = (1)*3600
 				
 		#render
 		this.render(true)
@@ -55,11 +55,11 @@ class SkyView extends WebGL
 		if flag? and flag is true
 		
 			## retrieve RA and radius ##
-			radius = parseFloat(document.getElementById("scale").value) / 60.0
+			radius = 30#parseFloat(document.getElementById("scale").value) / 60.0
 			if radius < 1.0
 				radius = 1.0
-			ra = parseFloat(document.getElementById("RA").value)
-			dec = parseFloat(document.getElementById("Dec").value)
+			ra = 176#parseFloat(document.getElementById("RA").value)
+			dec = 52#parseFloat(document.getElementById("Dec").value)
 		
 			# select the images
 		
