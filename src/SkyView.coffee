@@ -25,18 +25,6 @@ class SkyView extends WebGL
 		@Math = new math()		
 		@gridBlocks = []
 		
-		#for i in [1..26]	
-			#console.log i
-			#@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/#{i}.jpeg")
-		
-#		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test1.jpeg", "./fitsFiles/test1.fit")
-#		@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "./images/test2.jpeg", "./fitsFiles/test2.fit")
-			
-#		@gridBlocks.push new HTM(@level, @gl, @Math, "sphere", "./images/toast.png")
-		
-		#set initial scale
-#		document.getElementById("scale").value = (1)*3600
-				
 		#render
 		this.render(true)
 		
@@ -44,22 +32,22 @@ class SkyView extends WebGL
 		
 	setScale: ()=>
 		@translation[2] = 1-(document.getElementById("scale").value/45.0)
-	setRotation: ()=>
-		@rotation[1] = parseFloat(document.getElementById("RA").value)
-		@rotation[0] = parseFloat(document.getElementById("Dec").value)
-	setLevel: ()=>
-		@level = parseInt(document.getElementById("level").value)
-		
+	jump: (RA,Dec)=>
+		@rotation[1] = -RA
+		@rotation[0] = -Dec	
+
 	render: (flag)=>
 		
 		if flag? and flag is true
 		
 			## retrieve RA and radius ##
 			radius = 30#parseFloat(document.getElementById("scale").value) / 60.0
+			
 			if radius < 1.0
 				radius = 1.0
-			ra = 176#parseFloat(document.getElementById("RA").value)
-			dec = 52#parseFloat(document.getElementById("Dec").value)
+			
+			ra = @rotation[1]
+			dec = @rotation[0]
 		
 			# select the images
 		
