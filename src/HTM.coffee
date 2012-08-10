@@ -2,6 +2,11 @@ class TextureProxy
 	###
 	A TextureProxy uses an already loaded temporary image while
 	another image is loading. 
+
+	@constructor
+	@param: GL_CONTEXT gl
+	@param String img_url: The image url to be fetched to make the texture.
+	@param: GL_TEXTURE temp_img_texture: the texture that is to be shown while the image is being loaded.
 	###
 	constructor: (gl, img_url, temp_img_texture) ->
 		@texture = temp_img_texture
@@ -85,27 +90,9 @@ class HTM
 		return
 	getSet:()=>
 		return @set
-		
-	handleLoadedTexture: (texture)=>
-
-		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
-
-		@gl.bindTexture(@gl.TEXTURE_2D, texture)
-		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
-		@gl.bindTexture(@gl.TEXTURE_2D, null)
 
 	initTexture: (image) =>
-		@Texture = @gl.createTexture()
-		@Texture.image = new Image()
-		@Texture.image.onload = ()=> 
-			this.handleLoadedTexture(@Texture)
-
-		@Texture.image.src = image
-		
+		@Texture = new TextureProxy(@gl, image, Config.proxy_default_texture)
     
 	debugColor: ()=>
 		
@@ -391,7 +378,7 @@ class HTM
 	bindSphere: (shaderProgram)=>
 		
 		@gl.activeTexture(@gl.TEXTURE0)
-		@gl.bindTexture(@gl.TEXTURE_2D, @Texture)
+		@gl.bindTexture(@gl.TEXTURE_2D, @Texture.texture)
 		@gl.uniform1i(shaderProgram.samplerUniform, 0)
 
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
