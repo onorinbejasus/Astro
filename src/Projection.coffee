@@ -135,7 +135,7 @@ class Projection
 			if @parameters.ctype1 == "DEC--TAN"
 				tmp = x
 				x = y
-				y = temp
+				y = tmp
 				if index == 0
 					crval = @Math.rotate(crval)
 			
