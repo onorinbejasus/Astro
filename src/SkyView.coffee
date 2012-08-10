@@ -25,6 +25,8 @@ class SkyView extends WebGL
 		@Math = new math()		
 		@gridBlocks = []
 		
+		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+		
 		#render
 		this.render(true)
 		
@@ -77,58 +79,34 @@ class SkyView extends WebGL
 			
 			when 'i'
 				@rotation[0] -= 0.1
-				document.getElementById("Dec").value = -@rotation[0]
+				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				this.render()
 			when 'k'
 				@rotation[0] += 0.1
-				document.getElementById("Dec").value = -@rotation[0]
+				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				this.render()
 			when 'l'
 				@rotation[1] += 0.1
-				document.getElementById("RA").value = -@rotation[1]
+				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
-				if document.getElementById("RA").value < 0
-					document.getElementById("RA").value = 360 - @rotation[1] 
+				if -@rotation[1] < 0
+					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
-				else if document.getElementById("RA").value > 360
-					document.getElementById("RA").value = @rotation[1] - 360
+				else if -@rotation[1] > 360
+					$('#RA-Dec').text((this.rotation[1] - 360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
 				this.render() 
 			
 			when 'j'
 				@rotation[1] -= 0.1 
-				document.getElementById("RA").value = -@rotation[1]
+				$('#RA-Dec').text((this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
-				if document.getElementById("RA").value > 360
-					document.getElementById("RA").value = @rotation[1] - 360
+				if -@rotation[1] > 360
+					$('#RA-Dec').text((this.rotation[1]-360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
-				else if document.getElementById("RA").value < 0
-					document.getElementById("RA").value = 360 - @rotation[1]
+				else if @rotation[1] < 0
+					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
-				this.render()
-				
-			when 'p'
-				@rotation[1] += 1.0
-				document.getElementById("RA").value = -@rotation[1]
-
-				if document.getElementById("RA").value < 0
-					document.getElementById("RA").value = 360 - @rotation[1] 
-
-				else if document.getElementById("RA").value > 360
-					document.getElementById("RA").value = @rotation[1] - 360
-
-				this.render() 
-
-			when 'o'
-				@rotation[1] -= 1.0 
-				document.getElementById("RA").value = -@rotation[1]
-
-				if document.getElementById("RA").value > 360
-					document.getElementById("RA").value = @rotation[1] - 360
-
-				else if document.getElementById("RA").value < 0
-					document.getElementById("RA").value = 360 - @rotation[1]
-
 				this.render()
 			
 			when 'w' 
@@ -146,74 +124,6 @@ class SkyView extends WebGL
 			when 'S'
 				@translation[2] -= 0.01
 				this.render()
-				
-			when 'x'
-				@translation[0] -= 0.001
-				this.render()
-			when 'X'
-				@translation[0] += 0.001
-				this.render()
-			when 'y'
-				@translation[1] -= 0.001
-				this.render()
-			when 'Y'
-				@translation[1] += 0.001
-				this.render()
-			
-				
-			when '1'
-				@level = 1
-				document.getElementById('level').value = 1
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when '2'
-				@level = 2
-				document.getElementById('level').value = 2
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when '3'
-				@level = 3
-				document.getElementById('level').value = 3
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when '4'
-				@level = 4
-				document.getElementById('level').value = 4
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when '5'
-				@level = 5
-				document.getElementById('level').value = 5
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when '6'
-				@level = 6
-				document.getElementById('level').value = 6
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()	
-			when '7'
-				@level = 7
-				document.getElementById('level').value = 7
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when '8'
-				@level = 8
-				document.getElementById('level').value = 8
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when '9'
-				@level = 9
-				document.getElementById('level').value = 9
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when '0'
-				@level = 0
-				document.getElementById('level').value = 0
-				document.getElementById("scale").value = 180.0/Math.pow(2,@level+1)
-				this.render()
-			when 'r'
-				console.log @rotation
-				console.log @translation
 		return
 	
 	mousePress: (key) =>
