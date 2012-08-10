@@ -57,13 +57,13 @@ class HTM
 	
 	@set = null
 		
-	constructor: (@levels, @gl, @Math, type, texture, fits) ->
+	constructor: (@levels, @gl, @Math, type, survey, texture, fits) ->
 				
 		if type == "sky"
 			@proj = new Projection(@Math)
 			
 			@set = false
-			@proj.init(texture,fits,this)
+			@proj.init(texture,fits,this,survey)
 			
 		###
 		else if type == "sphere"

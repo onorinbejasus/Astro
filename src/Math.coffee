@@ -134,3 +134,6 @@ class math
 			return Math.PI + Math.atan(y/x)
 		else if x < 0 and y < 0
 			return -Math.PI + Math.atan(y/x)
+			
+	rotate: (x)=>
+		return [x[1],x[0]]
