@@ -5,3 +5,5 @@ class Config
 	Create a texture within init and set it to Config.proxy_default_texture
 	###
 	@proxy_default_texture = null
+	@scroll_sensitivity = .001
+	@pan_sensitivity = 0.1

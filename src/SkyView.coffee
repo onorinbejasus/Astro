@@ -1,7 +1,10 @@
 #= require WebGL
 
 class SkyView extends WebGL
-	
+	@mouseCoords = {'x':0, 'y':0}
+	@MOUSE_DOWN = 1
+	@MOUSE_UP = 0
+	@mouseState = MOUSE_UP
 	@gridBlocks = 0
 	@rotation = null
 	@translation = null
@@ -32,7 +35,64 @@ class SkyView extends WebGL
 		this.render(true)
 		
 		return
-		
+
+	panDown:(event)=>
+		@mouseState = @MOUSE_DOWN
+		@mouse_coords.x = event.clientX
+		@mouse_coords.y = event.clientY
+
+	panMove: (event)=>
+		if @mouseState == @MOUSE_DOWN
+			delta_x = event.clientX - @mouse_coords.x
+			delta_y = event.clientY - @mouse_coords.y
+
+			# Update mouse coordinates.
+			@mouse_coords.x = event.clientX
+			@mouse_coords.y = event.clientY
+
+			# Assume this is the mouse going UP
+			if delta_y <= 0
+				@rotation[0] -= Config.pan_sensitivity  # Too much movement?
+
+			# Assume the mouse is going DOWN
+			else
+				@rotation[0] += Config.pan_sensitivity
+
+			if delta_x <= 0
+				@rotation[1] -= Config.pan_sensitivity
+
+			else
+				@rotation[1] += Config.pan_sensitivity
+			#@translate((event.clientX-@mouse_coords.x)/ 1000 * 1.8 / @scale, (-event.clientY+@mouse_coords.y)/ 1000 * 1.8 / @scale)
+
+			# Update the RA-DEC numbers
+			$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+			this.render()
+
+	panUp: (event)=>
+		@mouseState = 0
+
+	panScroll: (event)=>
+		delta = 0;
+		if (!event) 
+			event = window.event;
+		#normalize the delta
+		if (event.wheelDelta)
+			#IE and Opera
+			delta = event.wheelDelta / 60;
+		else if (event.detail) 
+			delta = -event.detail / 2;
+
+		# Assume zoom out
+		if delta > 0
+			@translation[2] -= Config.scroll_sensitivity
+		# Assume Zoom in
+		else
+			@translation[2] += Config.scroll_sensitivity
+		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
+		this.render()
+
+
 	setScale: ()=>
 		@translation[2] = 1-(document.getElementById("scale").value/45.0)
 	jump: (RA,Dec)=>
@@ -76,7 +136,37 @@ class SkyView extends WebGL
 				grid.renderSphere(@renderMode)
 				
 		return
-				
+
+	mouseHandler:(canvas)->
+		@hookEvent(canvas, "mousedown", @panDown)
+		@hookEvent(canvas, "mouseup", @panUp)
+		@hookEvent(canvas, "mousewheel", @panScroll)
+		@hookEvent(canvas, "mousemove", @panMove)
+
+	hookEvent:(element, eventName, callback)->
+		if(typeof(element) == "string")
+			element = document.getElementById(element);
+		if(element == null)
+			return;
+		if(element.addEventListener)
+			if(eventName == 'mousewheel')
+				element.addEventListener('DOMMouseScroll', callback, false);  
+			element.addEventListener(eventName, callback, false);
+		else if(element.attachEvent)
+			element.attachEvent("on" + eventName, callback);
+
+	unhookEvent:(element, eventName, callback)->
+		if(typeof(element) == "string")
+			element = document.getElementById(element);
+		if(element == null)
+			return;
+		if(element.removeEventListener)
+			if(eventName == 'mousewheel')
+				element.removeEventListener('DOMMouseScroll', callback, false);  
+			element.removeEventListener(eventName, callback, false);
+		else if(element.detachEvent)
+			element.detachEvent("on" + eventName, callback);	
+	
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)

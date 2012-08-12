@@ -38,8 +38,7 @@ class TextureProxy
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			gl.bindTexture(gl.TEXTURE_2D, null)	
 
-			if load_callback
-				load_callback(texture)
+			load_callback(texture)
 		
 		texture.image.src = image
 
