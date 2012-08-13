@@ -64,7 +64,7 @@ class SkyView extends WebGL
 		if flag? and flag is true
 		
 			## retrieve RA and radius ##
-			radius = 15#((-@translation[2]+1)*15)*90
+			radius = 60#((-@translation[2]+1)*15)*90
 			
 			if radius < 1.0
 				radius = 1.0
