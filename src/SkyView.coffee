@@ -9,6 +9,7 @@ class SkyView extends WebGL
 	@Math = null
 	@it = 0
 	@selected = "none"
+	@alpha = null
 	
 	constructor: (options) ->
 	
@@ -16,22 +17,41 @@ class SkyView extends WebGL
 		super(options)
 		
 		#init htm variables
-		@translation = [0.0, 0.0, 0.93333]
+		@translation = [0.0, 0.0, 0.96667]
 		@rotation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
-		@level = 0
+		@alpha = 1.0
 		
 		# init math, grid and projection
-		@Math = new math()		
+		@Math = new math()
 		@gridBlocks = []
 		
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		
+		console.log $('#Scale').text
+		
 		#render
 		this.render(true)
-		
 		return
+		
+	setSDSSAlpha :(value)=>
+	
+		@alpha = value
+		this.render()
+	
+	requestAnno: (range, time, query, source, color)=>
+		
+		scale = ((-@translation[2]+1)*15) * 3600
+		
+		imgURL = "./lib/createOverlay.php?width=1024&height=1024
+			&RAMin=#{range.minRA}&RAMax=#{range.maxRA}&DecMin=#{range.minDec}&DecMax=#{range.maxDec}&scale=1.8&diam=2
+			&ms=#{time}&query=#{query}&type=#{source}&color=#{color}"
+		
+		@gridBlocks.push new HTM(@gl, @Math, "anno", "anno", 
+			imgURL, null, range)
+		
+		return 
 		
 	setScale: ()=>
 		@translation[2] = 1-(document.getElementById("scale").value/45.0)
@@ -44,7 +64,7 @@ class SkyView extends WebGL
 		if flag? and flag is true
 		
 			## retrieve RA and radius ##
-			radius = 30#parseFloat(document.getElementById("scale").value) / 60.0
+			radius = 15#((-@translation[2]+1)*15)*90
 			
 			if radius < 1.0
 				radius = 1.0
@@ -61,7 +81,7 @@ class SkyView extends WebGL
 						if key % 2 == 0
 							fitsFile = data[key+1]
 							fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
-							@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "SDSS", 
+							@gridBlocks.push new HTM(@gl, @Math, "sky", "SDSS", 
 								"../timProduction/lib/webgl/sdss/#{val}","../timProduction/lib/webgl/sdss/#{fits}")
 					)	
 			)
@@ -70,9 +90,9 @@ class SkyView extends WebGL
 		this.preRender(@rotation, @translation) # set up matrices
 				
 		for grid in @gridBlocks
-			if grid.getSet() == true
-				console.log "render"
+			if grid.getSet() == true	
 				grid.bindSphere(@shaderProgram)
+				@gl.uniform1f(@shaderProgram.alphaUniform, @alpha)
 				grid.renderSphere(@renderMode)
 				
 		return
@@ -97,18 +117,18 @@ class SkyView extends WebGL
 					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
 				else if -@rotation[1] > 360
-					$('#RA-Dec').text((this.rotation[1] - 360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+					$('#RA-Dec').text((this.rotation[1] + 360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
 				this.render() 
 			
 			when 'j'
 				@rotation[1] -= 0.1 
-				$('#RA-Dec').text((this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
 				if -@rotation[1] > 360
-					$('#RA-Dec').text((this.rotation[1]-360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+					$('#RA-Dec').text((this.rotation[1]+360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
-				else if @rotation[1] < 0
+				else if -@rotation[1] < 0
 					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
 				this.render()
@@ -132,8 +152,29 @@ class SkyView extends WebGL
 				@translation[2] -= 0.01
 				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 				this.render()
+				
+			when 't'
+				this.getBoundingBox()
+				
 		return
-	
+	getBoundingBox:()=>
+
+		max = this.getCoordinate(@canvas.width, @canvas.height)
+		min = this.getCoordinate(0,0)
+		
+		range = new Object()
+		
+		range.maxRA = max.x
+		range.minRA = min.x
+		range.maxDec = max.y
+		range.minDec = min.y
+		
+		
+		
+		console.log range
+		
+		return range
+		
 	getCoordinate: (x,y) =>
 		
 		#get the projection, model-view and viewport
@@ -167,7 +208,7 @@ class SkyView extends WebGL
 		# new
 		
 		a = @Math.dot([dir[0],dir[1],dir[2],1.0],[dir[0], dir[1],dir[2],1.0])
-		b = @Math.dot([dir[0], dir[1],dir[2],1.0],[origin[0],origin[1],origin[2],0.0]) * 2.0
+		b = @Math.dot([origin[0],origin[1],origin[2],0.0],[dir[0], dir[1],dir[2],1.0]) * 2.0
 		c = @Math.dot([origin[0],origin[1],origin[2],0.0],[origin[0],origin[1],origin[2],0.0]) - 1
 		
 		t = [0,0]
@@ -181,18 +222,19 @@ class SkyView extends WebGL
 			t[0] = (-b - Math.sqrt(descrim))/(2.0*a)
 			t[1] = (-b + Math.sqrt(descrim))/(2.0*a)
 		
-		intersection = @Math.mult(@Math.add(origin, dir), t[1])
+		intersection = @Math.add(origin,@Math.mult(dir,t[1]))
 		console.log intersection
 		
 		theta = Math.atan(intersection[0]/intersection[2]) * 57.29577951308323
 		console.log "theta",theta
 		
 		RA = theta
-		
-		if theta < 0
-			RA = 360 + theta
-			console.log "less"
-			
+		###
+		if theta < 270
+			RA = 270 - RA
+		else
+			theta = 360 + (RA-270)
+		###	
 		phi = Math.acos(intersection[1]) * 57.29577951308323
 		Dec = 90 - phi
 		

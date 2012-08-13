@@ -91,7 +91,7 @@ class Projection
 	
 	unproject: (xsize, ysize) =>
 
-		console.log @parameters
+		#console.log @parameters
 	
 		rtod = 57.29577951308323
 		dtor = 0.0174532925
@@ -106,11 +106,11 @@ class Projection
 
 		crval = [@parameters.crval1,@parameters.crval2]
 
-		console.log "crval1,2: ", crval
-		console.log "cd11: ",@parameters.cd11
-		console.log "cd12: ",@parameters.cd12
-		console.log "cd21: ",@parameters.cd21
-		console.log "cd22: ",@parameters.cd22
+		#console.log "crval1,2: ", crval
+		#console.log "cd11: ",@parameters.cd11
+		#console.log "cd12: ",@parameters.cd12
+		#console.log "cd21: ",@parameters.cd21
+		#console.log "cd22: ",@parameters.cd22
 
 		for index in [0..3]
 
@@ -139,9 +139,9 @@ class Projection
 				if index == 0
 					crval = @Math.rotate(crval)
 			
-			console.log "new crval: ", crval
+			#console.log "new crval: ", crval
 
-			console.log "x,y: ", x, y
+			#console.log "x,y: ", x, y
 
 			# Step 3 (long checks out, lat does not)
 

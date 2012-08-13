@@ -36,8 +36,8 @@ class window.WebGL
 	initGL: () =>
 		
 		try
-			@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
-		#	@gl = @canvas.getContext("experimental-webgl")
+		#	@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
+			@gl = @canvas.getContext("experimental-webgl")
 			
 			@gl.viewportWidth = @canvas.width
 			@gl.viewportHeight = @canvas.height
@@ -114,6 +114,9 @@ class window.WebGL
 		@shaderProgram.mvMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uMVMatrix")
 		@shaderProgram.nMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uNMatrix");
 		@shaderProgram.samplerUniform = @gl.getUniformLocation(@shaderProgram, "uSampler");
+		
+		@shaderProgram.alphaUniform = @gl.getUniformLocation(@shaderProgram, "alpha");
+		
 		
 		return
 		    

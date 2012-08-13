@@ -99,7 +99,7 @@ class Overlay
 					imgURL = (@imagePath + data[0])
 				else
 					imgURL = @placeholder
-					cb imgURL				
+					cb imgURL
 					$.get url,{RAMin:raMin, RAMax:raMax, DecMin:decMin, DecMax:decMax}, done, 'json'
 	
 	requestAnno: (degX, degY, scale, cb)=>
@@ -114,7 +114,7 @@ class Overlay
 		imgURL = "./lib/createOverlay.php?width=1024&height=1024
 			&RAMin=#{raMin}&RAMax=#{raMax}&DecMin=#{decMin}&DecMax=#{decMax}&scale=1.8&diam=2
 			&ms=#{@time}&query=#{@query}&type=#{@source}&color=#{@color}"
-						
+		
 		cb imgURL
 		@view.display();
 	deleteOverlay:()=>
