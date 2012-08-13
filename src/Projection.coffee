@@ -2,15 +2,20 @@ class Projection
 	constructor:(@Math)->
 		@parameters = null
 
-	init:(image,fits,HTM)=>
+	init:(image,fits,HTM, survey)=>
 		
+		if survey == "SDSS"
+			size = [1984,1361]
+		else if survey == "LSST"
+			size = [4072,4000]
+			
 		FITS = require('fits')
 		
 		@parameters = new Object
-		
+		###
 		$.ajaxSetup({'async': false})
 		# grab the image headers
-		$.getJSON("./imageHeader.php?url=#{image}", (data) =>
+		$.getJSON("../Astro/imageHeader.php?url=#{image}", (data) =>
 			$.each(data, (key, val) =>
 				if key == "CRVAL_1"
 					@parameters.crval1 = val
@@ -31,6 +36,7 @@ class Projection
 			)
 		)
 		$.ajaxSetup({'async': true})
+		
 		###
 		
 		xhr = new XMLHttpRequest()
@@ -42,7 +48,13 @@ class Projection
 
 			fits = new FITS.File(xhr.response)
 			hdu = fits.getHDU()
-
+			
+			@parameters.ctype1 = hdu.getCard("CTYPE1")
+			@parameters.ctype1 = hdu.header["CTYPE1"]
+			
+			@parameters.ctype2 = hdu.getCard("CTYPE2")
+			@parameters.ctype2 = hdu.header["CTYPE2"]
+			
 			@parameters.crpix1 = hdu.getCard("CRPIX1")
 			@parameters.crpix1 = hdu.header["CRPIX1"]
 
@@ -66,15 +78,15 @@ class Projection
 
 			@parameters.cd22 = hdu.getCard("CD2_2")
 			@parameters.cd22 = hdu.header["CD2_2"]
-			
-			coords = this.unproject(1984,1361)
+		
+			coords = this.unproject(size[0],size[1])
 			
 			HTM.initTexture(image)
 			HTM.createSphere(coords[0],coords[1])
 			HTM.setFlag()
 			
 		xhr.send()
-		###
+		
 		return
 	
 	unproject: (xsize, ysize) =>
@@ -107,10 +119,10 @@ class Projection
 
 			# Step 2 (values check out with mine)
 
-			y = @parameters.cd11 * (xpix[i]-@parameters.crpix1) +
+			x = @parameters.cd11 * (xpix[i]-@parameters.crpix1) +
 			        @parameters.cd12 * (ypix[j]-@parameters.crpix2)
 
-			x = @parameters.cd21 * (xpix[i]-@parameters.crpix1) +
+			y = @parameters.cd21 * (xpix[i]-@parameters.crpix1) +
 			        @parameters.cd22 * (ypix[j]-@parameters.crpix2)
 
 			#flip for 0,0 region
@@ -119,7 +131,14 @@ class Projection
 			#y = tmp
 			#if index == 0
 			#       crval = @Math.rotate(crval)
-
+			
+			if @parameters.ctype1 == "DEC--TAN"
+				tmp = x
+				x = y
+				y = tmp
+				if index == 0
+					crval = @Math.rotate(crval)
+			
 			console.log "new crval: ", crval
 
 			console.log "x,y: ", x, y
@@ -153,11 +172,11 @@ class Projection
 			phi = 0.0
 			theta = 90.0 * dtor
 
-			lonpole = if crval[0] > theta*rtod then 0.0 else 180.0*dtor
+			lonpole = if crval[1] > theta*rtod then 0.0 else 180.0*dtor
 			#lonpole = 180.0*dtor
 			latpole = 90.0 * dtor
-			rapole = crval[1] * dtor
-			decpole = crval[0] * dtor
+			rapole = crval[0] * dtor
+			decpole = crval[1] * dtor
 
 			#console.log "lonlatpole,thetaphi: ",lonpole,latpole,theta,phi
 			#console.log "ra,dec pole: ", rapole, decpole

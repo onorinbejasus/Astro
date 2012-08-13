@@ -2,6 +2,11 @@ class TextureProxy
 	###
 	A TextureProxy uses an already loaded temporary image while
 	another image is loading. 
+
+	@constructor
+	@param: GL_CONTEXT gl
+	@param String img_url: The image url to be fetched to make the texture.
+	@param: GL_TEXTURE temp_img_texture: the texture that is to be shown while the image is being loaded.
 	###
 	constructor: (gl, img_url, temp_img_texture) ->
 		@texture = temp_img_texture
@@ -33,8 +38,7 @@ class TextureProxy
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			gl.bindTexture(gl.TEXTURE_2D, null)	
 
-			if load_callback
-				load_callback(texture)
+			load_callback(texture)
 		
 		texture.image.src = image
 
@@ -57,13 +61,13 @@ class HTM
 	
 	@set = null
 		
-	constructor: (@levels, @gl, @Math, type, texture, fits) ->
+	constructor: (@levels, @gl, @Math, type, survey, texture, fits) ->
 				
 		if type == "sky"
 			@proj = new Projection(@Math)
 			
 			@set = false
-			@proj.init(texture,fits,this)
+			@proj.init(texture,fits,this,survey)
 			
 		###
 		else if type == "sphere"
@@ -86,16 +90,6 @@ class HTM
 	getSet:()=>
 		return @set
 
-
-	initTexture: (image) =>
-		# TODO: SEAN ~ Turn this into a TextureProxy, need to do config for default texture loading!
-		@Texture = @gl.createTexture()
-		@Texture.image = new Image()
-		@Texture.image.onload = ()=>
-			this.handleLoadedTexture(@Texture)
-		@Texture.image.src = image
-		
-    
 	debugColor: ()=>
 		
 		color = []
@@ -120,7 +114,27 @@ class HTM
 		@VertexColorBuffer.numItems = 8 * Math.pow(4,@levels) * 6
 					
 		return
-	
+
+	handleLoadedTexture: (texture)=>
+
+		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
+
+		@gl.bindTexture(@gl.TEXTURE_2D, texture)
+		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
+		@gl.bindTexture(@gl.TEXTURE_2D, null)
+
+	initTexture: (image) =>
+		@Texture = @gl.createTexture()
+		@Texture.image = new Image()
+		@Texture.image.onload = ()=> 
+			this.handleLoadedTexture(@Texture)
+
+		@Texture.image.src = image
+
 	createHTM: () =>
 		
 		@verts = []
@@ -296,8 +310,6 @@ class HTM
 					0.0, 0.0,
 					1.0, 0.0,
 					1.0, 1.0,
-					
-					
 					
 				]
 			
