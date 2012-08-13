@@ -1,4 +1,4 @@
-class window.WebGL
+class WebGL
 	
 	@gl = 0
 	@shaderProgram = 0

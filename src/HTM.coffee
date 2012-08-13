@@ -90,9 +90,6 @@ class HTM
 	getSet:()=>
 		return @set
 
-	initTexture: (image) =>
-		@Texture = new TextureProxy(@gl, image, Config.proxy_default_texture)
-    
 	debugColor: ()=>
 		
 		color = []
@@ -117,7 +114,27 @@ class HTM
 		@VertexColorBuffer.numItems = 8 * Math.pow(4,@levels) * 6
 					
 		return
-	
+
+	handleLoadedTexture: (texture)=>
+
+		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
+
+		@gl.bindTexture(@gl.TEXTURE_2D, texture)
+		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
+		@gl.bindTexture(@gl.TEXTURE_2D, null)
+
+	initTexture: (image) =>
+		@Texture = @gl.createTexture()
+		@Texture.image = new Image()
+		@Texture.image.onload = ()=> 
+			this.handleLoadedTexture(@Texture)
+
+		@Texture.image.src = image
+
 	createHTM: () =>
 		
 		@verts = []
@@ -377,7 +394,7 @@ class HTM
 	bindSphere: (shaderProgram)=>
 		
 		@gl.activeTexture(@gl.TEXTURE0)
-		@gl.bindTexture(@gl.TEXTURE_2D, @Texture.texture)
+		@gl.bindTexture(@gl.TEXTURE_2D, @Texture)
 		@gl.uniform1i(shaderProgram.samplerUniform, 0)
 
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)

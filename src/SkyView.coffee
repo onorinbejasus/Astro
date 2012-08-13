@@ -1,10 +1,10 @@
 #= require WebGL
 
 class SkyView extends WebGL
-	@mouseCoords = {'x':0, 'y':0}
+
 	@MOUSE_DOWN = 1
 	@MOUSE_UP = 0
-	@mouseState = MOUSE_UP
+	@mouseState = @MOUSE_UP
 	@gridBlocks = 0
 	@rotation = null
 	@translation = null
@@ -17,7 +17,7 @@ class SkyView extends WebGL
 	
 		#init webgl
 		super(options)
-		
+		@mouse_coords = {'x':0, 'y':0}	
 		#init htm variables
 		@translation = [0.0, 0.0, 0.93333]
 		@rotation = [0.0, 0.0, 0.0]
@@ -137,11 +137,11 @@ class SkyView extends WebGL
 				
 		return
 
-	mouseHandler:(canvas)->
-		@hookEvent(canvas, "mousedown", @panDown)
-		@hookEvent(canvas, "mouseup", @panUp)
-		@hookEvent(canvas, "mousewheel", @panScroll)
-		@hookEvent(canvas, "mousemove", @panMove)
+	mouseHandler:()->
+		@hookEvent(@canvas, "mousedown", @panDown)
+		@hookEvent(@canvas, "mouseup", @panUp)
+		@hookEvent(@canvas, "mousewheel", @panScroll)
+		@hookEvent(@canvas, "mousemove", @panMove)
 
 	hookEvent:(element, eventName, callback)->
 		if(typeof(element) == "string")
@@ -166,7 +166,7 @@ class SkyView extends WebGL
 			element.removeEventListener(eventName, callback, false);
 		else if(element.detachEvent)
 			element.detachEvent("on" + eventName, callback);	
-	
+
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)
