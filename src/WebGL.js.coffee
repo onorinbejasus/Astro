@@ -38,8 +38,8 @@ class window.WebGL
 	initGL: () =>
 		
 		try
-			@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
-		#	@gl = @canvas.getContext("experimental-webgl")
+		#	@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
+			@gl = @canvas.getContext("experimental-webgl")
 			
 			@gl.viewportWidth = @canvas.width
 			@gl.viewportHeight = @canvas.height

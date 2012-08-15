@@ -10,8 +10,10 @@ class SkyView extends WebGL
 	@it = 0
 	@selected = "none"
 	@SDSSalpha = null
-	@Annoalpha = null
 	
+	@lsstarray = null
+	@firstarray = null
+		
 	constructor: (options) ->
 	
 		#init webgl
@@ -22,33 +24,74 @@ class SkyView extends WebGL
 		@rotation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
 		@SDSSalpha = 1.0
-		
-		@Annoalpha = []
-		
+		@FIRSTalpha = 1.0
+		@LSSTalpha = 1.0
+			
 		# init math, grid and projection
 		@Math = new math()
 		@gridBlocks = []
 
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				
-		#render
-		this.render(true)
+		###
+		@firstarray = []
+		@firstflag = false
+		ffile = new XMLHttpRequest()
+		ffile.open('GET', './firstimages/filelist.txt',true) 
+		ffile.onload = (e) =>
+			text = ffile.responseText
+			lines = text.split("\n")
+			$.each(lines, (key,val) =>
+				@firstarray.push val
+			)
+			@firstflag = true
+			#console.log "first,lsst flags 1: ", @firstflag, @lsstflag
+			if @firstflag == true && @lsstflag == true
+				this.render(true)
+		ffile.send()
+		###
+		
+		@firstflag = true
+		
+		#init lsst array of path names
+		@lsstarray = []
+		@lsstflag = false
+		lfile = new XMLHttpRequest()
+		lfile.open('GET', '../lsstimages/filelist.txt',true)   #this path should change to the full path on astro server /u/astro/images/LSST/jpegfiles.txt
+		lfile.onload = (e) =>
+			text = lfile.responseText
+			lines = text.split("\n")
+			$.each(lines, (key,val) =>
+				@lsstarray.push val
+			)
+
+			@lsstflag = true
+			#console.log "first,lsst flags 2: ", @firstflag, @lsstflag
+			if @firstflag == true && @lsstflag == true
+				this.render(true)
+		lfile.send()
 		
 	setSDSSAlpha :(value)=>
 	
 		@SDSSalpha = value
 		this.render()
+	setFIRSTAlpha :(value)=>
+
+		@SDSSalpha = value
+		this.render()
+	setLSSTAlpha :(value)=>
+
+		@LSSTalpha = value
+		this.render()
 	
 	setScale:(value)=>
 		$('#Scale').text(((value+1)*15).toFixed(2))
 		return
+		
 	createOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
-		
+			
 		scale = ((-@translation[2]+1)*15) * 3600
-		
-		range = [raMin,raMax,decMin,decMax]
-		
+				
 		img = ''
 		
 		$.ajaxSetup({'async': false})	
@@ -57,8 +100,8 @@ class SkyView extends WebGL
 			type: 'POST',
 			url: "./lib/createOverlay.php",
 			data: 	
-				'width':1024,
-				'height':1024
+				'width':512,
+				'height':512
 				'RAMin':raMin,
 				'RAMax':raMax,
 				'DecMin':decMin,
@@ -74,7 +117,6 @@ class SkyView extends WebGL
 		
 		$.ajaxSetup({'async': true})	
 		
-		console.log img
 		imgURL = "./lib/overlays/#{img}"
 		
 		###
@@ -82,13 +124,21 @@ class SkyView extends WebGL
 			&RAMin=#{raMin}&RAMax=#{raMax}&DecMin=#{decMin}&DecMax=#{decMax}&scale=1.8&diam=4
 				&color=#{color}&table="+JSON.stringify(raDec)
 		###
+		range = [raMin, raMax, decMin, decMax];
 		overlay =  new HTM(@gl, @Math, "anno", "anno", 
-			imgURL, null, range)
+			imgURL, null, range, label)
 		
 		@gridBlocks.push overlay
 			
 		return overlay
-		
+	deleteOverlay: (name)=>
+		i = 0
+		for grid in @gridBlocks
+			if grid.name == name
+				@gridblocks.splice(i,1)
+			i++
+		return
+				
 	panDown:(event)=>
 		@mouseState = @MOUSE_DOWN
 		@mouse_coords.x = event.clientX
@@ -163,9 +213,9 @@ class SkyView extends WebGL
 			
 			ra = -@rotation[1]
 			dec = -@rotation[0]
-		
+						
 			# select the images
-		
+			
 			$.ajaxSetup({'async': false})	
 			
 			$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
@@ -175,34 +225,46 @@ class SkyView extends WebGL
 							fitsFile = data[key+1]
 							fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
 							@gridBlocks.push  new HTM(@gl, @Math, "sky", "SDSS", 
-								"./lib/webgl/sdss/#{val}","/afs/cs.pitt.edu/usr0/tbl8/public/html/timProduction/lib/webgl/sdss/headtext/#{fits}")
+								"./lib/webgl/sdss/#{val}","/afs/cs.pitt.edu/projects/admt/web/sites/astro/sdss2degregion00/headtext/#{fits}")
 					)	
 			)
-			$.ajaxSetup({'async': true})	
+			$.ajaxSetup({'async': true})
 			
+		
+			for image in @lsstarray
+				console.log "lsst image: ", image
+				@gridBlocks.push new HTM(@gl, @Math, "sky", "LSST", "../../../lsstimages/#{image}", "")
 			###
-			url = './lib/db/remote/SPATIALTREE.php'
-			done = (data)=>
-				imgURL = ""
-				if(data[0])
-					imgURL = (@imagePath + data[0])
-					console.log data[0]
-				else
-					$.get url,{RAMin:raMin, RAMax:raMax, DecMin:decMin, DecMax:decMax}, done, 'json'
-				###			
+			for image,index in @firstarray when index < 2
+				#console.log "first image: ", image
+				@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "FIRST", "./firstimages/#{image}", "")
+			###
 		this.preRender(@rotation, @translation) # set up matrices
 				
 		for grid in @gridBlocks
 			if grid.getSet() == true
 				grid.bindSphere(@shaderProgram)
 				if grid.survey == "SDSS"
+					@gl.enable(@gl.DEPTH_TEST)
+					@gl.disable(@gl.BLEND)
 					@gl.uniform1f(@shaderProgram.alphaUniform, @SDSSalpha)
 				else if grid.survey == "anno"
 					@gl.disable(@gl.DEPTH_TEST)
 					@gl.enable(@gl.BLEND)
 					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-					@gl.uniform1f(@shaderProgram.alphaUniform, @Annoalpha[0])
-					
+					@gl.uniform1f(@shaderProgram.alphaUniform, grid.alpha)
+				else if grid.survey == "LSST"
+					@gl.disable(@gl.DEPTH_TEST)
+					@gl.enable(@gl.BLEND)
+					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
+					@gl.uniform1f(@shaderProgram.alphaUniform, @LSSTalpha)
+				###
+				else if grid.survey == "FIRST"
+					@gl.disable(@gl.DEPTH_TEST)
+					@gl.enable(@gl.BLEND)
+					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
+					@gl.uniform1f(@shaderProgram.alphaUniform, @FIRSTalpha)
+				###
 				grid.renderSphere(@renderMode)
 		return
 
@@ -311,6 +373,12 @@ class SkyView extends WebGL
 		range.minDec = min.y
 				
 		return range
+	
+	getPosition: ()=>
+		pos = new Object;
+		pos.ra = -@rotation[1]
+		pos.dec = -@rotation[0]
+		return pos
 		
 	getCoordinate: (x,y) =>
 		

@@ -58,8 +58,9 @@ class HTM
 	@survey = null
 	@set = null
 	@alpha = 1.0
+	@name = ''
 	
-	constructor: (@gl, @Math, type, survey, texture, fits, range) ->
+	constructor: (@gl, @Math, type, survey, texture, fits, range, name) ->
 		
 		@survey = survey
 
@@ -70,12 +71,13 @@ class HTM
 			@proj.init(texture,fits,this,survey)
 			
 		else if type == "anno"
-		
 			this.initTexture(texture)
-			this.createSphere([range.maxRA, range.minRA, range.minRA, range.maxRA],
-				[range.minDec, range.minDec, range.maxDec, range.maxDec])
+			this.createSphere([range[1], range[0], range[0], range[1]],
+				[range[3], range[3], range[2], range[2]])
 			this.setFlag()
 			
+			@alpha = 1.0
+			@name = name
 		###
 		else if type == "sphere"
 			this.createSphere()
@@ -83,7 +85,7 @@ class HTM
 		###	
 		return
 	setAlpha:(value)=>
-		@alpha = value
+		@alpha = 1.0
 	setFlag:()=>
 		@set = true
 		return
@@ -230,7 +232,7 @@ class HTM
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
 		@VertexTextureCoordBuffer.itemSize = 2
 		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
-
+				
 		return
 
 	bindHTM: (shaderProgram) =>

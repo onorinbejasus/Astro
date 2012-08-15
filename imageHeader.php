@@ -25,10 +25,11 @@ $ret_val = array(
 
 if($_GET['type'] == "JPEG"){
 
-	exec("./bin/jhead $url", $data, $ret);
-	if($survey == "LSST"){
+	exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/timProduction/bin/jhead $url", $data, $ret);
 	
+	if($survey == "LSST"){
 		foreach($data as $line){
+								
 	        $values = explode(" : ", $line);
 					foreach($values as $v){
 	          	if(strncmp("CRVAL1 ",$v,7) == 0){
@@ -202,7 +203,8 @@ else if ($_GET['type'] == "TEXT" && $survey == "SDSS"){
 				$ret_val["CTYPE2"] = $line[1];
 			}
 		
-}	
+		}	
+}
 echo json_encode($ret_val);
 
 ?>
