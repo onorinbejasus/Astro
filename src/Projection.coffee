@@ -2,7 +2,9 @@ class Projection
 	constructor:(@Math)->
 		@parameters = null
 
-	init:(image,fits,HTM, survey)=>
+	init:(image,fits,HTM,survey)=>
+		
+		console.log "init"
 		
 		if survey == "SDSS"
 			size = [1984,1361]
@@ -36,8 +38,6 @@ class Projection
 			)
 		)
 		$.ajaxSetup({'async': true})
-		
-		###
 		
 		xhr = new XMLHttpRequest()
 		
@@ -86,12 +86,49 @@ class Projection
 			HTM.setFlag()
 			
 		xhr.send()
+		###
 		
+		$.ajaxSetup({'async': false})
+		
+		# grab the image headers
+		$.getJSON("./lib/webgl/imageHeader.php?url=#{fits}&type=TEXT&survey=SDSS", (data) =>
+			$.each(data, (key, val) =>
+				if key == "CRVAL_1"
+					@parameters.crval1 = val
+				if key == "CRVAL_2"
+					@parameters.crval2 = val
+				if key == "CRPIX_1"
+					@parameters.crpix1 = val
+				if key == "CRPIX_2"
+					@parameters.crpix2 = val
+				if key == "CD1_1"
+					@parameters.cd11 = val
+				if key == "CD1_2"
+					@parameters.cd12 = val
+				if key == "CD2_1"
+					@parameters.cd21 = val
+				if key == "CD2_2"
+					@parameters.cd22 = val
+				if key == "CTYPE1"
+					@parameters.ctype1 = val
+				if key == "CTYPE2"
+					@parameters.ctype2 = val
+			)
+		)
+		
+		$.ajaxSetup({'async': true})
+		
+		console.log size
+		console.log @parameters
+		coords = this.unproject(size[0],size[1])
+		
+		HTM.initTexture(image)
+		HTM.createSphere(coords[0],coords[1])
+		HTM.setFlag()
+	
 		return
 	
 	unproject: (xsize, ysize) =>
-
-		#console.log @parameters
 	
 		rtod = 57.29577951308323
 		dtor = 0.0174532925
@@ -219,6 +256,6 @@ class Projection
 			else if ra[index] > 360.0
 			        ra[index] -= 360 
 
-		console.log "ra,dec: ",ra, dec
+	#	console.log "ra,dec: ",ra, dec
 
 		return [ra,dec]

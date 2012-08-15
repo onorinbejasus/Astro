@@ -9,7 +9,8 @@ class SkyView extends WebGL
 	@Math = null
 	@it = 0
 	@selected = "none"
-	@alpha = null
+	@SDSSalpha = null
+	@Annoalpha = null
 	
 	constructor: (options) ->
 	
@@ -17,54 +18,145 @@ class SkyView extends WebGL
 		super(options)
 		
 		#init htm variables
-		@translation = [0.0, 0.0, 0.96667]
+		@translation = [0.0, 0.0, 0.99333]
 		@rotation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
-		@alpha = 1.0
+		@SDSSalpha = 1.0
+		
+		@Annoalpha = []
 		
 		# init math, grid and projection
 		@Math = new math()
 		@gridBlocks = []
-		
+
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-		
-		console.log $('#Scale').text
-		
+				
 		#render
 		this.render(true)
-		return
 		
 	setSDSSAlpha :(value)=>
 	
-		@alpha = value
+		@SDSSalpha = value
 		this.render()
 	
-	requestAnno: (range, time, query, source, color)=>
+	setScale:(value)=>
+		$('#Scale').text(((value+1)*15).toFixed(2))
+		return
+	createOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
 		
 		scale = ((-@translation[2]+1)*15) * 3600
 		
-		imgURL = "./lib/createOverlay.php?width=1024&height=1024
-			&RAMin=#{range.minRA}&RAMax=#{range.maxRA}&DecMin=#{range.minDec}&DecMax=#{range.maxDec}&scale=1.8&diam=2
-			&ms=#{time}&query=#{query}&type=#{source}&color=#{color}"
+		range = [raMin,raMax,decMin,decMax]
 		
-		@gridBlocks.push new HTM(@gl, @Math, "anno", "anno", 
+		img = ''
+		
+		$.ajaxSetup({'async': false})	
+		
+		$.ajax(
+			type: 'POST',
+			url: "./lib/createOverlay.php",
+			data: 	
+				'width':1024,
+				'height':1024
+				'RAMin':raMin,
+				'RAMax':raMax,
+				'DecMin':decMin,
+				'DecMax':decMax,
+				'scale':1.8,
+				'diam':2,
+				'color':color,
+				'table':JSON.stringify(raDec)
+			success:(data)=>
+				img = data
+				return
+		)		
+		
+		$.ajaxSetup({'async': true})	
+		
+		console.log img
+		imgURL = "./lib/overlays/#{img}"
+		
+		###
+		imgURL = "./lib/createOverlay.php?width=1024&height=1024
+			&RAMin=#{raMin}&RAMax=#{raMax}&DecMin=#{decMin}&DecMax=#{decMax}&scale=1.8&diam=4
+				&color=#{color}&table="+JSON.stringify(raDec)
+		###
+		overlay =  new HTM(@gl, @Math, "anno", "anno", 
 			imgURL, null, range)
 		
-		return 
+		@gridBlocks.push overlay
+			
+		return overlay
 		
-	setScale: ()=>
-		@translation[2] = 1-(document.getElementById("scale").value/45.0)
+	panDown:(event)=>
+		@mouseState = @MOUSE_DOWN
+		@mouse_coords.x = event.clientX
+		@mouse_coords.y = event.clientY
+
+	panMove: (event)=>
+				
+		if @mouseState == @MOUSE_DOWN
+			delta_x = event.clientX - @mouse_coords.x
+			delta_y = event.clientY - @mouse_coords.y
+
+			# Update mouse coordinates.
+			@mouse_coords.x = event.clientX
+			@mouse_coords.y = event.clientY
+
+			# Assume this is the mouse going UP
+			if delta_y <= 0
+				@rotation[0] -= Config.pan_sensitivity  # Too much movement?
+
+			# Assume the mouse is going DOWN
+			else
+				@rotation[0] += Config.pan_sensitivity
+
+			if delta_x <= 0
+				@rotation[1] -= Config.pan_sensitivity
+
+			else
+				@rotation[1] += Config.pan_sensitivity
+			#@translate((event.clientX-@mouse_coords.x)/ 1000 * 1.8 / @scale, (-event.clientY+@mouse_coords.y)/ 1000 * 1.8 / @scale)
+
+			# Update the RA-DEC numbers
+			$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+			
+			this.render(true)
+
+	panUp: (event)=>
+		@mouseState = 0
+
+	panScroll: (event)=>
+		delta = 0;
+		if (!event) 
+			event = window.event;
+		#normalize the delta
+		if (event.wheelDelta)
+			#IE and Opera
+			delta = event.wheelDelta / 60;
+		else if (event.detail) 
+			delta = -event.detail / 2;
+
+		# Assume zoom out
+		if delta > 0
+			@translation[2] -= Config.scroll_sensitivity
+		# Assume Zoom in
+		else
+			@translation[2] += Config.scroll_sensitivity
+		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
+		this.render()
+
 	jump: (RA,Dec)=>
 		@rotation[1] = -RA
 		@rotation[0] = -Dec	
 
 	render: (flag)=>
-		
+				
 		if flag? and flag is true
 		
 			## retrieve RA and radius ##
-			radius = 60#((-@translation[2]+1)*15)*90
+			radius = 45#((-@translation[2]+1)*15)*90
 			
 			if radius < 1.0
 				radius = 1.0
@@ -75,28 +167,77 @@ class SkyView extends WebGL
 			# select the images
 		
 			$.ajaxSetup({'async': false})	
+			
 			$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
 				#{radius}&zoom=0", (data) =>
 					$.each(data, (key, val)=>
 						if key % 2 == 0
 							fitsFile = data[key+1]
 							fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
-							@gridBlocks.push new HTM(@gl, @Math, "sky", "SDSS", 
-								"../timProduction/lib/webgl/sdss/#{val}","../timProduction/lib/webgl/sdss/#{fits}")
+							@gridBlocks.push  new HTM(@gl, @Math, "sky", "SDSS", 
+								"./lib/webgl/sdss/#{val}","/afs/cs.pitt.edu/usr0/tbl8/public/html/timProduction/lib/webgl/sdss/headtext/#{fits}")
 					)	
 			)
-			$.ajaxSetup({'async': true})
-		
+			$.ajaxSetup({'async': true})	
+			
+			###
+			url = './lib/db/remote/SPATIALTREE.php'
+			done = (data)=>
+				imgURL = ""
+				if(data[0])
+					imgURL = (@imagePath + data[0])
+					console.log data[0]
+				else
+					$.get url,{RAMin:raMin, RAMax:raMax, DecMin:decMin, DecMax:decMax}, done, 'json'
+				###			
 		this.preRender(@rotation, @translation) # set up matrices
 				
 		for grid in @gridBlocks
-			if grid.getSet() == true	
+			if grid.getSet() == true
 				grid.bindSphere(@shaderProgram)
-				@gl.uniform1f(@shaderProgram.alphaUniform, @alpha)
+				if grid.survey == "SDSS"
+					@gl.uniform1f(@shaderProgram.alphaUniform, @SDSSalpha)
+				else if grid.survey == "anno"
+					@gl.disable(@gl.DEPTH_TEST)
+					@gl.enable(@gl.BLEND)
+					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
+					@gl.uniform1f(@shaderProgram.alphaUniform, @Annoalpha[0])
+					
 				grid.renderSphere(@renderMode)
-				
 		return
-				
+
+	mouseHandler:(canvas)->
+		@hookEvent(canvas, "mousedown", @panDown)
+		@hookEvent(canvas, "mouseup", @panUp)
+		@hookEvent(canvas, "mousewheel", @panScroll)
+		@hookEvent(canvas, "mousemove", @panMove)
+
+		
+	hookEvent:(element, eventName, callback)->
+		if(typeof(element) == "string")
+			element = document.getElementById(element)
+		if(element == null)
+			return
+		if(element.addEventListener)
+			if(eventName == 'mousewheel')
+				element.addEventListener('DOMMouseScroll', callback, false)  
+			element.addEventListener(eventName, callback, false)
+		else if(element.attachEvent)
+			element.attachEvent("on" + eventName, callback)
+
+	unhookEvent:(element, eventName, callback)->
+		if(typeof(element) == "string")
+			element = document.getElementById(element)
+		if(element == null)
+			return
+		if(element.removeEventListener)
+			if(eventName == 'mousewheel')
+				element.removeEventListener('DOMMouseScroll', callback, false) 
+			element.removeEventListener(eventName, callback, false)
+		else if(element.detachEvent)
+			element.detachEvent("on" + eventName, callback)	
+		return
+		
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)
@@ -136,7 +277,7 @@ class SkyView extends WebGL
 			when 'w' 
 				@translation[2] += 0.001
 				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render(false)	
+				this.render()	
 				
 			when 's'
 				@translation[2] -= 0.001
@@ -146,7 +287,7 @@ class SkyView extends WebGL
 			when 'W' 
 				@translation[2] += 0.01
 				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render(false)	
+				this.render()	
 
 			when 'S'
 				@translation[2] -= 0.01
@@ -168,11 +309,7 @@ class SkyView extends WebGL
 		range.minRA = min.x
 		range.maxDec = max.y
 		range.minDec = min.y
-		
-		
-		
-		console.log range
-		
+				
 		return range
 		
 	getCoordinate: (x,y) =>
@@ -214,8 +351,6 @@ class SkyView extends WebGL
 		t = [0,0]
 		
 		descrim = Math.pow(b,2)-(4.0*a*c)
-		console.log "descrim", descrim
-		console.log "b",b
 		
 		if descrim >= 0
 		
@@ -223,10 +358,8 @@ class SkyView extends WebGL
 			t[1] = (-b + Math.sqrt(descrim))/(2.0*a)
 		
 		intersection = @Math.add(origin,@Math.mult(dir,t[1]))
-		console.log intersection
 		
 		theta = Math.atan(intersection[0]/intersection[2]) * 57.29577951308323
-		console.log "theta",theta
 		
 		RA = theta
 		###
@@ -237,9 +370,7 @@ class SkyView extends WebGL
 		###	
 		phi = Math.acos(intersection[1]) * 57.29577951308323
 		Dec = 90 - phi
-		
-		console.log "RA",RA, "Dec",Dec
-		
+				
 		raDec = new Object()
 		raDec.x = RA
 		raDec.y = Dec

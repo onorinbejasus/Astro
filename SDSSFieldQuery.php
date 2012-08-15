@@ -60,24 +60,38 @@
 		$fh = fopen($File, 'w');
 		$ret_val = array();
 		
-		// Construct a file with a list of the jpeg urls, one on each line
+		// Construct a file with a list of the jpeg and fits urls, one on each line
 		foreach($out as $imageFields){
-			/*
-			* $url = http://das.sdss.org/imaging/$run/$rerun/Zoom/$camcol/$filename
+			/* JPEGS
+			* $jpegurl = http://das.sdss.org/imaging/$run/$rerun/Zoom/$camcol/$filename
 			*	$filename = fpC-$run-$camcol-$rerun-$field-z00.jpeg (z00 = zoom in 00,10,15,20,30)
 			* In $filename, run is padded to a total of 6 digits and field is padded to a total of 4 digits
 			* $imageFields = array(run, camcol, rerun, field) 
 			*/
-			$url = "http://das.sdss.org/imaging/" . $imageFields[0] . "/" . $imageFields[2] . "/Zoom/" . $imageFields[1] . "/fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-" . $imageFields[1] . "-" . $imageFields[2] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . "-z00.jpeg";
-			
+
+			/*FITS
+			* $fitsurl = http://das.sdss.org/imaging/$run/$rerun/corr/$camcol/$filename
+			*	$filename = fpC-$run-filter$camcol-$field.fit.gz
+			*In $filename, run is padded to a total of 6 digits and field is padded to a total f 4 digits
+			*$imageFields = array(run, camcol, rerun, field)
+			*/
+
+			$jpegurl = "http://das.sdss.org/imaging/" . $imageFields[0] . "/" . $imageFields[2] . "/Zoom/" . $imageFields[1] . "/fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-" . $imageFields[1] . "-" . $imageFields[2] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . "-z00.jpeg";
+			$fitsurl = "http://das.sdss.org/imaging/" . $imageFields[0] . "/" . $imageFields[2] . "/corr/" . $imageFields[1] . "/fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-r" . $imageFields[1] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . ".txt";			
+
 			// Testing - prints out each url as a link
 		
-			$name = "fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-" . $imageFields[1] . "-" . $imageFields[2] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . "-z00.jpeg";
+			$jpegname = "fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-" . $imageFields[1] . "-" . $imageFields[2] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . "-z00.jpeg";
+			$fitsname = "fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-r" . $imageFields[1] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . ".txt";
 			
-			array_push($ret_val, $name);
+			array_push($ret_val, $jpegname);
+			array_push($ret_val, $fitsname);
 			
-			$stringData = "$url\n";
-			fwrite($fh, $stringData);
+			$jpegStringData = "$jpegurl\n";
+			$fitsStringData = "$fitsurl\n";
+			
+			fwrite($fh, $jpegStringData);
+			fwrite($fh, $fitsStringData);
 			
 		}
 		
@@ -85,9 +99,13 @@
 		
 		echo json_encode($ret_val);
 		
-		$inputfile = "sdss-wget.lis";
-		$cmd = "wget -nd -nH -q -i $inputfile -P ./sdss";
-		exec($cmd);
+		$inputfile = "sdss-wget.lis";            
+//		$cmd = "wget -nd -nH -q -i $inputfile -P ./sdss";
+
+//		exec($cmd);
+
+//		$unzipcmd = "gunzip ./sdss/*.gz";
+//		exec($unzipcmd);
 	}
 	
 	$file = "http://astro.cs.pitt.edu/astroshelf/lib/db/remote/searchSDSS.php";

@@ -22,8 +22,10 @@ class window.WebGL
 		this.initGL()
 		this.initShaders()
 		
-		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		@gl.enable(@gl.DEPTH_TEST);
+		@gl.clearColor(0.0, 0.0, 0.0, 1.0)
+		#@gl.enable(@gl.DEPTH_TEST)
+		#@gl.enable(@gl.BLEND)
+		#@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
 		
 		@mvMatrix = mat4.create()
 		@pMatrix = mat4.create()
@@ -36,8 +38,8 @@ class window.WebGL
 	initGL: () =>
 		
 		try
-		#	@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
-			@gl = @canvas.getContext("experimental-webgl")
+			@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
+		#	@gl = @canvas.getContext("experimental-webgl")
 			
 			@gl.viewportWidth = @canvas.width
 			@gl.viewportHeight = @canvas.height
