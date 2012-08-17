@@ -1,19 +1,10 @@
 #= require WebGL
 
 class SkyView extends WebGL
-<<<<<<< HEAD
-	
-||||||| merged common ancestors
-	@mouseCoords = {'x':0, 'y':0}
-	@MOUSE_DOWN = 1
-	@MOUSE_UP = 0
-	@mouseState = MOUSE_UP
-=======
 
 	@MOUSE_DOWN = 1
 	@MOUSE_UP = 0
 	@mouseState = @MOUSE_UP
->>>>>>> 1113afa44c1601ed460d1e7a1972ea3472215d4d
 	@gridBlocks = 0
 	@rotation = null
 	@translation = null
@@ -309,17 +300,9 @@ class SkyView extends WebGL
 				element.removeEventListener('DOMMouseScroll', callback, false) 
 			element.removeEventListener(eventName, callback, false)
 		else if(element.detachEvent)
-<<<<<<< HEAD
 			element.detachEvent("on" + eventName, callback)	
 		return
-		
-||||||| merged common ancestors
-			element.detachEvent("on" + eventName, callback);	
-	
-=======
-			element.detachEvent("on" + eventName, callback);	
 
->>>>>>> 1113afa44c1601ed460d1e7a1972ea3472215d4d
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)
