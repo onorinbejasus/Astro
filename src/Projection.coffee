@@ -2,7 +2,7 @@ class Projection
 	constructor:(@Math)->
 		@parameters = null
 
-	init:(image,fits,HTM,survey)=>
+	init:(image,fits,Tile,survey)=>
 		
 		console.log "init"
 		
@@ -12,7 +12,7 @@ class Projection
 			size = [4072,4000]
 		else if survey == 'FIRST'
 			size = [1550,1160]
-			
+		
 		FITS = require('fits')
 		
 		@parameters = new Object
@@ -56,9 +56,9 @@ class Projection
 				coords = this.unprojectTAN(size[0],size[1])
 			else if survey == "FIRST"
 				coords = this.unprojectSIN(size[0],size[1])
-			HTM.initTexture(image)
-			HTM.createSphere(coords[0],coords[1])
-			HTM.setFlag()			
+			Tile.initTexture(image)
+			Tile.createTile(coords[0],coords[1])
+			Tile.setFlag()			
 
 		else if survey == "SDSS"
 		
@@ -94,9 +94,9 @@ class Projection
 		
 			coords = this.unprojectTAN(size[0],size[1])
 		
-			HTM.initTexture(image)
-			HTM.createSphere(coords[0],coords[1])
-			HTM.setFlag()
+			Tile.initTexture(image)
+			Tile.createTile(coords[0],coords[1])
+			Tile.setFlag()
 	
 		return
 	unprojectSIN: (xsize, ysize) =>

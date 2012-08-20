@@ -38,13 +38,8 @@ class TextureProxy
 
 		texture.image.src = image
 
-
-class HTM
-
-	@verts = null
-	@tri = null
-	@names = null
-
+class Tile
+	
 	@VertexPositionBuffer = null
 	@VertexColorBuffer = null
 	@VertexIndexBuffer = null
@@ -52,42 +47,23 @@ class HTM
 	@VertexNormalBuffer = null
 
 	@Texture = null
-
-	@initTriangles = null
 	
-	@survey = null
-	@set = null
-	@alpha = 1.0
-	@name = ''
-	
-	constructor: (@gl, @Math, type, survey, texture, fits, range, name) ->
+	constructor: (@gl, @Math, survey, type, texture, fits, range) ->
 		
-		@survey = survey
-
 		if type == "sky"
 						
 			@proj = new Projection(@Math)
 			@set = false
 			@proj.init(texture,fits,this,survey)
-			
+		
 		else if type == "anno"
 			this.initTexture(texture)
-			this.createSphere([range[1], range[0], range[0], range[1]],
+			this.createTile([range[1], range[0], range[0], range[1]],
 				[range[3], range[3], range[2], range[2]])
 			this.setFlag()
-			
-			@alpha = 1.0
-			@name = name
+		
 		return
-
-	setAlpha:(value)=>
-		@alpha = 1.0
-	setFlag:()=>
-		@set = true
-		return
-	getSet:()=>
-		return @set
-
+		
 	handleLoadedTexture: (texture)=>
 
 		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
@@ -108,10 +84,8 @@ class HTM
 
 		@Texture.image.src = image
 
-	createSphere: (ra, dec)=>
+	createTile: (ra, dec)=>
 
-		latitudeBands = 30
-		longitudeBands = 30
 		radius = 1
 
 		vertexPositionData = []
@@ -165,52 +139,6 @@ class HTM
 
 			indexData = [2,3,0, 1,2,0]
 
-		# else create a normal sphere
-
-		else
-
-			radius = 1.1
-
-			for latNumber in [0..latitudeBands]
-
-				for longNumber in [0..longitudeBands]
-
-					theta = longNumber * 2 * Math.PI / longitudeBands
-					sinTheta = Math.sin(theta)
-					cosTheta = Math.cos(theta)
-
-					phi = latNumber * Math.PI / latitudeBands
-					sinPhi = Math.sin(phi)
-					cosPhi = Math.cos(phi)
-
-					z = sinPhi * sinTheta
-					y = cosPhi
-					x = sinPhi * cosTheta
-
-					u = 1 - (longNumber / longitudeBands)
-					v = 1 - (latNumber / latitudeBands)
-
-					textureCoordData.push(u)
-					textureCoordData.push(v)
-
-					vertexPositionData.push(radius * x)
-					vertexPositionData.push(radius * y)
-					vertexPositionData.push(radius * z)
-
-			indexData = []
-			for latNumber in [0..latitudeBands-1]
-				for longNumber in [0..longitudeBands-1]
-
-					first = (latNumber * (longitudeBands + 1)) + longNumber
-					second = first + longitudeBands + 1
-					indexData.push(first)
-					indexData.push(second)
-					indexData.push(first + 1)
-
-					indexData.push(second)
-					indexData.push(second + 1)
-					indexData.push(first + 1)
-
 		@VertexPositionBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), @gl.STATIC_DRAW)
@@ -228,10 +156,10 @@ class HTM
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
 		@VertexTextureCoordBuffer.itemSize = 2
 		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
-				
+
 		return
 
-	bindSphere: (shaderProgram)=>
+	bind: (shaderProgram)=>
 
 		@gl.activeTexture(@gl.TEXTURE0)
 		@gl.bindTexture(@gl.TEXTURE_2D, @Texture)
@@ -247,5 +175,145 @@ class HTM
 
 		return
 
-	renderSphere: (renderMode) =>
+	render: (renderMode) =>
 		@gl.drawElements(renderMode, @VertexIndexBuffer.numItems, @gl.UNSIGNED_SHORT, 0)
+	
+	setFlag:()=>
+		@set = true
+		return
+
+	getSet:()=>
+		return @set
+	
+class Overlay
+	
+	@survey = null
+	@set = null
+	@alpha = 1.0
+	@name = ''
+		
+	constructor: (@SkyView, survey, range, name) ->
+		
+		@survey = survey
+		@tiles = []
+		
+		if @survey == "SDSS"
+			this.createSDSSOverlay()
+		else if @survey == "LSST"
+			this.createLSSTOverlay()
+		else if @survey == "FIRST"
+			this.createFIRSTOverlay()
+
+		@alpha = 1.0
+		@name = name
+		
+		return
+	
+	createFIRSTOverlay: ()=>
+		
+		@firstarray = []
+		@firstflag = false
+		ffile = new XMLHttpRequest()
+		ffile.open('GET', './firstimages/filelist.txt',true) 
+		ffile.onload = (e) =>
+			text = ffile.responseText
+			lines = text.split("\n")
+			$.each(lines, (key,val) =>
+				@firstarray.push val
+			)
+			for image,index in @firstarray when index < 2
+				@tiles.push new Tile(@SkyView.gl, SkyView.Math,"FIRST",  "sky", "./firstimages/#{image}", "", null)
+		
+		ffile.send()
+	
+		return
+	
+	createLSSTOverlay: ()=>
+		
+		@lsstarray = []
+		@lsstflag = false
+		lfile = new XMLHttpRequest()
+		lfile.open('GET', '../lsstimages/filelist.txt',true)   #this path should change to the full path on astro server /u/astro/images/LSST/jpegfiles.txt
+		lfile.onload = (e) =>
+			text = lfile.responseText
+			lines = text.split("\n")
+			$.each(lines, (key,val) =>
+				@lsstarray.push val
+			)
+			
+			for image in @lsstarray
+				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"LSST", "sky",  "../../../lsstimages/#{image}", "", null)
+		
+		lfile.send()
+		
+		return
+		
+	createSDSSOverlay: ()=>
+	
+		## retrieve RA and radius ##
+		radius = 15#((-@translation[2]+1)*15)*90
+
+		if radius < 1.0
+			radius = 1.0
+
+		ra = -@SkyView.rotation[1]
+		dec = -@SkyView.rotation[0]
+
+		# select the images
+
+		$.ajaxSetup({'async': false})	
+
+		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
+			#{radius}&zoom=0", (data) =>
+				$.each(data, (key, val)=>
+					if key % 2 == 0
+						fitsFile = data[key+1]
+						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
+						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
+							"../../sdss2degregion00/#{val}",
+							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/sdss2degregion00/headtext/#{fits}", null)
+				)	
+		)
+		$.ajaxSetup({'async': true})
+	
+	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
+
+		scale = ((-@translation[2]+1)*15) * 3600
+
+		img = ''
+
+		$.ajaxSetup({'async': false})	
+
+		$.ajax(
+			type: 'POST',
+			url: "./lib/createOverlay.php",
+			data: 	
+				'width':512,
+				'height':512
+				'RAMin':raMin,
+				'RAMax':raMax,
+				'DecMin':decMin,
+				'DecMax':decMax,
+				'scale':1.8,
+				'diam':2,
+				'color':color,
+				'table':JSON.stringify(raDec)
+			success:(data)=>
+				img = data
+				return
+		)		
+
+		$.ajaxSetup({'async': true})	
+
+		imgURL = "./lib/overlays/#{img}"
+
+		range = [raMin, raMax, decMin, decMax];
+		tile =  new Tile(@gl, @Math, "anno", "anno", 
+			imgURL, null, range)
+
+		@tiles.push tile
+
+		return overlay
+	
+	setAlpha:(value)=>
+		@alpha = 1.0

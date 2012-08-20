@@ -25,7 +25,7 @@ $ret_val = array(
 
 if($_GET['type'] == "JPEG"){
 
-	exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/timProduction/bin/jhead $url", $data, $ret);
+	exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/tim/timProduction/bin/jhead $url", $data, $ret);
 	
 	if($survey == "LSST"){
 		foreach($data as $line){

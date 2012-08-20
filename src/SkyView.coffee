@@ -10,12 +10,6 @@ class SkyView extends WebGL
 	@translation = null
 	@renderMode = 0
 	@Math = null
-	@it = 0
-	@selected = "none"
-	@SDSSalpha = null
-	
-	@lsstarray = null
-	@firstarray = null
 		
 	constructor: (options) ->
 	
@@ -26,122 +20,59 @@ class SkyView extends WebGL
 		@translation = [0.0, 0.0, 0.99333]
 		@rotation = [0.0, 0.0, 0.0]
 		@renderMode = @gl.TRIANGLES
-		@SDSSalpha = 1.0
-		@FIRSTalpha = 1.0
-		@LSSTalpha = 1.0
 			
 		# init math, grid and projection
 		@Math = new math()
-		@gridBlocks = []
+
+		# array of overlays
+		@overlays = []
 
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-		###
-		@firstarray = []
-		@firstflag = false
-		ffile = new XMLHttpRequest()
-		ffile.open('GET', './firstimages/filelist.txt',true) 
-		ffile.onload = (e) =>
-			text = ffile.responseText
-			lines = text.split("\n")
-			$.each(lines, (key,val) =>
-				@firstarray.push val
-			)
-			@firstflag = true
-			#console.log "first,lsst flags 1: ", @firstflag, @lsstflag
-			if @firstflag == true && @lsstflag == true
-				this.render(true)
-		ffile.send()
-		###
 		
-		@firstflag = true
-		
-		#init lsst array of path names
-		@lsstarray = []
-		@lsstflag = false
-		lfile = new XMLHttpRequest()
-		lfile.open('GET', '../lsstimages/filelist.txt',true)   #this path should change to the full path on astro server /u/astro/images/LSST/jpegfiles.txt
-		lfile.onload = (e) =>
-			text = lfile.responseText
-			lines = text.split("\n")
-			$.each(lines, (key,val) =>
-				@lsstarray.push val
-			)
-
-			@lsstflag = true
-			#console.log "first,lsst flags 2: ", @firstflag, @lsstflag
-			if @firstflag == true && @lsstflag == true
-				this.render(true)
-		lfile.send()
-		
-	setSDSSAlpha :(value)=>
-	
-		@SDSSalpha = value
-		this.render()
-	setFIRSTAlpha :(value)=>
-
-		@SDSSalpha = value
-		this.render()
-	setLSSTAlpha :(value)=>
-
-		@LSSTalpha = value
-		this.render()
-	
+		return
+			
 	setScale:(value)=>
 		$('#Scale').text(((value+1)*15).toFixed(2))
 		return
 		
-	createOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
-			
-		scale = ((-@translation[2]+1)*15) * 3600
-				
-		img = ''
-		
-		$.ajaxSetup({'async': false})	
-		
-		$.ajax(
-			type: 'POST',
-			url: "./lib/createOverlay.php",
-			data: 	
-				'width':512,
-				'height':512
-				'RAMin':raMin,
-				'RAMax':raMax,
-				'DecMin':decMin,
-				'DecMax':decMax,
-				'scale':1.8,
-				'diam':2,
-				'color':color,
-				'table':JSON.stringify(raDec)
-			success:(data)=>
-				img = data
-				return
-		)		
-		
-		$.ajaxSetup({'async': true})	
-		
-		imgURL = "./lib/overlays/#{img}"
-		
-		###
-		imgURL = "./lib/createOverlay.php?width=1024&height=1024
-			&RAMin=#{raMin}&RAMax=#{raMax}&DecMin=#{decMin}&DecMax=#{decMax}&scale=1.8&diam=4
-				&color=#{color}&table="+JSON.stringify(raDec)
-		###
-		range = [raMin, raMax, decMin, decMax];
-		overlay =  new HTM(@gl, @Math, "anno", "anno", 
-			imgURL, null, range, label)
-		
-		@gridBlocks.push overlay
-			
-		return overlay
-	deleteOverlay: (name)=>
-		i = 0
-		for grid in @gridBlocks
-			if grid.name == name
-				@gridblocks.splice(i,1)
-			i++
+	addOverlay: (overlay)=>
+		@overlays.push overlay
 		return
-				
+		
+	deleteOverlay: (name)=>
+		return
+
+	render: ()=>
+
+		this.preRender(@rotation, @translation) # set up matrices
+
+		for overlay in @overlays
+			for tile in overlay.tiles
+				if tile.getSet() == true
+					tile.bind(@shaderProgram)
+					if overlay.survey == "SDSS"
+						@gl.enable(@gl.DEPTH_TEST)
+						@gl.disable(@gl.BLEND)
+						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
+					else if overlay.survey == "anno"
+						@gl.disable(@gl.DEPTH_TEST)
+						@gl.enable(@gl.BLEND)
+						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
+						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
+					else if overlay.survey == "LSST"
+						@gl.disable(@gl.DEPTH_TEST)
+						@gl.enable(@gl.BLEND)
+						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
+						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
+					else if overlay.survey == "FIRST"
+						@gl.disable(@gl.DEPTH_TEST)
+						@gl.enable(@gl.BLEND)
+						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
+						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
+					tile.render(@renderMode)
+		return
+
 	panDown:(event)=>
 		@mouseState = @MOUSE_DOWN
 		@mouse_coords.x = event.clientX
@@ -175,7 +106,7 @@ class SkyView extends WebGL
 			# Update the RA-DEC numbers
 			$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 			
-			this.render(true)
+			this.render()
 
 	panUp: (event)=>
 		@mouseState = 0
@@ -197,86 +128,25 @@ class SkyView extends WebGL
 		# Assume Zoom in
 		else
 			@translation[2] += Config.scroll_sensitivity
+		
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		this.render()
-
+		
 	jump: (RA,Dec)=>
+	
 		@rotation[1] = -RA
 		@rotation[0] = -Dec	
-
-	render: (flag)=>
-				
-		if flag? and flag is true
 		
-			## retrieve RA and radius ##
-			radius = 45#((-@translation[2]+1)*15)*90
-			
-			if radius < 1.0
-				radius = 1.0
-			
-			ra = -@rotation[1]
-			dec = -@rotation[0]
-						
-			# select the images
-			
-			$.ajaxSetup({'async': false})	
-			
-			$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
-				#{radius}&zoom=0", (data) =>
-					$.each(data, (key, val)=>
-						if key % 2 == 0
-							fitsFile = data[key+1]
-							fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
-							@gridBlocks.push  new HTM(@gl, @Math, "sky", "SDSS", 
-								"./lib/webgl/sdss/#{val}","/afs/cs.pitt.edu/projects/admt/web/sites/astro/sdss2degregion00/headtext/#{fits}")
-					)	
-			)
-			$.ajaxSetup({'async': true})
-			
+		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		
-			for image in @lsstarray
-				console.log "lsst image: ", image
-				@gridBlocks.push new HTM(@gl, @Math, "sky", "LSST", "../../../lsstimages/#{image}", "")
-			###
-			for image,index in @firstarray when index < 2
-				#console.log "first image: ", image
-				@gridBlocks.push new HTM(@level, @gl, @Math, "sky", "FIRST", "./firstimages/#{image}", "")
-			###
-		this.preRender(@rotation, @translation) # set up matrices
-				
-		for grid in @gridBlocks
-			if grid.getSet() == true
-				grid.bindSphere(@shaderProgram)
-				if grid.survey == "SDSS"
-					@gl.enable(@gl.DEPTH_TEST)
-					@gl.disable(@gl.BLEND)
-					@gl.uniform1f(@shaderProgram.alphaUniform, @SDSSalpha)
-				else if grid.survey == "anno"
-					@gl.disable(@gl.DEPTH_TEST)
-					@gl.enable(@gl.BLEND)
-					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-					@gl.uniform1f(@shaderProgram.alphaUniform, grid.alpha)
-				else if grid.survey == "LSST"
-					@gl.disable(@gl.DEPTH_TEST)
-					@gl.enable(@gl.BLEND)
-					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-					@gl.uniform1f(@shaderProgram.alphaUniform, @LSSTalpha)
-				###
-				else if grid.survey == "FIRST"
-					@gl.disable(@gl.DEPTH_TEST)
-					@gl.enable(@gl.BLEND)
-					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-					@gl.uniform1f(@shaderProgram.alphaUniform, @FIRSTalpha)
-				###
-				grid.renderSphere(@renderMode)
-		return
-
+		this.render()
+		
 	mouseHandler:()->
 		@hookEvent(@canvas, "mousedown", @panDown)
 		@hookEvent(@canvas, "mouseup", @panUp)
 		@hookEvent(@canvas, "mousewheel", @panScroll)
 		@hookEvent(@canvas, "mousemove", @panMove)
-
 		
 	hookEvent:(element, eventName, callback)->
 		if(typeof(element) == "string")
@@ -302,67 +172,7 @@ class SkyView extends WebGL
 		else if(element.detachEvent)
 			element.detachEvent("on" + eventName, callback)	
 		return
-
-	keyPressed: (key) =>
-
-		switch String.fromCharCode(key.which)
-			
-			when 'i'
-				@rotation[0] -= 0.1
-				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				this.render()
-			when 'k'
-				@rotation[0] += 0.1
-				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				this.render()
-			when 'l'
-				@rotation[1] += 0.1
-				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				
-				if -@rotation[1] < 0
-					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				
-				else if -@rotation[1] > 360
-					$('#RA-Dec').text((this.rotation[1] + 360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				
-				this.render() 
-			
-			when 'j'
-				@rotation[1] -= 0.1 
-				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				
-				if -@rotation[1] > 360
-					$('#RA-Dec').text((this.rotation[1]+360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				
-				else if -@rotation[1] < 0
-					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				
-				this.render()
-			
-			when 'w' 
-				@translation[2] += 0.001
-				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render()	
-				
-			when 's'
-				@translation[2] -= 0.001
-				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render()	
-				
-			when 'W' 
-				@translation[2] += 0.01
-				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render()	
-
-			when 'S'
-				@translation[2] -= 0.01
-				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render()
-				
-			when 't'
-				this.getBoundingBox()
-				
-		return
 	getBoundingBox:()=>
 
 		max = this.getCoordinate(@canvas.width, @canvas.height)
@@ -447,3 +257,66 @@ class SkyView extends WebGL
 		raDec.y = Dec
 		
 		return raDec
+	
+	keyPressed: (key) =>
+
+		switch String.fromCharCode(key.which)
+
+			when 'i'
+				@rotation[0] -= 0.1
+				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+				this.render()
+			when 'k'
+				@rotation[0] += 0.1
+				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+				this.render()
+			when 'l'
+				@rotation[1] += 0.1
+				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+
+				if -@rotation[1] < 0
+					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+
+				else if -@rotation[1] > 360
+					$('#RA-Dec').text((this.rotation[1] + 360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+
+				this.render() 
+
+			when 'j'
+				@rotation[1] -= 0.1 
+				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+
+				if -@rotation[1] > 360
+					$('#RA-Dec').text((this.rotation[1]+360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+
+				else if -@rotation[1] < 0
+					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+
+				this.render()
+
+			when 'w' 
+				@translation[2] += 0.001
+				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
+				this.render()	
+
+			when 's'
+				@translation[2] -= 0.001
+				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
+				this.render()	
+
+			when 'W' 
+				@translation[2] += 0.01
+				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
+				this.render()	
+
+			when 'S'
+				@translation[2] -= 0.01
+				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
+				this.render()
+
+			when 't'
+				this.getBoundingBox()
+
+		return		
+	
+
