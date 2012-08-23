@@ -44,7 +44,9 @@ class SkyView extends WebGL
 		return
 
 	render: ()=>
-
+		
+		console.log "render"
+		
 		this.preRender(@rotation, @translation) # set up matrices
 
 		for overlay in @overlays

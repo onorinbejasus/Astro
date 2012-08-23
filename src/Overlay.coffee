@@ -214,7 +214,7 @@ class Overlay
 		@firstarray = []
 		@firstflag = false
 		ffile = new XMLHttpRequest()
-		ffile.open('GET', './firstimages/filelist.txt',true) 
+		ffile.open('GET', '../../first2degree/firstimages.txt',true) 
 		ffile.onload = (e) =>
 			text = ffile.responseText
 			lines = text.split("\n")
@@ -222,7 +222,8 @@ class Overlay
 				@firstarray.push val
 			)
 			for image,index in @firstarray when index < 2
-				@tiles.push new Tile(@SkyView.gl, SkyView.Math,"FIRST",  "sky", "./firstimages/#{image}", "", null)
+				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
+					"#{image}", "", null)
 		
 		ffile.send()
 	
@@ -233,7 +234,7 @@ class Overlay
 		@lsstarray = []
 		@lsstflag = false
 		lfile = new XMLHttpRequest()
-		lfile.open('GET', '../lsstimages/filelist.txt',true)   #this path should change to the full path on astro server /u/astro/images/LSST/jpegfiles.txt
+		lfile.open('GET', '../../lsstimages/filelist.txt',true)   #this path should change to the full path on astro server /u/astro/images/LSST/jpegfiles.txt
 		lfile.onload = (e) =>
 			text = lfile.responseText
 			lines = text.split("\n")
@@ -242,7 +243,8 @@ class Overlay
 			)
 			
 			for image in @lsstarray
-				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"LSST", "sky",  "../../../lsstimages/#{image}", "", null)
+				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"LSST", "sky", 
+					"#{image}", "", null)
 		
 		lfile.send()
 		
@@ -270,7 +272,7 @@ class Overlay
 						fitsFile = data[key+1]
 						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
 						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
-							"../../sdss2degregion00/#{val}",
+							"http://astro.cs.pitt.edu/sdss2degregion00/#{val}",
 							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/sdss2degregion00/headtext/#{fits}", null)
 				)	
 		)
@@ -316,4 +318,6 @@ class Overlay
 		return overlay
 	
 	setAlpha:(value)=>
-		@alpha = 1.0
+		@alpha = value
+		@SkyView.render()
+		return
