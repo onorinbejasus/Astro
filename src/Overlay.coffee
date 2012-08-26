@@ -21,18 +21,19 @@ class TextureProxy
 	@return: Nothing. Use the texture callback.
 	###
 	initTexture: (gl, image, load_callback) ->
+		
 		texture = gl.createTexture()
 		texture.image = new Image()
+		
 		texture.image.onload = ()=> 
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
-			gl.bindTexture(gl.TEXTURE_2D, texture)
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image)
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.bindTexture(gl.TEXTURE_2D, null)	
-
+			@gl.bindTexture(@gl.TEXTURE_2D, texture)
+			@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
+			@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
+			@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
+			@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
+			@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
+			@gl.bindTexture(@gl.TEXTURE_2D, null)
+			
 			if load_callback
 				load_callback(texture)
 
@@ -253,7 +254,7 @@ class Overlay
 	createSDSSOverlay: ()=>
 	
 		## retrieve RA and radius ##
-		radius = 15#((-@translation[2]+1)*15)*90
+		radius = 45#((-@translation[2]+1)*15)*90
 
 		if radius < 1.0
 			radius = 1.0
