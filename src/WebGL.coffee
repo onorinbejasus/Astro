@@ -9,7 +9,7 @@ class WebGL
 	constructor: (options) ->
 	
 		@canvas = if options.canvas? then options.canvas 
-		
+
 		else 
 			@canvas = document.createElement("canvas")
 		
@@ -38,8 +38,8 @@ class WebGL
 	initGL: () =>
 		
 		try
-		#	@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
-			@gl = @canvas.getContext("experimental-webgl")
+			@gl = WebGLDebugUtils.makeDebugContext(@canvas.getContext("experimental-webgl"))
+		#	@gl = @canvas.getContext("experimental-webgl")
 			
 			@gl.viewportWidth = @canvas.width
 			@gl.viewportHeight = @canvas.height
@@ -90,35 +90,36 @@ class WebGL
 		fragmentShader = this.getShader("fragment")
 		vertexShader = this.getShader("vertex")
 
-		@shaderProgram = @gl.createProgram()
-		@gl.attachShader(@shaderProgram, vertexShader)
-		@gl.attachShader(@shaderProgram, fragmentShader)
-		@gl.linkProgram(@shaderProgram)
+		shaderProgram = @gl.createProgram()
+		@gl.attachShader(shaderProgram, vertexShader)
+		@gl.attachShader(shaderProgram, fragmentShader)
+		@gl.linkProgram(shaderProgram)
 
-		if not @gl.getProgramParameter(@shaderProgram, @gl.LINK_STATUS) 
+		if not @gl.getProgramParameter(shaderProgram, @gl.LINK_STATUS) 
 			alert "Could not initialise shaders"
 
-		@gl.useProgram(@shaderProgram)
+		@gl.useProgram(shaderProgram)
 
-		@shaderProgram.vertexPositionAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexPosition")
-		@gl.enableVertexAttribArray(@shaderProgram.vertexPositionAttribute)
+		shaderProgram.vertexPositionAttribute = @gl.getAttribLocation(shaderProgram, "aVertexPosition")
+		@gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute)
 		
-#		@shaderProgram.vertexColorAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexColor")
-#		@gl.enableVertexAttribArray(@shaderProgram.vertexColorAttribute)
+		shaderProgram.textureCoordAttribute = @gl.getAttribLocation(shaderProgram, "aTextureCoord")
+		@gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute)
 		
-		@shaderProgram.textureCoordAttribute = @gl.getAttribLocation(@shaderProgram, "aTextureCoord")
-		@gl.enableVertexAttribArray(@shaderProgram.textureCoordAttribute);
-
-#		@shaderProgram.vertexNormalAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexNormal");
-#		@gl.enableVertexAttribArray(@shaderProgram.vertexNormalAttribute);
+		shaderProgram.texturePosAttribute = @gl.getAttribLocation(shaderProgram, "aTexturePos")
+		@gl.enableVertexAttribArray(shaderProgram.texturePosAttribute)
 		
-		@shaderProgram.pMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uPMatrix")
-		@shaderProgram.mvMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uMVMatrix")
-		@shaderProgram.nMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uNMatrix");
-		@shaderProgram.samplerUniform = @gl.getUniformLocation(@shaderProgram, "uSampler");
+		shaderProgram.pMatrixUniform = @gl.getUniformLocation(shaderProgram, "uPMatrix")
+		shaderProgram.mvMatrixUniform = @gl.getUniformLocation(shaderProgram, "uMVMatrix")
+		shaderProgram.nMatrixUniform = @gl.getUniformLocation(shaderProgram, "uNMatrix")
 		
-		@shaderProgram.alphaUniform = @gl.getUniformLocation(@shaderProgram, "alpha");
+		shaderProgram.sampler = []
+		for i in [1..16]
+			shaderProgram.sampler.push @gl.getUniformLocation(shaderProgram, "sampler#{i}")
 		
+		shaderProgram.alphaUniform = @gl.getUniformLocation(shaderProgram, "alpha")
+		
+		@shaderProgram = shaderProgram
 		
 		return
 		    
@@ -145,7 +146,7 @@ class WebGL
 	degToRad: (deg)=>
 		deg * Math.PI / 180.0
 
-	preRender: (rotation, translation) =>
+	preRender: () =>
 		
 		@gl.viewport(0, 0, @gl.viewportWidth, @gl.viewportHeight)
 		@gl.clear(@gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT)
@@ -155,14 +156,16 @@ class WebGL
 		
 		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
 		
-#		mat4.scale(@mvMatrix, [100,100,100])
+		return
 		
+	postRender:(rotation, translation)=>
+	
 		mat4.translate(@mvMatrix, translation)
-		
+	
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[0]), [1,0,0])
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[1]), [0,1,0])
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[2]), [0,0,1])
-		
+	
 		this.setMatrixUniforms()
 		
 		return

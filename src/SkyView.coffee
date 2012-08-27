@@ -44,35 +44,52 @@ class SkyView extends WebGL
 		return
 
 	render: ()=>
+				
+		this.preRender() # set up matrices
+		this.postRender(@rotation, @translation)
+		
+		for overlay in @overlays
+			
+			overlay.bindAttributes()
+			
+			for i in [0..overlay.Textures] by 16
+				overlay.bindTextures(@shaderProgram,16,0)
+				overlay.render()
 		
 		console.log "render"
 		
-		this.preRender(@rotation, @translation) # set up matrices
-
+#		last = " "
+		###
 		for overlay in @overlays
 			for tile in overlay.tiles
 				if tile.getSet() == true
 					tile.bind(@shaderProgram)
-					if overlay.survey == "SDSS"
+					if overlay.survey == "SDSS" and overlay.survey != last
+						last = overlay.survey
 						@gl.enable(@gl.DEPTH_TEST)
 						@gl.disable(@gl.BLEND)
 						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "anno"
+					else if overlay.survey == "anno" and overlay.survey != last
+						last = overlay.survey
 						@gl.disable(@gl.DEPTH_TEST)
 						@gl.enable(@gl.BLEND)
 						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
 						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "LSST"
+					else if overlay.survey == "LSST" and overlay.survey != last
+						last = overlay.survey
 						@gl.disable(@gl.DEPTH_TEST)
 						@gl.enable(@gl.BLEND)
 						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
 						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "FIRST"
+					else if overlay.survey == "FIRST" and overlay.survey != last
+						last = overlay.survey
 						@gl.disable(@gl.DEPTH_TEST)
 						@gl.enable(@gl.BLEND)
 						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
 						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
 					tile.render(@renderMode)
+		###
+		
 		return
 
 	panDown:(event)=>

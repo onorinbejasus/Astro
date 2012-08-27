@@ -2,7 +2,7 @@ class Projection
 	constructor:(@Math)->
 		@parameters = null
 
-	init:(image,fits,Tile,survey)=>
+	init:(gl,image,fits,Overlay,survey)=>
 		
 		console.log "init"
 		
@@ -19,7 +19,6 @@ class Projection
 		
 		if survey == "LSST" || survey == "FIRST"
 			#read JPEG headers
-			console.log image
 			$.ajaxSetup({'async': false})
 			# grab the image headers
 			$.getJSON("./lib/webgl/imageHeader.php?url=#{image}&survey=#{survey}&type=JPEG", (data) =>
@@ -54,13 +53,15 @@ class Projection
 
 			if survey == "LSST"
 				coords = this.unprojectTAN(size[0],size[1])
-				Tile.initTexture("http://astro.cs.pitt.edu/lsstimages/#{image}")
+				#Overlay.initTexture("http://astro.cs.pitt.edu/lsstimages/#{image}")
+				Overlay.Texture = loadTexture(gl,"http://astro.cs.pitt.edu/lsstimages/#{image}",null)
+				
 			else if survey == "FIRST"
 				coords = this.unprojectSIN(size[0],size[1])
-				Tile.initTexture("http://astro.cs.pitt.edu/first2degree/images/#{image}")
+				Overlay.Textures.push loadTexture(gl,"http://astro.cs.pitt.edu/first2degree/images/#{image}",null)
 			
-			Tile.createTile(coords[0],coords[1])
-			Tile.setFlag()			
+			Overlay.createTile(coords[0],coords[1])
+			Overlay.setFlag()			
 
 		else if survey == "SDSS"
 		
@@ -96,14 +97,12 @@ class Projection
 		
 			coords = this.unprojectTAN(size[0],size[1])
 		
-			Tile.initTexture(image)
-			Tile.createTile(coords[0],coords[1])
-			Tile.setFlag()
+			Overlay.Textures.push loadTexture(gl,image,null)
+			Overlay.createTile(coords[0],coords[1])
+			Overlay.setFlag()
 	
 		return
 	unprojectSIN: (xsize, ysize) =>
-
-		#console.log @parameters
 
 		rtod = 57.29577951308323
 		dtor = 0.0174532925
@@ -125,9 +124,7 @@ class Projection
 		console.log "cd21: ",@parameters.cd21
 		console.log "cd22: ",@parameters.cd22
 		###
-		
-		console.log @parameters;
-		
+				
 		for index in [0..3]
 
 			i = indices[index][0]
@@ -138,9 +135,7 @@ class Projection
 			x = @parameters.cdelt1 * (xpix[i]-@parameters.crpix1)
 
 			y = @parameters.cdelt2 * (ypix[j]-@parameters.crpix2)
-			
-			console.log x,y
-			
+						
 			 #FITS 
 			#flip for 0,0 region
 			if @parameters.ctype1 == "DEC--SIN"
