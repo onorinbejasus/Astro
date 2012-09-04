@@ -108,17 +108,17 @@ class SkyView extends WebGL
 			@mouse_coords.y = event.clientY
 
 			# Assume this is the mouse going UP
-			if delta_y <= 0
+			if delta_y > 0
 				@rotation[0] -= Config.pan_sensitivity  # Too much movement?
 
 			# Assume the mouse is going DOWN
-			else
+			else if delta_y < 0
 				@rotation[0] += Config.pan_sensitivity
 
-			if delta_x <= 0
+			if delta_x > 0
 				@rotation[1] -= Config.pan_sensitivity
 
-			else
+			else if dleta_x < 0
 				@rotation[1] += Config.pan_sensitivity
 			#@translate((event.clientX-@mouse_coords.x)/ 1000 * 1.8 / @scale, (-event.clientY+@mouse_coords.y)/ 1000 * 1.8 / @scale)
 
