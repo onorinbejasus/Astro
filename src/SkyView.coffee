@@ -49,29 +49,18 @@ class SkyView extends WebGL
 
 		for overlay in @overlays
 			for tile in overlay.tiles
-				if tile.getSet() == true
+				if tile.getSet()
 					tile.bind(@shaderProgram)
 					if overlay.survey == "SDSS"
 						@gl.enable(@gl.DEPTH_TEST)
 						@gl.disable(@gl.BLEND)
-						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "anno"
-						console.log "render anno"
+
+					else
 						@gl.disable(@gl.DEPTH_TEST)
 						@gl.enable(@gl.BLEND)
 						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "LSST"
-						@gl.disable(@gl.DEPTH_TEST)
-						@gl.enable(@gl.BLEND)
-						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "FIRST"
-						@gl.disable(@gl.DEPTH_TEST)
-						@gl.enable(@gl.BLEND)
-						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
+
+					@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
 					tile.render(@renderMode)
 		return
 
