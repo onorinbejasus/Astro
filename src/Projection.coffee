@@ -2,21 +2,19 @@ class Projection
 	constructor:(@Math)->
 		@parameters = null
 
-	init:(gl,image,fits,Overlay,survey)=>
-		
-		console.log "init"
-		
+	init:(image,fits,Tile,survey)=>
+
 		if survey == "SDSS"
 			size = [1984,1361]
 		else if survey == "LSST"
 			size = [4072,4000]
 		else if survey == 'FIRST'
 			size = [1550,1160]
-		
+
 		FITS = require('fits')
-		
+
 		@parameters = new Object
-		
+
 		if survey == "LSST" || survey == "FIRST"
 			#read JPEG headers
 			$.ajaxSetup({'async': false})
@@ -53,20 +51,18 @@ class Projection
 
 			if survey == "LSST"
 				coords = this.unprojectTAN(size[0],size[1])
-				#Overlay.initTexture("http://astro.cs.pitt.edu/lsstimages/#{image}")
-				Overlay.Texture = loadTexture(gl,"http://astro.cs.pitt.edu/lsstimages/#{image}",null)
-				
+				Tile.initTexture("http://astro.cs.pitt.edu/lsstimages/#{image}")
 			else if survey == "FIRST"
 				coords = this.unprojectSIN(size[0],size[1])
-				Overlay.Textures.push loadTexture(gl,"http://astro.cs.pitt.edu/first2degree/images/#{image}",null)
-			
-			Overlay.createTile(coords[0],coords[1])
-			Overlay.setFlag()			
+				Tile.initTexture("http://astro.cs.pitt.edu/first2degree/images/#{image}")
+
+			Tile.createTile(coords[0],coords[1])
+			Tile.setFlag()			
 
 		else if survey == "SDSS"
-		
+
 			$.ajaxSetup({'async': false})
-		
+
 			# grab the image headers
 			$.getJSON("./lib/webgl/imageHeader.php?url=#{fits}&type=TEXT&survey=SDSS", (data) =>
 				$.each(data, (key, val) =>
@@ -92,17 +88,19 @@ class Projection
 						@parameters.ctype2 = val
 				)
 			)
-		
+
 			$.ajaxSetup({'async': true})
-		
+
 			coords = this.unprojectTAN(size[0],size[1])
-		
-			Overlay.Textures.push loadTexture(gl,image,null)
-			Overlay.createTile(coords[0],coords[1])
-			Overlay.setFlag()
-	
+
+			Tile.initTexture(image)
+			Tile.createTile(coords[0],coords[1])
+			Tile.setFlag()
+
 		return
 	unprojectSIN: (xsize, ysize) =>
+
+		#console.log @parameters
 
 		rtod = 57.29577951308323
 		dtor = 0.0174532925
@@ -124,7 +122,7 @@ class Projection
 		console.log "cd21: ",@parameters.cd21
 		console.log "cd22: ",@parameters.cd22
 		###
-				
+
 		for index in [0..3]
 
 			i = indices[index][0]
@@ -135,7 +133,7 @@ class Projection
 			x = @parameters.cdelt1 * (xpix[i]-@parameters.crpix1)
 
 			y = @parameters.cdelt2 * (ypix[j]-@parameters.crpix2)
-						
+
 			 #FITS 
 			#flip for 0,0 region
 			if @parameters.ctype1 == "DEC--SIN"

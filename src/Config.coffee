@@ -6,4 +6,4 @@ class Config
 	###
 	@proxy_default_texture = null
 	@scroll_sensitivity = .001
-	@pan_sensitivity = 0.1
+	@pan_sensitivity = 0.005

@@ -1,199 +1,98 @@
-class Overlay
-	
-	@survey = null
-	@set = null
-	@alpha = 1.0
-	@name = ''
-	@set = false
-	
-	@Textures = null
-	
+class TextureProxy
+	###
+	A TextureProxy uses an already loaded temporary image while
+	another image is loading. 
+	###
+	constructor: (gl, img_url, temp_img_texture) ->
+		@texture = temp_img_texture
+
+		on_texture_load = (texture) ->
+			@texture = texture
+
+		@initTexture(gl, img_url, on_texture_load)
+
+	###
+	@function: initTexture
+	@description: Creates a GL_TEXTURE in GPU using the image specified.
+	@param: GL_CONTEXT gl- used to create a texture
+	@param: String image - URL of an image to be used.
+	@param: function load_callback- Use for callbacks when onload is triggered
+			to get the texture, all loaded.
+	@return: Nothing. Use the texture callback.
+	###
+	initTexture: (gl, image, load_callback) ->
+		texture = gl.createTexture()
+		texture.image = new Image()
+		texture.image.onload = ()=> 
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+			gl.bindTexture(gl.TEXTURE_2D, texture)
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.bindTexture(gl.TEXTURE_2D, null)	
+
+			if load_callback
+				load_callback(texture)
+
+		texture.image.src = image
+
+class Tile
+
 	@VertexPositionBuffer = null
+	@VertexColorBuffer = null
 	@VertexIndexBuffer = null
 	@VertexTextureCoordBuffer = null
-	@VertexTexturePosBuffer = null
-		
-	@vertexPositionData = null
-	@textureCoordData = null
-	@indexData = null
-	@texturePos = null
-	
-	@numTextures = 0
-	@indexPos = 0
-	
-	constructor: (@SkyView, survey, range, name) ->
-		
-		@TexturePos = [
-			
-			@SkyView.gl.TEXTURE0,@SkyView.gl.TEXTURE1,
-			@SkyView.gl.TEXTURE2,@SkyView.gl.TEXTURE3,@SkyView.gl.TEXTURE4,
-			@SkyView.gl.TEXTURE5,@SkyView.gl.TEXTURE6,@SkyView.gl.TEXTURE7,
-			@SkyView.gl.TEXTURE8,@SkyView.gl.TEXTURE9,@SkyView.gl.TEXTURE10,
-			@SkyView.gl.TEXTURE11,@SkyView.gl.TEXTURE12,@SkyView.gl.TEXTURE13,
-			@SkyView.gl.TEXTURE14,@SkyView.gl.TEXTURE15
-			
-		]
-		
-		@survey = survey
-		@Textures = []
-		
-		if @survey == "SDSS"
-			this.createSDSSOverlay()
-		else if @survey == "LSST"
-			this.createLSSTOverlay()
-		else if @survey == "FIRST"
-			this.createFIRSTOverlay()
+	@VertexNormalBuffer = null
 
-		@alpha = 1.0
-		@name = name
-		
+	@Texture = null
+
+	constructor: (@gl, @Math, survey, type, texture, fits, range) ->
+
+		if type == "sky"
+
+			@proj = new Projection(@Math)
+			@set = false
+			@proj.init(texture,fits,this,survey)
+
+		else if type == "anno"
+			this.initTexture(texture)
+			this.createTile([range[1], range[0], range[0], range[1]],
+				[range[3], range[3], range[2], range[2]])
+			this.setFlag()
+
 		return
-	
-	createFIRSTOverlay: ()=>
-		
-		@firstarray = []
-		@firstflag = false
-		ffile = new XMLHttpRequest()
-		ffile.open('GET', '../../first2degree/firstimages.txt',true) 
-		ffile.onload = (e) =>
-			text = ffile.responseText
-			lines = text.split("\n")
-			$.each(lines, (key,val) =>
-				@firstarray.push val
-			)
-			for image,index in @firstarray when index < 2
-				proj = new Projection(@SkyView.Math)
-				proj.init(@SkyView.gl,"","#{image}",this,@survey)
-		
-		ffile.send()
-	
-		return
-	
-	createLSSTOverlay: ()=>
-		
-		@lsstarray = []
-		@lsstflag = false
-		lfile = new XMLHttpRequest()
-		lfile.open('GET', '../../lsstimages/filelist.txt',true)   #this path should change to the full path on astro server /u/astro/images/LSST/jpegfiles.txt
-		lfile.onload = (e) =>
-			text = lfile.responseText
-			lines = text.split("\n")
-			$.each(lines, (key,val) =>
-				@lsstarray.push val
-			)
-			
-			for image in @lsstarray
-				proj = new Projection(@SkyView.Math)
-				proj.init(@SkyView.gl,"","#{image}",this,@survey)
-		
-		lfile.send()
-		
-		return
-		
-	createSDSSOverlay: ()=>
-	
-		## retrieve RA and radius ##
-		radius = 15#((-@translation[2]+1)*15)*90
-		
-		@vertexPositionData = [ ]
-		@textureCoordData = [ ]
-		@indexData = [ ]
-		@texturePos = [ ]
-		
-		if radius < 1.0
-			radius = 1.0
 
-		ra = -@SkyView.rotation[1]
-		dec = -@SkyView.rotation[0]
+	handleLoadedTexture: (texture)=>
 
-		# select the images
+		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
 
-		$.ajaxSetup({'async': false})	
+		@gl.bindTexture(@gl.TEXTURE_2D, texture)
+		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
+		@gl.bindTexture(@gl.TEXTURE_2D, null)
 
-		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
-			#{radius}&zoom=0", (data) =>
-				$.each(data, (key, val)=>
-					if key % 2 == 0
-						fitsFile = data[key+1]
-						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
-						
-						proj = new Projection(@SkyView.Math)
-						proj.init(@SkyView.gl,"http://astro.cs.pitt.edu/sdss2degregion00/#{val}",
-							"../../sdss2degregion00/headtext/#{fits}",this, @survey)
-				)	
-		)
-		$.ajaxSetup({'async': true})
-		
-		@VertexPositionBuffer = @SkyView.gl.createBuffer()
-		@SkyView.gl.bindBuffer(@SkyView.gl.ARRAY_BUFFER, @VertexPositionBuffer)
-		@SkyView.gl.bufferData(@SkyView.gl.ARRAY_BUFFER, new Float32Array(@vertexPositionData), @SkyView.gl.STATIC_DRAW)
-		@VertexPositionBuffer.itemSize = 3
-		@VertexPositionBuffer.numItems = @vertexPositionData.length / 3
+	initTexture: (image) =>
+		@Texture = @gl.createTexture()
+		@Texture.image = new Image()
+		@Texture.image.onload = ()=> 
+			this.handleLoadedTexture(@Texture)
 
-		console.log "size",@indexData.length
-		
-		@VertexIndexBuffer = @SkyView.gl.createBuffer()
-		@SkyView.gl.bindBuffer(@SkyView.gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
-		@SkyView.gl.bufferData(@SkyView.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(@indexData), @SkyView.gl.STATIC_DRAW)
-		@VertexIndexBuffer.itemSize = 1
-		@VertexIndexBuffer.numItems = @indexData.length
-
-		@VertexTextureCoordBuffer = @SkyView.gl.createBuffer()
-		@SkyView.gl.bindBuffer(@SkyView.gl.ARRAY_BUFFER, @VertexTextureCoordBuffer)
-		@SkyView.gl.bufferData(@SkyView.gl.ARRAY_BUFFER, new Float32Array(@textureCoordData), @SkyView.gl.STATIC_DRAW)
-		@VertexTextureCoordBuffer.itemSize = 2
-		@VertexTextureCoordBuffer.numItems = @textureCoordData.length / 2
-		
-		@VertexTexturePos = @SkyView.gl.createBuffer()
-		@SkyView.gl.bindBuffer(@SkyView.gl.ARRAY_BUFFER, @VertexTexturePos)
-		@SkyView.gl.bufferData(@SkyView.gl.ARRAY_BUFFER, new Uint16Array(@texturePos), @SkyView.gl.STATIC_DRAW)
-		@VertexTexturePos.itemSize = 1
-		@VertexTexturePos.numItems = @texturePos.length
-		
-	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
-
-		scale = ((-@translation[2]+1)*15) * 3600
-
-		img = ''
-
-		$.ajaxSetup({'async': false})	
-
-		$.ajax(
-			type: 'POST',
-			url: "./lib/createOverlay.php",
-			data: 	
-				'width':512,
-				'height':512
-				'RAMin':raMin,
-				'RAMax':raMax,
-				'DecMin':decMin,
-				'DecMax':decMax,
-				'scale':1.8,
-				'diam':2,
-				'color':color,
-				'table':JSON.stringify(raDec)
-			success:(data)=>
-				img = data
-				return
-		)		
-
-		$.ajaxSetup({'async': true})	
-
-		imgURL = "./lib/overlays/#{img}"
-
-		range = [raMin, raMax, decMin, decMax];
-
-		@Texture.push loadTexture(@SkyView.gl,texture,null)
-		this.createTile([range[1], range[0], range[0], range[1]],
-			[range[3], range[3], range[2], range[2]])
-		this.setFlag()
-		
-		return overlay
+		@Texture.image.src = image
 
 	createTile: (ra, dec)=>
 
 		radius = 1
-		
+
+		vertexPositionData = []
+		normalData = []
+
+		textureCoordData = []
+
 		### if ra and dec are specified for the sphere, 
 			use them ###		
 		if ra? and dec?
@@ -226,61 +125,58 @@ class Overlay
 				y = cosPhi
 				x = sinPhi * cosTheta
 
-				@vertexPositionData.push(radius * x)
-				@vertexPositionData.push(radius * y)
-				@vertexPositionData.push(radius * z)
+				vertexPositionData.push(radius * x)
+				vertexPositionData.push(radius * y)
+				vertexPositionData.push(radius * z)
 
-				@textureCoordData.push 0.0
-				@textureCoordData.push 1.0
-				@textureCoordData.push 0.0
-				@textureCoordData.push 0.0
-				@textureCoordData.push 1.0
-				@textureCoordData.push 0.0
-				@textureCoordData.push 1.0
-				@textureCoordData.push 1.0
+				textureCoordData = [
 
-			@indexData.push @indexPos+2
-			@indexData.push @indexPos+3
-			@indexData.push @indexPos
-			@indexData.push @indePos+1
-			@indexData.push @indexPos+2
-			@indexData.push @indexPos
-			
-			@texturePos.push @numTextures%16
-			
-			@indexPos += 4
-			@numTextures++
+					0.0, 1.0,
+					0.0, 0.0,
+					1.0, 0.0,
+					1.0, 1.0,
+				]
+
+			indexData = [2,3,0, 1,2,0]
+
+		@VertexPositionBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
+		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), @gl.STATIC_DRAW)
+		@VertexPositionBuffer.itemSize = 3
+		@VertexPositionBuffer.numItems = vertexPositionData.length / 3
+
+		@VertexIndexBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
+		@gl.bufferData(@gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), @gl.STATIC_DRAW)
+		@VertexIndexBuffer.itemSize = 1
+		@VertexIndexBuffer.numItems = indexData.length
+
+		@VertexTextureCoordBuffer = @gl.createBuffer()
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer)
+		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
+		@VertexTextureCoordBuffer.itemSize = 2
+		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
+				
+		return
+
+	bind: (shaderProgram)=>
+
+		@gl.activeTexture(@gl.TEXTURE0)
+		@gl.bindTexture(@gl.TEXTURE_2D, @Texture)
+		@gl.uniform1i(shaderProgram.samplerUniform, 0)
+
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
+		@gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, @VertexPositionBuffer.itemSize, @gl.FLOAT, false, 0, 0)
+
+		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexTextureCoordBuffer);
+		@gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, @VertexTextureCoordBuffer.itemSize, @gl.FLOAT, false, 0, 0)
+
+		@gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
 
 		return
-		
-	bindAttributes: (shaderProgram)=>
-		
-		@SkyView.gl.bindBuffer(@SkyView.gl.ARRAY_BUFFER, @VertexPositionBuffer)
-		@SkyView.gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, @VertexPositionBuffer.itemSize, @SkyView.gl.FLOAT, false, 0, 0)
 
-		@SkyView.gl.bindBuffer(@SkyView.gl.ARRAY_BUFFER, @VertexTextureCoordBuffer);
-		@SkyView.gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, @VertexTextureCoordBuffer.itemSize, @SkyView.gl.FLOAT, false, 0, 0)
-		
-		@SkyView.gl.bindBuffer(@SkyView.gl.ARRAY_BUFFER, @VertexTexturePos);
-		@SkyView.gl.vertexAttribPointer(shaderProgram.texturePosAttribute, @VertexTexturePos.itemSize, @SkyView.gl.FLOAT, false, 0, 0)
-
-		@SkyView.gl.bindBuffer(@SkyView.gl.ELEMENT_ARRAY_BUFFER, @VertexIndexBuffer)
-
-		return
-	bindTextures: (shaderProgram, numTextures, offset)=>
-		
-		iterator = Math.min(@numTextures,numTextures)
-		
-		for i in [0..iterator-1]
-
-			@SkyView.gl.activeTexture(@TexturePos[i])
-			@SkyView.gl.bindTexture(@SkyView.gl.TEXTURE_2D, @Texture[i+offset])
-			@SkyView.gl.uniform1i(shaderProgram.sampler[i], i)
-		
-		return
-		
 	render: (renderMode) =>
-		@SkyView.gl.drawElements(renderMode, @VertexIndexBuffer.numItems, @SkyView.gl.UNSIGNED_SHORT, 0)
+		@gl.drawElements(renderMode, @VertexIndexBuffer.numItems, @gl.UNSIGNED_SHORT, 0)
 
 	setFlag:()=>
 		@set = true
@@ -288,7 +184,141 @@ class Overlay
 
 	getSet:()=>
 		return @set
-	
+
+class Overlay
+
+	@survey = null
+	@set = null
+	@alpha = 1.0
+	@name = ''
+
+	constructor: (@SkyView, survey, range, name) ->
+
+		@survey = survey
+		@tiles = []
+
+		if @survey == "SDSS"
+			this.createSDSSOverlay()
+		else if @survey == "LSST"
+			this.createLSSTOverlay()
+		else if @survey == "FIRST"
+			this.createFIRSTOverlay()
+
+		@alpha = 1.0
+		@name = name
+
+		return
+
+	createFIRSTOverlay: ()=>
+
+		@firstarray = []
+		@firstflag = false
+		ffile = new XMLHttpRequest()
+		ffile.open('GET', '../../first2degree/firstimages.txt',true) 
+		ffile.onload = (e) =>
+			text = ffile.responseText
+			lines = text.split("\n")
+			$.each(lines, (key,val) =>
+				@firstarray.push val
+			)
+			for image,index in @firstarray
+				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
+					"#{image}", "", null)
+
+		ffile.send()
+
+		return
+
+	createLSSTOverlay: ()=>
+
+		@lsstarray = []
+		@lsstflag = false
+		lfile = new XMLHttpRequest()
+		lfile.open('GET', '../../lsstimages/filelist.txt',true)   #this path should change to the full path on astro server /u/astro/images/LSST/jpegfiles.txt
+		lfile.onload = (e) =>
+			text = lfile.responseText
+			lines = text.split("\n")
+			$.each(lines, (key,val) =>
+				@lsstarray.push val
+			)
+
+			for image in @lsstarray
+				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"LSST", "sky", 
+					"#{image}", "", null)
+
+		lfile.send()
+
+		return
+
+	createSDSSOverlay: ()=>
+
+		## retrieve RA and radius ##
+		radius = 45#((-@translation[2]+1)*15)*90
+
+		if radius < 1.0
+			radius = 1.0
+
+		ra = -@SkyView.rotation[1]
+		dec = -@SkyView.rotation[0]
+
+		# select the images
+
+		$.ajaxSetup({'async': false})	
+
+		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
+			#{radius}&zoom=0", (data) =>
+				$.each(data, (key, val)=>
+					if key % 2 == 0
+						fitsFile = data[key+1]
+						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
+						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
+							"http://astro.cs.pitt.edu/sdss2degregion00/#{val}",
+							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/sdss2degregion00/headtext/#{fits}", null)
+				)	
+		)
+		$.ajaxSetup({'async': true})
+
+	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
+
+		scale = ((-@SkyView.translation[2]+1)*15) * 3600
+
+		img = ''
+
+		$.ajaxSetup({'async': false})	
+
+		$.ajax(
+			type: 'POST',
+			url: "./lib/createOverlay.php",
+			data: 	
+				'width':512,
+				'height':512
+				'RAMin':0,
+				'RAMax':1,
+				'DecMin':0,
+				'DecMax':1,
+				'scale':1.8,
+				'diam':1,
+				'color':color,
+				'table':JSON.stringify(raDec)
+			success:(data)=>
+				img = data
+				return
+		)		
+
+		$.ajaxSetup({'async': true})	
+
+		imgURL = "./lib/overlays/#{img}"
+
+		range = [raMin, raMax, decMin, decMax]
+		tempRange = [0.0, 1.0, 0.0, 1.0]
+		
+		tile =  new Tile(@SkyView.gl, @SkyView.Math, "anno", "anno", 
+			imgURL, null, tempRange)
+
+		@tiles.push tile
+
+		return
+
 	setAlpha:(value)=>
 		@alpha = value
 		@SkyView.render()

@@ -10,17 +10,17 @@ class SkyView extends WebGL
 	@translation = null
 	@renderMode = 0
 	@Math = null
-		
+
 	constructor: (options) ->
-	
+
 		#init webgl
 		super(options)
 		@mouse_coords = {'x':0, 'y':0}	
 		#init htm variables
 		@translation = [0.0, 0.0, 0.99333]
-		@rotation = [0.0, 0.0, 0.0]
+		@rotation = [0.0,-0.4, 0.0]
 		@renderMode = @gl.TRIANGLES
-			
+
 		# init math, grid and projection
 		@Math = new math()
 
@@ -29,67 +29,50 @@ class SkyView extends WebGL
 
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-		
+
 		return
-			
+
 	setScale:(value)=>
 		$('#Scale').text(((value+1)*15).toFixed(2))
 		return
-		
+
 	addOverlay: (overlay)=>
 		@overlays.push overlay
 		return
-		
+
 	deleteOverlay: (name)=>
 		return
 
 	render: ()=>
-				
-		this.preRender() # set up matrices
-		this.postRender(@rotation, @translation)
-		
-		for overlay in @overlays
-			
-			overlay.bindAttributes()
-			
-			for i in [0..overlay.Textures] by 16
-				overlay.bindTextures(@shaderProgram,16,0)
-				overlay.render()
-		
-		console.log "render"
-		
-#		last = " "
-		###
+
+		this.preRender(@rotation, @translation) # set up matrices
+
 		for overlay in @overlays
 			for tile in overlay.tiles
 				if tile.getSet() == true
 					tile.bind(@shaderProgram)
-					if overlay.survey == "SDSS" and overlay.survey != last
-						last = overlay.survey
+					if overlay.survey == "SDSS"
 						@gl.enable(@gl.DEPTH_TEST)
 						@gl.disable(@gl.BLEND)
 						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "anno" and overlay.survey != last
-						last = overlay.survey
+						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
+					else if overlay.survey == "anno"
+						console.log "render anno"
 						@gl.disable(@gl.DEPTH_TEST)
 						@gl.enable(@gl.BLEND)
 						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
 						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "LSST" and overlay.survey != last
-						last = overlay.survey
+					else if overlay.survey == "LSST"
 						@gl.disable(@gl.DEPTH_TEST)
 						@gl.enable(@gl.BLEND)
 						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
 						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					else if overlay.survey == "FIRST" and overlay.survey != last
-						last = overlay.survey
+					else if overlay.survey == "FIRST"
 						@gl.disable(@gl.DEPTH_TEST)
 						@gl.enable(@gl.BLEND)
 						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
 						@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
 					tile.render(@renderMode)
-		###
-		
 		return
 
 	panDown:(event)=>
@@ -98,7 +81,7 @@ class SkyView extends WebGL
 		@mouse_coords.y = event.clientY
 
 	panMove: (event)=>
-				
+
 		if @mouseState == @MOUSE_DOWN
 			delta_x = event.clientX - @mouse_coords.x
 			delta_y = event.clientY - @mouse_coords.y
@@ -112,19 +95,19 @@ class SkyView extends WebGL
 				@rotation[0] -= Config.pan_sensitivity  # Too much movement?
 
 			# Assume the mouse is going DOWN
-			else if delta_y < 0
+			else
 				@rotation[0] += Config.pan_sensitivity
 
 			if delta_x > 0
 				@rotation[1] -= Config.pan_sensitivity
 
-			else if dleta_x < 0
+			else
 				@rotation[1] += Config.pan_sensitivity
 			#@translate((event.clientX-@mouse_coords.x)/ 1000 * 1.8 / @scale, (-event.clientY+@mouse_coords.y)/ 1000 * 1.8 / @scale)
 
 			# Update the RA-DEC numbers
 			$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-			
+
 			this.render()
 
 	panUp: (event)=>
@@ -147,26 +130,26 @@ class SkyView extends WebGL
 		# Assume Zoom in
 		else
 			@translation[2] += Config.scroll_sensitivity
-		
+
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		this.render()
-		
+
 	jump: (RA,Dec)=>
-	
+
 		@rotation[1] = -RA
 		@rotation[0] = -Dec	
-		
+
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-		
+
 		this.render()
-		
+
 	mouseHandler:()->
 		@hookEvent(@canvas, "mousedown", @panDown)
 		@hookEvent(@canvas, "mouseup", @panUp)
 		@hookEvent(@canvas, "mousewheel", @panScroll)
 		@hookEvent(@canvas, "mousemove", @panMove)
-		
+
 	hookEvent:(element, eventName, callback)->
 		if(typeof(element) == "string")
 			element = document.getElementById(element)
@@ -191,76 +174,76 @@ class SkyView extends WebGL
 		else if(element.detachEvent)
 			element.detachEvent("on" + eventName, callback)	
 		return
-				
+
 	getBoundingBox:()=>
 
 		max = this.getCoordinate(@canvas.width, @canvas.height)
 		min = this.getCoordinate(0,0)
-		
+
 		range = new Object()
-		
+
 		range.maxRA = max.x
 		range.minRA = min.x
 		range.maxDec = max.y
 		range.minDec = min.y
-				
+
 		return range
-	
+
 	getPosition: ()=>
 		pos = new Object;
 		pos.ra = -@rotation[1]
 		pos.dec = -@rotation[0]
 		return pos
-		
+
 	getCoordinate: (x,y) =>
-		
+
 		#get the projection, model-view and viewport
 		matrices = this.getMatrices()
-		
+
 		#calculate the near and far clipping plane distances
 		near = []
 		far = []
-		
+
 		success = GLU.unProject(x, @gl.viewportHeight - y,
 			0.0, matrices[0], matrices[1], matrices[2], near)
-		
+
 		success = GLU.unProject(x, @gl.viewportHeight - y,
 			1.0, matrices[0], matrices[1], matrices[2], far)
-		
+
 		#calculate the direction vector
 		dir = @Math.subtract(far,near)
-				
+
 		# set up the origin
 		origin = [0.0,0.0,0.0,1.0]
-		
+
 		# unproject the origin to the scene
 		inverse = mat4.set(matrices[0],mat4.create())
 		inverse = mat4.inverse(inverse)
-						
+
 		origin = @Math.multiply(origin,inverse)
-		
+
 		#normalize direction vector
 		dir = @Math.norm(dir)
-		
+
 		# new
-		
+
 		a = @Math.dot([dir[0],dir[1],dir[2],1.0],[dir[0], dir[1],dir[2],1.0])
 		b = @Math.dot([origin[0],origin[1],origin[2],0.0],[dir[0], dir[1],dir[2],1.0]) * 2.0
 		c = @Math.dot([origin[0],origin[1],origin[2],0.0],[origin[0],origin[1],origin[2],0.0]) - 1
-		
+
 		t = [0,0]
-		
+
 		descrim = Math.pow(b,2)-(4.0*a*c)
-		
+
 		if descrim >= 0
-		
+
 			t[0] = (-b - Math.sqrt(descrim))/(2.0*a)
 			t[1] = (-b + Math.sqrt(descrim))/(2.0*a)
-		
+
 		intersection = @Math.add(origin,@Math.mult(dir,t[1]))
-		
+
 		theta = Math.atan(intersection[0]/intersection[2]) * 57.29577951308323
-		
+
 		RA = theta
 		###
 		if theta < 270
@@ -270,13 +253,13 @@ class SkyView extends WebGL
 		###	
 		phi = Math.acos(intersection[1]) * 57.29577951308323
 		Dec = 90 - phi
-				
+
 		raDec = new Object()
 		raDec.x = RA
 		raDec.y = Dec
-		
+
 		return raDec
-	
+
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)
@@ -336,6 +319,4 @@ class SkyView extends WebGL
 			when 't'
 				this.getBoundingBox()
 
-		return		
-	
-
+		return
