@@ -211,22 +211,16 @@ class Overlay
 
 	createFIRSTOverlay: ()=>
 
-		@firstarray = []
 		@firstflag = false
-		ffile = new XMLHttpRequest()
-		ffile.open('GET', '../../first2degree/firstimages.txt',true) 
-		ffile.onload = (e) =>
-			text = ffile.responseText
-			lines = text.split("\n")
-			$.each(lines, (key,val) =>
-				@firstarray.push val
-			)
-			for image,index in @firstarray
+		range = @SkyView.getBoundingBox()
+		getInfo = {RAMin: range.minRA, RAMax: range.maxRA, RecMin: range.minDec, DecMax: range.maxDec};
+		url = 'lib/db/remote/SPATIALTREE.php' 
+		done= (e) =>
+			for image, index in e
 				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
 					"#{image}", "", null)
 
-		ffile.send()
-
+		$.get(url, getInfo, done, 'json')
 		return
 
 	createLSSTOverlay: ()=>
@@ -292,10 +286,10 @@ class Overlay
 			data: 	
 				'width':512,
 				'height':512
-				'RAMin':0,
-				'RAMax':1,
-				'DecMin':0,
-				'DecMax':1,
+				'RAMin':raMin,
+				'RAMax':raMax,
+				'DecMin':decMin,
+				'DecMax':decMax,
 				'scale':1.8,
 				'diam':1,
 				'color':color,
