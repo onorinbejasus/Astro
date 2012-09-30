@@ -213,7 +213,7 @@ class Overlay
 
 		@firstflag = false
 		range = @SkyView.getBoundingBox()
-		getInfo = {RAMin: range.minRA, RAMax: range.maxRA, DecMin: range.minDec, DecMax: range.maxDec};
+		getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
 		url = 'lib/db/remote/SPATIALTREE.php' 
 		done= (e) =>
 			for image, index in e
