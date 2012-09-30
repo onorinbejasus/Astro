@@ -119,7 +119,6 @@ class WebGL
 
 		@shaderProgram.alphaUniform = @gl.getUniformLocation(@shaderProgram, "alpha");
 
-
 		return
 
 	getMatrices: ()=>

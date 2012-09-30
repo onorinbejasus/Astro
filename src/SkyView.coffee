@@ -29,7 +29,9 @@ class SkyView extends WebGL
 
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-
+		
+		this.render()
+		
 		return
 
 	setScale:(value)=>
@@ -54,7 +56,6 @@ class SkyView extends WebGL
 					if overlay.survey == "SDSS"
 						@gl.enable(@gl.DEPTH_TEST)
 						@gl.disable(@gl.BLEND)
-
 					else
 						@gl.disable(@gl.DEPTH_TEST)
 						@gl.enable(@gl.BLEND)
@@ -167,6 +168,7 @@ class SkyView extends WebGL
 	getBoundingBox:()=>
 
 		max = this.getCoordinate(@canvas.width, @canvas.height)
+		
 		min = this.getCoordinate(0,0)
 
 		range = new Object()
@@ -192,13 +194,14 @@ class SkyView extends WebGL
 		#calculate the near and far clipping plane distances
 		near = []
 		far = []
-
+		dir = []
+		
 		success = GLU.unProject(x, @gl.viewportHeight - y,
 			0.0, matrices[0], matrices[1], matrices[2], near)
 
 		success = GLU.unProject(x, @gl.viewportHeight - y,
 			1.0, matrices[0], matrices[1], matrices[2], far)
-
+				
 		#calculate the direction vector
 		dir = @Math.subtract(far,near)
 
