@@ -217,8 +217,9 @@ class Overlay
 		url = 'lib/db/remote/SPATIALTREE.php' 
 		done= (e) =>
 			for image, index in e
-				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
-					"#{image}", "", null)
+					name = image.split "../../images/"
+					@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
+					"#{name[1]}", "", null)
 
 		$.get(url, getInfo, done, 'json')
 		return

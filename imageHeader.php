@@ -31,7 +31,7 @@ if($_GET['type'] == "JPEG"){
 		$path .= $url;
 		$url = $path;
 
-		exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/tim/timProduction/bin/jhead $url", $data, $ret);
+		exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/tim/timCurrent/bin/jhead $url", $data, $ret);
 		
 		
 		foreach($data as $line){						
@@ -98,11 +98,10 @@ if($_GET['type'] == "JPEG"){
 					} // if LSST
 	else if ($survey == "FIRST"){
 				
-		$path = "/afs/cs.pitt.edu/projects/admt/web/sites/astro/first2degree/images/";
+		$path = "/afs/cs.pitt.edu/projects/admt/web/sites/astro/FIRST/images/";
 		$path .= $url;
 		$url = $path;
-
-		exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/tim/timProduction/bin/jhead $url", $data, $ret);
+				exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/tim/timCurrent/bin/jhead $url", $data, $ret);
 		
 		foreach($data as $line){
 			$values = explode(" : ", $line);

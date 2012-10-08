@@ -48,7 +48,8 @@ class SkyView extends WebGL
 	render: ()=>
 
 		this.preRender(@rotation, @translation) # set up matrices
-
+		#this.createFIRSTOverlay()
+		
 		for overlay in @overlays
 			for tile in overlay.tiles
 				if tile.getSet()
@@ -164,7 +165,7 @@ class SkyView extends WebGL
 		else if(element.detachEvent)
 			element.detachEvent("on" + eventName, callback)	
 		return
-
+	
 	getBoundingBox:()=>
 
 		max = this.getCoordinate(@canvas.width, @canvas.height)
