@@ -48,8 +48,13 @@ class SkyView extends WebGL
 	render: ()=>
 
 		this.preRender(@rotation, @translation) # set up matrices
-		#this.createFIRSTOverlay()
-		
+
+		# Refreshes all the overlay images by requesting them all again (For now it is just FIRST).
+		# TODO: Make it in a different timer to refresh, and only have that timer go off when movement
+		# occurs.
+		for overlay in @overlays
+			overlay.refresh()
+
 		for overlay in @overlays
 			for tile in overlay.tiles
 				if tile.getSet()

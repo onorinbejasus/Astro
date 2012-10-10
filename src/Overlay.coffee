@@ -186,7 +186,7 @@ class Tile
 		return @set
 
 class Overlay
-
+	@refresh = () -> return 0
 	@survey = null
 	@set = null
 	@alpha = 1.0
@@ -212,16 +212,18 @@ class Overlay
 	createFIRSTOverlay: ()=>
 
 		@firstflag = false
-		range = @SkyView.getBoundingBox()
-		getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
-		url = 'lib/db/remote/SPATIALTREE.php' 
-		done= (e) =>
-			for image, index in e
-					name = image.split "../../images/"
-					@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
-					"#{name[1]}", "", null)
+		@refresh = () =>
+			range = @SkyView.getBoundingBox()
+			getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
+			url = 'lib/db/remote/SPATIALTREE.php' 
+			done = (e) =>
+				for image, index in e
+						name = image.split "../../images/"
+						@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
+						"#{name[1]}", "", null)
 
-		$.get(url, getInfo, done, 'json')
+			$.get(url, getInfo, done, 'json')
+
 		return
 
 	createLSSTOverlay: ()=>
