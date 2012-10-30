@@ -186,7 +186,7 @@ class Tile
 		return @set
 
 class Overlay
-	@refresh = () -> return 0
+	
 	@survey = null
 	@set = null
 	@alpha = 1.0
@@ -194,7 +194,7 @@ class Overlay
 	@cache = {}
 
 	constructor: (@SkyView, survey, range, name) ->
-
+		@refresh = () -> return 0
 		@survey = survey
 		@tiles = []
 		@cache = {}
