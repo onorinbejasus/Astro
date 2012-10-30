@@ -191,12 +191,13 @@ class Overlay
 	@set = null
 	@alpha = 1.0
 	@name = ''
+	@cache = {}
 
 	constructor: (@SkyView, survey, range, name) ->
 
 		@survey = survey
 		@tiles = []
-
+		@cache = {}
 		if @survey == "SDSS"
 			this.createSDSSOverlay()
 		else if @survey == "LSST"
@@ -219,8 +220,10 @@ class Overlay
 			done = (e) =>
 				for image, index in e
 						name = image.split "../../images/"
-						@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
-						"#{name[1]}", "", null)
+						if not cache[name]
+							@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
+							"#{name[1]}", "", null)
+							cache[name] = true
 
 			$.get(url, getInfo, done, 'json')
 		@refresh()
