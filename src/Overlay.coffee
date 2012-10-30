@@ -220,10 +220,10 @@ class Overlay
 			done = (e) =>
 				for image, index in e
 						name = image.split "../../images/"
-						if not cache[name]
+						if not @cache[name]
 							@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
 							"#{name[1]}", "", null)
-							cache[name] = true
+							@cache[name] = true
 
 			$.get(url, getInfo, done, 'json')
 		@refresh()
