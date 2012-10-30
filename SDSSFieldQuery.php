@@ -2,7 +2,12 @@
 
 	header("Content-type: text/plain");
 	
-		error_reporting(-1);
+	error_reporting(-1);
+	
+	$_GET["ra"] = 0;
+	$_GET["dec"] = 0;	
+	$_GET["radius"] = 10;	
+	$_GET["zoom"] = 0;	
 		
 /* parse the xml to get the fields to wget with*/
 
@@ -116,12 +121,17 @@
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLINFO_HEADER_OUT, 1);	
 	// Set overlay to 1 if you want the original xml and don't use if want a json object
 	$fields_string = array('query' => $the_query, 'overlay' => 1);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
 	// Return the output as a string instead of printing it out
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	$output = curl_exec($ch);
+	
+	$headers = curl_getinfo($ch, CURLINFO_HEADER_OUT);
+	echo "curl string $headers\n\n";
+	echo "\n\ncurl: $output\n";
 	curl_close($ch);
 			
 	getImages($output);
