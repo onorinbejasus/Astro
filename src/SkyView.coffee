@@ -52,8 +52,8 @@ class SkyView extends WebGL
 		# Refreshes all the overlay images by requesting them all again (For now it is just FIRST).
 		# TODO: Make it in a different timer to refresh, and only have that timer go off when movement
 		# occurs.
-		for overlay in @overlays
-			overlay.refresh()
+		#for overlay in @overlays
+		#	overlay.refresh()
 
 		for overlay in @overlays
 			for tile in overlay.tiles
@@ -88,17 +88,17 @@ class SkyView extends WebGL
 
 			# Assume this is the mouse going UP
 			if delta_y > 0
-				@rotation[0] -= Config.pan_sensitivity  # Too much movement?
+				@rotation[0] -= delta_y * Config.pan_sensitivity  # Too much movement?
 
 			# Assume the mouse is going DOWN
-			else
-				@rotation[0] += Config.pan_sensitivity
+			else if delta_y < 0
+				@rotation[0] += -delta_y * Config.pan_sensitivity
 
 			if delta_x > 0
-				@rotation[1] -= Config.pan_sensitivity
+				@rotation[1] -= delta_x * Config.pan_sensitivity
 
-			else
-				@rotation[1] += Config.pan_sensitivity
+			else if delta_y < 0
+				@rotation[1] += -delta_x * Config.pan_sensitivity
 			#@translate((event.clientX-@mouse_coords.x)/ 1000 * 1.8 / @scale, (-event.clientY+@mouse_coords.y)/ 1000 * 1.8 / @scale)
 
 			# Update the RA-DEC numbers

@@ -223,7 +223,7 @@ class Overlay
 						"#{name[1]}", "", null)
 
 			$.get(url, getInfo, done, 'json')
-
+		@refresh()
 		return
 
 	createLSSTOverlay: ()=>
