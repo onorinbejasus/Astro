@@ -213,6 +213,7 @@ class Overlay
 	createFIRSTOverlay: ()=>
 
 		@firstflag = false
+		temp_this = this
 		@refresh = () =>
 			range = @SkyView.getBoundingBox()
 			getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
@@ -220,10 +221,10 @@ class Overlay
 			done = (e) =>
 				for image, index in e
 						name = image.split "../../images/"
-						if not @cache[name]
+						if not temp_this.cache[name]
 							@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
 							"#{name[1]}", "", null)
-							@cache[name] = true
+							temp_this.cache[name] = true
 
 			$.get(url, getInfo, done, 'json')
 		@refresh()
