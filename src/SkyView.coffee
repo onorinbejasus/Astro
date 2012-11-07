@@ -18,7 +18,7 @@ class SkyView extends WebGL
 		@mouse_coords = {'x':0, 'y':0}	
 		#init htm variables
 		@translation = [0.0, 0.0, 0.99333]
-		@rotation = [0.0, 0.0, 0.0]
+		@rotation = [0.0, -0.4, 0.0]
 		@renderMode = @gl.TRIANGLES
 		@MOUSE_DOWN = 1
 
