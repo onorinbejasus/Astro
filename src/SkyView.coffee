@@ -77,7 +77,7 @@ class SkyView extends WebGL
 		@mouse_coords.x = event.clientX
 		@mouse_coords.y = event.clientY
 
-	panMove: (event)=>
+	panMove:(event)=>
 
 		if @mouseState == @MOUSE_DOWN
 			delta_x = event.clientX - @mouse_coords.x
