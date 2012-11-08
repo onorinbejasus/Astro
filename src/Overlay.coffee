@@ -255,7 +255,7 @@ class Overlay
 	createSDSSOverlay: ()=>
 
 		## retrieve RA and radius ##
-		radius = 45#((-@translation[2]+1)*15)*90
+		radius = 10#((-@translation[2]+1)*15)*90
 
 		if radius < 1.0
 			radius = 1.0
@@ -264,20 +264,20 @@ class Overlay
 		dec = -@SkyView.rotation[0]
 
 		# select the images
-
 		$.ajaxSetup({'async': false})	
 
 		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
-			#{radius}&zoom=0", (data) =>
+			#{radius}&zoom=00", (data) =>
 				$.each(data, (key, val)=>
 					if key % 2 == 0
 						fitsFile = data[key+1]
 						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
 						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
-							"http://astro.cs.pitt.edu/sdss2degregion00/#{val}",
-							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/sdss2degregion00/headtext/#{fits}", null)
-				)	
+							"#{val}",
+							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/headers/#{fits}", null)
+				)
 		)
+		
 		$.ajaxSetup({'async': true})
 
 	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>

@@ -10,7 +10,6 @@ class SkyView extends WebGL
 	@renderMode = 0
 	@Math = null
 
-
 	constructor: (options) ->
 
 		@empty = ()->return
