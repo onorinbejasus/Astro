@@ -1,5 +1,4 @@
 #= require WebGL
-
 class SkyView extends WebGL
 
 	@MOUSE_DOWN = 0
@@ -16,13 +15,13 @@ class SkyView extends WebGL
 
 		@empty = ()->return
 		#init webgl
-		@event_attach = options
 		@box_canvas = document.createElement("canvas")
 		@box_canvas.width = options.clientWidth
 		@box_canvas.height = options.clientHeight
 		@box_canvas.style.backgroundColor = ""
 		@box_canvas.style.position = "absolute"
 		options.appendChild(@box_canvas)
+		@event_attach = options
 		@mouse_down = @sky_view_mouse_down
 		@mouse_up = @sky_view_mouse_up
 		@mouse_move = @sky_view_mouse_move
