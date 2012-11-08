@@ -14,6 +14,7 @@ class SkyView extends WebGL
 
 	constructor: (options) ->
 
+		@empty = ()->return
 		#init webgl
 		@event_attach = options
 		@box_canvas = document.createElement("canvas")
@@ -31,7 +32,8 @@ class SkyView extends WebGL
 
 		super(options)
 
-		@mouse_coords = {'x':0, 'y':0}	
+		@mouse_coords = {'x':0, 'y':0}
+		@handlers = {'translate': @empty, 'scale':@empty, 'box':@empty}
 		#init htm variables
 		@translation = [0.0, 0.0, 0.99333]
 		@rotation = [0.0, -0.4, 0.0]
@@ -44,6 +46,7 @@ class SkyView extends WebGL
 		# array of overlays
 		@overlays = []
 
+		@box = new BoxOverlay(@box_canvas, this)
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		
@@ -52,7 +55,9 @@ class SkyView extends WebGL
 		return
 
 	setScale:(value)=>
+		@translation[2] = value
 		$('#Scale').text(((value+1)*15).toFixed(2))
+		@notify('scale', value)
 		return
 
 	addOverlay: (overlay)=>
@@ -195,6 +200,21 @@ class SkyView extends WebGL
 
 	sky_view_mouse_down: (event)=>
 		@_inner_mouse_down(event)
+
+	register:(type, callback)=>
+		oldLoaded = @handlers[type]
+		if(@handlers[type])
+			@handlers[type] = (view)->
+				if(oldLoaded)
+					oldLoaded(view)
+				callback(view)
+		else
+			@handlers[type] = callback
+
+	notify:(type, info)=>
+		if(@handlers[type])
+			@handlers[type](info);
+
 	getBoundingBox:()=>
 
 		max = this.getCoordinate(@canvas.width, @canvas.height)
@@ -287,13 +307,12 @@ class SkyView extends WebGL
 		switch String.fromCharCode(key.which)
 
 			when 'i'
-				@_inner_mouse_move = ()-> return
 				@rotation[0] -= 0.1
+				@box.setEvents()
 				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				this.render()
 			when 'k'
 				@rotation[0] += 0.1
-				@_inner_mouse_move = @panMove
 				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				this.render()
 			when 'l'
@@ -349,7 +368,7 @@ class BoxOverlay
 	constructor: (canvas, view)->
 		@canvas = canvas
 		@ctx = @canvas.getContext('2d')
-		@ctx.fillStyle = "rgba(0,0,200,.5)"
+		@ctx.fillStyle = "rgba(0,0,200,.2)"
 		@start = 0
 		@draw = false
 		@enabled = true
@@ -368,21 +387,25 @@ class BoxOverlay
 			canvasX = event.pageX - totalOffsetX
 			canvasY = event.pageY - totalOffsetY
 			return {x:canvasX, y:canvasY}
+
 		@boxdown =(event)=>
 			@start = @canvas.relMouseCoords(event)
 			@draw = true
 			@view._inner_mouse_move = @boxmove
+
 		@boxmove =(event)=>
 			@end = @canvas.relMouseCoords(event)
 			@display()
+
 		@boxup = (event)=>
 			@end = @canvas.relMouseCoords(event)
 			@view.notify('box', {start: @view.getCoordinate(@start.x, @start.y), end:@view.getCoordinate(@end.x, @end.y)})
-			@enabled = false
+
+			@setPan()
 			drawEnd = ()=> 
-				@draw = false
-				@setPan()
+				@ctx.clearRect(0, 0, @canvas.width, @canvas.height)
 			setTimeout(drawEnd, 1000)
+
 	setEvents:()=>
 		@view._inner_mouse_up = @boxup
 		@view._inner_mouse_down = @boxdown
@@ -390,7 +413,8 @@ class BoxOverlay
 	setPan: ()=>
 		@view._inner_mouse_up = @view.panUp
 		@view._inner_mouse_down = @view.panDown
-		@view._inner_mouse_move = @view.
+		@view._inner_mouse_move = @view.panMove
+
 	display:()->
-		if @draw
-			@ctx.fillRect(@start.x, @start.y, @end.x-@start.x, @end.y-@start.y);
+		@ctx.clearRect(0, 0, @canvas.width, @canvas.height)
+		@ctx.fillRect(@start.x, @start.y, @end.x-@start.x, @end.y-@start.y);
