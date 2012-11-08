@@ -1,8 +1,11 @@
+###
+THIS IS SPARTA
+###
 class TextureProxy
-	###
-	A TextureProxy uses an already loaded temporary image while
-	another image is loading. 
-	###
+	
+	# A TextureProxy uses an already loaded temporary image while
+	# another image is loading. 
+	
 	constructor: (gl, img_url, temp_img_texture) ->
 		@texture = temp_img_texture
 
@@ -10,16 +13,14 @@ class TextureProxy
 			@texture = texture
 
 		@initTexture(gl, img_url, on_texture_load)
-
-	###
-	@function: initTexture
-	@description: Creates a GL_TEXTURE in GPU using the image specified.
-	@param: GL_CONTEXT gl- used to create a texture
-	@param: String image - URL of an image to be used.
-	@param: function load_callback- Use for callbacks when onload is triggered
-			to get the texture, all loaded.
-	@return: Nothing. Use the texture callback.
-	###
+	
+	# Used for initializing textures.
+	#
+	# @param [GLRenderingContext] gl - used to create a texture
+	# @param [Image] image - URL of an image to be used.
+	# @param [Function] load_callback Use for callbacks when onload is triggered to get the texture, all loaded.
+	# @return [void] Nothing. Use the texture callback to attach something
+	#
 	initTexture: (gl, image, load_callback) ->
 		texture = gl.createTexture()
 		texture.image = new Image()
