@@ -11,10 +11,26 @@ class SkyView extends WebGL
 	@renderMode = 0
 	@Math = null
 
+
 	constructor: (options) ->
 
 		#init webgl
+		@event_attach = options
+		@box_canvas = document.createElement("canvas")
+		@box_canvas.width = options.clientWidth
+		@box_canvas.height = options.clientHeight
+		@box_canvas.style.backgroundColor = ""
+		@box_canvas.style.position = "absolute"
+		options.appendChild(@box_canvas)
+		@mouse_down = @sky_view_mouse_down
+		@mouse_up = @sky_view_mouse_up
+		@mouse_move = @sky_view_mouse_move
+		@_inner_mouse_move = @panMove
+		@_inner_mouse_up = @panUp
+		@_inner_mouse_down = @panDown
+
 		super(options)
+
 		@mouse_coords = {'x':0, 'y':0}	
 		#init htm variables
 		@translation = [0.0, 0.0, 0.99333]
@@ -142,10 +158,10 @@ class SkyView extends WebGL
 		this.render()
 
 	mouseHandler:()->
-		@hookEvent(@canvas, "mousedown", @panDown)
-		@hookEvent(@canvas, "mouseup", @panUp)
-		@hookEvent(@canvas, "mousewheel", @panScroll)
-		@hookEvent(@canvas, "mousemove", @panMove)
+		@hookEvent(@event_attach, "mousedown", @sky_view_mouse_down)
+		@hookEvent(@event_attach, "mouseup", @sky_view_mouse_up)
+		@hookEvent(@event_attach, "mousewheel", @panScroll)
+		@hookEvent(@event_attach, "mousemove", @sky_view_mouse_move)
 
 	hookEvent:(element, eventName, callback)->
 		if(typeof(element) == "string")
@@ -171,7 +187,14 @@ class SkyView extends WebGL
 		else if(element.detachEvent)
 			element.detachEvent("on" + eventName, callback)	
 		return
-	
+	sky_view_mouse_move: (event)=>
+		@_inner_mouse_move(event)
+
+	sky_view_mouse_up: (event)=>
+		@_inner_mouse_up(event)
+
+	sky_view_mouse_down: (event)=>
+		@_inner_mouse_down(event)
 	getBoundingBox:()=>
 
 		max = this.getCoordinate(@canvas.width, @canvas.height)
@@ -264,11 +287,13 @@ class SkyView extends WebGL
 		switch String.fromCharCode(key.which)
 
 			when 'i'
+				@_inner_mouse_move = ()-> return
 				@rotation[0] -= 0.1
 				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				this.render()
 			when 'k'
 				@rotation[0] += 0.1
+				@_inner_mouse_move = @panMove
 				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 				this.render()
 			when 'l'
@@ -319,3 +344,53 @@ class SkyView extends WebGL
 				this.getBoundingBox()
 
 		return
+
+class BoxOverlay
+	constructor: (canvas, view)->
+		@canvas = canvas
+		@ctx = @canvas.getContext('2d')
+		@ctx.fillStyle = "rgba(0,0,200,.5)"
+		@start = 0
+		@draw = false
+		@enabled = true
+		@end = 0
+		@view= view
+		@onBox = null
+		@canvas.relMouseCoords = (event)->
+			totalOffsetX = 0
+			totalOffsetY = 0
+			canvasX = 0
+			canvasY = 0
+			currentElement = this
+			while currentElement = currentElement.offsetParent
+				totalOffsetX += currentElement.offsetLeft
+				totalOffsetY += currentElement.offsetTop
+			canvasX = event.pageX - totalOffsetX
+			canvasY = event.pageY - totalOffsetY
+			return {x:canvasX, y:canvasY}
+		@boxdown =(event)=>
+			@start = @canvas.relMouseCoords(event)
+			@draw = true
+			@view._inner_mouse_move = @boxmove
+		@boxmove =(event)=>
+			@end = @canvas.relMouseCoords(event)
+			@display()
+		@boxup = (event)=>
+			@end = @canvas.relMouseCoords(event)
+			@view.notify('box', {start: @view.getCoordinate(@start.x, @start.y), end:@view.getCoordinate(@end.x, @end.y)})
+			@enabled = false
+			drawEnd = ()=> 
+				@draw = false
+				@setPan()
+			setTimeout(drawEnd, 1000)
+	setEvents:()=>
+		@view._inner_mouse_up = @boxup
+		@view._inner_mouse_down = @boxdown
+		@view._inner_mouse_move = ()-> return;
+	setPan: ()=>
+		@view._inner_mouse_up = @view.panUp
+		@view._inner_mouse_down = @view.panDown
+		@view._inner_mouse_move = @view.
+	display:()->
+		if @draw
+			@ctx.fillRect(@start.x, @start.y, @end.x-@start.x, @end.y-@start.y);
