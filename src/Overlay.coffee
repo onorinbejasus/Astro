@@ -263,9 +263,6 @@ class Overlay
 		dec = -@SkyView.rotation[0]
 
 		# select the images
-		
-		console.log "inside SDSS overlay"
-		
 		$.ajaxSetup({'async': false})	
 
 		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
@@ -277,8 +274,9 @@ class Overlay
 						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
 							"#{val}",
 							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/headers/#{fits}", null)
-				)	
+				)
 		)
+		
 		$.ajaxSetup({'async': true})
 
 	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
