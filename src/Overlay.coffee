@@ -287,12 +287,18 @@ class Overlay
 
 		$.ajaxSetup({'async': false})	
 
+		width = Math.abs(raMax)-Math.abs(raMin)
+		height = Math.abs(decMax)-Math.abs(decMin)
+
+		width = 2024 * (360.0/width)
+		height = 2024 * (360.0/height)
+		
 		$.ajax(
 			type: 'POST',
 			url: "./lib/createOverlay.php",
 			data: 	
-				'width':512,
-				'height':512
+				'width':width,
+				'height':height,
 				'RAMin':raMin,
 				'RAMax':raMax,
 				'DecMin':decMin,
@@ -311,13 +317,14 @@ class Overlay
 		imgURL = "./lib/overlays/#{img}"
 
 		range = [raMin, raMax, decMin, decMax]
-		tempRange = [0.0, 1.0, 0.0, 1.0]
 		
 		tile =  new Tile(@SkyView.gl, @SkyView.Math, "anno", "anno", 
-			imgURL, null, tempRange)
+			imgURL, null, range)
 
 		@tiles.push tile
-
+		
+		@SkyView.render()
+		
 		return
 
 	setAlpha:(value)=>
