@@ -22,7 +22,7 @@ class SkyView extends WebGL
 		@mouse_down = @sky_view_mouse_down
 		@mouse_up = @sky_view_mouse_up
 		@mouse_move = @sky_view_mouse_move
-		@_inner_mouse_move = @panMove
+		@_inner_mouse_move = @empty
 		@_inner_mouse_up = @panUp
 		@_inner_mouse_down = @panDown
 
@@ -79,8 +79,6 @@ class SkyView extends WebGL
 
 		# Refreshes all the overlay images by requesting them all again (For now it is just FIRST).
 		for overlay in @overlays
-			overlay.refresh()
-		for overlay in @overlays
 			for tile in overlay.tiles
 				if tile.getSet()
 					tile.bind(@shaderProgram)
@@ -133,7 +131,6 @@ class SkyView extends WebGL
 
 	# @private
 	panUp: (event)=>
-		@refresh()
 		clearTimeout(@refresh_timeout)
 		@_inner_mouse_move = @empty
 
