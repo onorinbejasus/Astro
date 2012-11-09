@@ -307,10 +307,11 @@ class Overlay
 		ret = (data) =>
 				$.each(data, (key, val)=>
 					if key % 2 == 0
+						path = if val.length < 30 then "/afs/cs.pitt.edu/projects/admt/web/sites/astro/sdss2degregion00/#{val}" else "#{val}"
 						fitsFile = data[key+1]
 						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
 						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
-							"#{val}",
+							path,
 							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/headers/#{fits}", null)
 				)
 		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=#{radius}&zoom=00", ret)
