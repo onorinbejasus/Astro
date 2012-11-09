@@ -1,6 +1,3 @@
-###
-THIS IS SPARTA
-###
 class TextureProxy
 	
 	# A TextureProxy uses an already loaded temporary image while

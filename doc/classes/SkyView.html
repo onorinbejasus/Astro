@@ -123,25 +123,15 @@
 </div>
 <div class='tags'>
 </div>
-      <h2>Constant Summary</h2>
-      <dl class='constants'>
-        <dt id='MOUSE_DOWN-constant'>
-          MOUSE_DOWN
-          =
-          <div class='tags'>
-</div>
+      <h2>Property Summary</h2>
+      <dl class='properties'>
+        <dt id='Math-property'>
+          <span class='signature'>
+            (Math) <strong>Math</strong>
+          </span>
         </dt>
-        <dd>
-          <pre><code class='coffee'>0</code></pre>
-        </dd>
-        <dt id='MOUSE_UP-constant'>
-          MOUSE_UP
-          =
-          <div class='tags'>
-</div>
-        </dt>
-        <dd>
-          <pre><code class='coffee'>0</code></pre>
+        <dd class='desc'>
+          <p>Useful for doing matrix math</p>
         </dd>
       </dl>
       <h2>Instance Method Summary</h2>
@@ -165,7 +155,7 @@
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      
+      Updates the scale and notifies all registered scale listeners of the change.
     </span>
   </li>
   <li>
@@ -203,50 +193,6 @@
   </li>
   <li>
     <span class='signature'>
-      <a href='#panDown-instance'>
-        - (void) <strong>panDown</strong>(event)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#panMove-instance'>
-        - (void) <strong>panMove</strong>(event)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#panUp-instance'>
-        - (void) <strong>panUp</strong>(event)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#panScroll-instance'>
-        - (void) <strong>panScroll</strong>(event)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
       <a href='#jump-instance'>
         - (void) <strong>jump</strong>(RA, Dec)
       </a>
@@ -258,93 +204,8 @@
   </li>
   <li>
     <span class='signature'>
-      <a href='#mouseHandler-instance'>
-        - (void) <strong>mouseHandler</strong>()
-      </a>
-    </span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#hookEvent-instance'>
-        - (void) <strong>hookEvent</strong>(element, eventName, callback)
-      </a>
-    </span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#unhookEvent-instance'>
-        - (void) <strong>unhookEvent</strong>(element, eventName, callback)
-      </a>
-    </span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#sky_view_mouse_move-instance'>
-        - (void) <strong>sky_view_mouse_move</strong>(event)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#sky_view_mouse_up-instance'>
-        - (void) <strong>sky_view_mouse_up</strong>(event)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#sky_view_mouse_down-instance'>
-        - (void) <strong>sky_view_mouse_down</strong>(event)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
       <a href='#register-instance'>
         - (void) <strong>register</strong>(type, callback)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#notify-instance'>
-        - (void) <strong>notify</strong>(type, info)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#getBoundingBox-instance'>
-        - (void) <strong>getBoundingBox</strong>()
       </a>
     </span>
     <span class='bound note title'>Bound</span>
@@ -366,23 +227,12 @@
   <li>
     <span class='signature'>
       <a href='#getCoordinate-instance'>
-        - (void) <strong>getCoordinate</strong>(x, y)
+        - (object) <strong>getCoordinate</strong>(x, y)
       </a>
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#keyPressed-instance'>
-        - (void) <strong>keyPressed</strong>(key)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
+      Translates a pixel coordinate to RA, DEC space.
     </span>
   </li>
 </ul>
@@ -422,7 +272,21 @@
       - (void) <strong>setScale</strong>(value)
       (bound)
     </p>
-    <div class='tags'>
+    <div class='docstring'>
+  <p>Updates the scale and notifies all registered scale listeners of the change.</p>
+</div>
+<div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>value</span>
+      <span class='type'>
+        (<tt>double</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>what you want to change the scale value to.</span>
+    </li>
+  </ul>
 </div>
   </div>
   <div class='method_details'>
@@ -450,38 +314,6 @@
 </div>
   </div>
   <div class='method_details'>
-    <p class='signature' id='panDown-instance'>
-      - (void) <strong>panDown</strong>(event)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='panMove-instance'>
-      - (void) <strong>panMove</strong>(event)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='panUp-instance'>
-      - (void) <strong>panUp</strong>(event)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='panScroll-instance'>
-      - (void) <strong>panScroll</strong>(event)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
     <p class='signature' id='jump-instance'>
       - (void) <strong>jump</strong>(RA, Dec)
       (bound)
@@ -490,69 +322,8 @@
 </div>
   </div>
   <div class='method_details'>
-    <p class='signature' id='mouseHandler-instance'>
-      - (void) <strong>mouseHandler</strong>()
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='hookEvent-instance'>
-      - (void) <strong>hookEvent</strong>(element, eventName, callback)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='unhookEvent-instance'>
-      - (void) <strong>unhookEvent</strong>(element, eventName, callback)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='sky_view_mouse_move-instance'>
-      - (void) <strong>sky_view_mouse_move</strong>(event)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='sky_view_mouse_up-instance'>
-      - (void) <strong>sky_view_mouse_up</strong>(event)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='sky_view_mouse_down-instance'>
-      - (void) <strong>sky_view_mouse_down</strong>(event)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
     <p class='signature' id='register-instance'>
       - (void) <strong>register</strong>(type, callback)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='notify-instance'>
-      - (void) <strong>notify</strong>(type, info)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='getBoundingBox-instance'>
-      - (void) <strong>getBoundingBox</strong>()
       (bound)
     </p>
     <div class='tags'>
@@ -568,29 +339,52 @@
   </div>
   <div class='method_details'>
     <p class='signature' id='getCoordinate-instance'>
-      - (void) <strong>getCoordinate</strong>(x, y)
+      - (object) <strong>getCoordinate</strong>(x, y)
       (bound)
     </p>
-    <div class='tags'>
+    <div class='docstring'>
+  <p>Translates a pixel coordinate to RA, DEC space.</p>
 </div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='keyPressed-instance'>
-      - (void) <strong>keyPressed</strong>(key)
-      (bound)
-    </p>
-    <div class='tags'>
+<div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>x</span>
+      <span class='type'>
+        (<tt>int</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>the x pixel that you want translated.</span>
+    </li>
+    <li>
+      <span class='name'>y</span>
+      <span class='type'>
+        (<tt>int</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>the y pixel that you want translated.</span>
+    </li>
+  </ul>
+  <h3>Returns:</h3>
+  <ul class='return'>
+    <li>
+      <span class='type'></span>
+      (<tt>object</tt>)
+      &mdash;
+      <span class='desc'>an object with {ra, dec}.</span>
+    </li>
+  </ul>
 </div>
   </div>
 </div>
     </div>
     <div id='footer'>
   Generated on
-  Thu Nov 08 2012 17:37:17 GMT-0500 (EST)
+  Thu Nov 08 2012 20:51:10 GMT-0500 (EST)
   by
   <a href='https://github.com/netzpirat/codo' title='CoffeeScript API documentation generator'>Codo</a>
   v1.5.1
-  (Node.js v0.6.4).
+  (Node.js v0.6.12).
   &#10034;
   Press Ctrl-h to see the keyboard shortcuts
   &#10034;
