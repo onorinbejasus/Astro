@@ -74,6 +74,8 @@ class SkyView extends WebGL
 
 		# Refreshes all the overlay images by requesting them all again (For now it is just FIRST).
 		for overlay in @overlays
+			overlay.refresh()
+		for overlay in @overlays
 			for tile in overlay.tiles
 				if tile.getSet()
 					tile.bind(@shaderProgram)
