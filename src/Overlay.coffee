@@ -214,20 +214,39 @@ class Overlay
 
 		@firstflag = false
 		temp_this = this
-		@refresh = () =>
-			range = @SkyView.getBoundingBox()
-			getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
+		
+		@refresh = (getInfo) =>
 			url = 'lib/db/remote/SPATIALTREE.php' 
 			done = (e) =>
 				for image, index in e
 						name = image.split "../../images/"
 						if not temp_this.cache[name] and (not null or undefined)
-							@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST",  "sky",
+							@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST", "sky",
 							"#{name[1]}", "", null)
 							temp_this.cache[name] = true
 				@SkyView.render()
 			$.get(url, getInfo, done, 'json')
-		@refresh()
+			
+		range = @SkyView.getBoundingBox()
+		###
+		if range.minRA < 0
+			getInfo = {RAMin: 0, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
+			console.log getInfo
+			@refresh(getInfo)
+			getInfo = {RAMin: range.maxRA + 360.0, RAMax: 360.0, DecMin: range.maxDec, DecMax: range.minDec};
+			console.log getInfo
+			@refresh(getInfo)	
+			
+		else
+			getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
+			console.log getInfo
+			@refresh(getInfo)
+		###
+		
+		getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
+		console.log getInfo
+		@refresh(getInfo)
+		
 		return
 
 	createLSSTOverlay: ()=>
