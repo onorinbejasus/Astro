@@ -36,6 +36,7 @@ class TextureProxy
 
 		texture.image.src = image
 
+# Tiles are used for individual texture images. Need to project them.
 class Tile
 
 	@VertexPositionBuffer = null
@@ -45,7 +46,14 @@ class Tile
 	@VertexNormalBuffer = null
 
 	@Texture = null
-
+	#
+	# @param [WebGLRenderingContext] gl used for creating the textures.
+	# @param [Math] math for doing projections on the tile
+	# @param [String] type used to tell sky from an annotation
+	# @param [GLTexture] texture the texture from the webglcontext
+	# @param [?] fits used for initializing the fits file.
+	# @param [Array<Int>] range an array of ints saying the min and max ranges of the tile
+	# 
 	constructor: (@gl, @Math, survey, type, texture, fits, range) ->
 
 		if type == "sky"
@@ -62,6 +70,7 @@ class Tile
 
 		return
 
+	# @private
 	handleLoadedTexture: (texture)=>
 
 		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
@@ -74,6 +83,7 @@ class Tile
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
 		@gl.bindTexture(@gl.TEXTURE_2D, null)
 
+	# @private
 	initTexture: (image) =>
 		@Texture = @gl.createTexture()
 		@Texture.image = new Image()
@@ -82,6 +92,11 @@ class Tile
 
 		@Texture.image.src = image
 
+	# What is this actually doing? Horrible name. ~Sean
+	# @todo Break apart this ugly function.
+	# @param [double] ra herp
+	# @param [double] dec derp
+	#
 	createTile: (ra, dec)=>
 
 		radius = 1
@@ -91,8 +106,6 @@ class Tile
 
 		textureCoordData = []
 
-		### if ra and dec are specified for the sphere, 
-			use them ###		
 		if ra? and dec?
 
 			coords = [
@@ -154,9 +167,9 @@ class Tile
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(textureCoordData), @gl.STATIC_DRAW)
 		@VertexTextureCoordBuffer.itemSize = 2
 		@VertexTextureCoordBuffer.numItems = textureCoordData.length / 2
-				
-		return
-
+	# Take the tile and put it on a shader.
+	#
+	# @param [Shader] shaderProgram used to take the vertex info from the texture to the program.
 	bind: (shaderProgram)=>
 
 		@gl.activeTexture(@gl.TEXTURE0)
@@ -173,16 +186,24 @@ class Tile
 
 		return
 
+	# Renders the program onto the canvas.
+	#
+	# @param [Integer_constant] renderMode the type of render we want.
 	render: (renderMode) =>
 		@gl.drawElements(renderMode, @VertexIndexBuffer.numItems, @gl.UNSIGNED_SHORT, 0)
 
+	# What the hell is a flag? ~Sean
 	setFlag:()=>
 		@set = true
 		return
 
+	# Same question as above! ~Sean
 	getSet:()=>
 		return @set
 
+#
+# Holds a list of tiles for a certain survey or annotations.
+#
 class Overlay
 	
 	@survey = null
@@ -208,6 +229,10 @@ class Overlay
 
 		return
 
+	# Creates a FIRST overlay.
+	#
+	# @todo make this a friggin factory! ~Sean
+	#
 	createFIRSTOverlay: ()=>
 
 		@firstflag = false
@@ -226,27 +251,19 @@ class Overlay
 			$.get(url, getInfo, done, 'json')
 			
 		range = @SkyView.getBoundingBox()
-		###
-		if range.minRA < 0
-			getInfo = {RAMin: 0, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
-			console.log getInfo
-			@refresh(getInfo)
-			getInfo = {RAMin: range.maxRA + 360.0, RAMax: 360.0, DecMin: range.maxDec, DecMax: range.minDec};
-			console.log getInfo
-			@refresh(getInfo)	
-			
-		else
-			getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
-			console.log getInfo
-			@refresh(getInfo)
-		###
-		
+
 		getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
 		console.log getInfo
 		@refresh(getInfo)
 		
 		return
 
+
+	# Creates an LSST overlay.
+	#
+	# @todo make this a friggin factory! ~Sean
+	# @todo make it freaking work.
+	#
 	createLSSTOverlay: ()=>
 
 		@lsstarray = []
@@ -268,10 +285,15 @@ class Overlay
 
 		return
 
+	# Creates a SDSS overlay.
+	#
+	# @todo make this a friggin factory! ~Sean
+	# @todo fix the SECURITY DOM EXCEPTION
+	#
 	createSDSSOverlay: ()=>
 
 		## retrieve RA and radius ##
-		radius = 10#((-@translation[2]+1)*15)*90
+		radius = 10 #((-@translation[2]+1)*15)*90
 
 		if radius < 1.0
 			radius = 1.0
@@ -282,8 +304,7 @@ class Overlay
 		# select the images
 		$.ajaxSetup({'async': false})	
 
-		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
-			#{radius}&zoom=00", (data) =>
+		ret = (data) =>
 				$.each(data, (key, val)=>
 					if key % 2 == 0
 						fitsFile = data[key+1]
@@ -292,10 +313,19 @@ class Overlay
 							"#{val}",
 							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/headers/#{fits}", null)
 				)
-		)
+		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=#{radius}&zoom=00", ret)
 		
 		$.ajaxSetup({'async': true})
 
+	# Creates an annotation overlay to add to the skyview.
+	#
+	# @param [int] raDec What is this? ~Sean
+	# @param [int] raMin the min for RA value
+	# @param [int] raMax the max value for RA
+	# @param [int] decMin the min value for DEC
+	# @param [int] decMax the max value for DEC
+	# @param [String?] label the name for the annotation overlay?
+	#
 	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
 
 		scale = ((-@SkyView.translation[2]+1)*15) * 3600
@@ -344,6 +374,10 @@ class Overlay
 		
 		return
 
+	# Set's the opacity.
+	#
+	# @param [double] value new value to set the opacity to.
+	#
 	setAlpha:(value)=>
 		@alpha = value
 		@SkyView.render()

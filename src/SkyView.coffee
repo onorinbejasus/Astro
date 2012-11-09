@@ -1,11 +1,10 @@
 #= require WebGL
 class SkyView extends WebGL
-
 	gridBlocks: 0
 	rotation: null
 	translation: null
 	renderMode: 0
-
+	refresh_timeout: 0
 	# @property [Math] Useful for doing matrix math
 	Math: null
 
@@ -49,6 +48,12 @@ class SkyView extends WebGL
 		this.render()
 		
 		return
+
+	# @private
+	refresh: ()=>
+		for overlay in overlays
+			overlay.refresh()
+		@refresh_timeout = setTimeout(@refresh, 500)
 
 	# Updates the scale and notifies all registered scale listeners of the change.
 	#
@@ -96,7 +101,7 @@ class SkyView extends WebGL
 		@_inner_mouse_move = @panMove
 		@mouse_coords.x = event.clientX
 		@mouse_coords.y = event.clientY
-
+		@refresh()
 	# @private
 	panMove:(event)=>
 		delta_x = event.clientX - @mouse_coords.x
@@ -128,6 +133,8 @@ class SkyView extends WebGL
 
 	# @private
 	panUp: (event)=>
+		@refresh()
+		clearTimeout(@refresh_timeout)
 		@_inner_mouse_move = @empty
 
 	# @private
@@ -250,7 +257,7 @@ class SkyView extends WebGL
 	# @param [int] x the x pixel that you want translated.
 	# @param [int] y the y pixel that you want translated.
 	#
-	# @return [object] an object with {ra, dec}.
+	# @return [object] an object with ra, dec.
 	getCoordinate: (x,y) =>
 		#get the projection, model-view and viewport
 		matrices = this.getMatrices()

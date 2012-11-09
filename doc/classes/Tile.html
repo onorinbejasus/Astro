@@ -111,6 +111,12 @@
           <td>src&#47;Overlay.coffee</td>
         </tr>
       </table>
+      <h2>Overview</h2>
+      <div class='docstring'>
+  <p>Tiles are used for individual texture images. Need to project them.</p>
+</div>
+<div class='tags'>
+</div>
       <h2>Instance Method Summary</h2>
       <ul class='summary'>
   <li>
@@ -126,35 +132,13 @@
   </li>
   <li>
     <span class='signature'>
-      <a href='#handleLoadedTexture-instance'>
-        - (void) <strong>handleLoadedTexture</strong>(texture)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
-      <a href='#initTexture-instance'>
-        - (void) <strong>initTexture</strong>(image)
-      </a>
-    </span>
-    <span class='bound note title'>Bound</span>
-    <span class='desc'>
-      
-    </span>
-  </li>
-  <li>
-    <span class='signature'>
       <a href='#createTile-instance'>
         - (void) <strong>createTile</strong>(ra, dec)
       </a>
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      
+      What is this actually doing? Horrible name.
     </span>
   </li>
   <li>
@@ -165,7 +149,7 @@
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      
+      Take the tile and put it on a shader.
     </span>
   </li>
   <li>
@@ -176,7 +160,7 @@
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      
+      Renders the program onto the canvas.
     </span>
   </li>
   <li>
@@ -187,7 +171,7 @@
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      
+      What the hell is a flag? ~Sean
     </span>
   </li>
   <li>
@@ -198,7 +182,7 @@
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      
+      Same question as above! ~Sean
     </span>
   </li>
 </ul>
@@ -209,33 +193,94 @@
       - (void) <strong>constructor</strong>(gl, Math, survey, type, texture, fits, range)
     </p>
     <div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>gl</span>
+      <span class='type'>
+        (<tt>WebGLRenderingContext</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>used for creating the textures.</span>
+    </li>
+    <li>
+      <span class='name'>math</span>
+      <span class='type'>
+        (<tt>Math</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>for doing projections on the tile</span>
+    </li>
+    <li>
+      <span class='name'>type</span>
+      <span class='type'>
+        (<tt>String</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>used to tell sky from an annotation</span>
+    </li>
+    <li>
+      <span class='name'>texture</span>
+      <span class='type'>
+        (<tt>GLTexture</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>the texture from the webglcontext</span>
+    </li>
+    <li>
+      <span class='name'>fits</span>
+      <span class='type'>
+        (<tt>?</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>used for initializing the fits file.</span>
+    </li>
+    <li>
+      <span class='name'>range</span>
+      <span class='type'>
+        (<tt>Array&lt;Int&gt;</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>an array of ints saying the min and max ranges of the tile</span>
+    </li>
+  </ul>
 </div>
   </div>
 </div>
       <h2>Instance Method Details</h2>
       <div class='methods'>
   <div class='method_details'>
-    <p class='signature' id='handleLoadedTexture-instance'>
-      - (void) <strong>handleLoadedTexture</strong>(texture)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
-    <p class='signature' id='initTexture-instance'>
-      - (void) <strong>initTexture</strong>(image)
-      (bound)
-    </p>
-    <div class='tags'>
-</div>
-  </div>
-  <div class='method_details'>
     <p class='signature' id='createTile-instance'>
       - (void) <strong>createTile</strong>(ra, dec)
       (bound)
     </p>
-    <div class='tags'>
+    <div class='docstring'>
+  <div class='note todo'>
+    <strong>TODO:</strong>
+    Break apart this ugly function.
+  </div>
+  <p>What is this actually doing? Horrible name. ~Sean</p>
+</div>
+<div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>ra</span>
+      <span class='type'>
+        (<tt>double</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>herp</span>
+    </li>
+    <li>
+      <span class='name'>dec</span>
+      <span class='type'>
+        (<tt>double</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>derp</span>
+    </li>
+  </ul>
 </div>
   </div>
   <div class='method_details'>
@@ -243,7 +288,21 @@
       - (void) <strong>bind</strong>(shaderProgram)
       (bound)
     </p>
-    <div class='tags'>
+    <div class='docstring'>
+  <p>Take the tile and put it on a shader.</p>
+</div>
+<div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>shaderProgram</span>
+      <span class='type'>
+        (<tt>Shader</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>used to take the vertex info from the texture to the program.</span>
+    </li>
+  </ul>
 </div>
   </div>
   <div class='method_details'>
@@ -251,7 +310,21 @@
       - (void) <strong>render</strong>(renderMode)
       (bound)
     </p>
-    <div class='tags'>
+    <div class='docstring'>
+  <p>Renders the program onto the canvas.</p>
+</div>
+<div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>renderMode</span>
+      <span class='type'>
+        (<tt>Integer_constant</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>the type of render we want.</span>
+    </li>
+  </ul>
 </div>
   </div>
   <div class='method_details'>
@@ -259,7 +332,10 @@
       - (void) <strong>setFlag</strong>()
       (bound)
     </p>
-    <div class='tags'>
+    <div class='docstring'>
+  <p>What the hell is a flag? ~Sean</p>
+</div>
+<div class='tags'>
 </div>
   </div>
   <div class='method_details'>
@@ -267,18 +343,21 @@
       - (void) <strong>getSet</strong>()
       (bound)
     </p>
-    <div class='tags'>
+    <div class='docstring'>
+  <p>Same question as above! ~Sean</p>
+</div>
+<div class='tags'>
 </div>
   </div>
 </div>
     </div>
     <div id='footer'>
   Generated on
-  Thu Nov 08 2012 20:51:10 GMT-0500 (EST)
+  Fri Nov 09 2012 03:31:37 GMT-0500 (EST)
   by
   <a href='https://github.com/netzpirat/codo' title='CoffeeScript API documentation generator'>Codo</a>
   v1.5.1
-  (Node.js v0.6.12).
+  (Node.js v0.6.4).
   &#10034;
   Press Ctrl-h to see the keyboard shortcuts
   &#10034;
