@@ -2,13 +2,14 @@
 	
 	error_reporting(-1);
 		
-	// $_GET["ra"] = 0;
-	// $_GET["dec"] = 0;	
-	// $_GET["radius"] = 10;	
-	// $_GET["zoom"] = 0;	
-	
 	$flag = false;
 		
+	if(!$flag){
+			$_GET["ra"] = 0;
+			$_GET["dec"] = 0;	
+			$_GET["radius"] = 30;	
+			$_GET["zoom"] = 0;
+	}
 /* parse the xml to get the fields to wget with*/
 
 	function sdss_fix ($input) {
