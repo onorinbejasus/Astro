@@ -214,6 +214,7 @@ class SkyView extends WebGL
 		if(@handlers[type])
 			@handlers[type](info);
 
+	# @private
 	getBoundingBox:()=>
 
 		max = this.getCoordinate(@canvas.width, @canvas.height)
@@ -235,8 +236,13 @@ class SkyView extends WebGL
 		pos.dec = -@rotation[0]
 		return pos
 
+	# Translates a pixel coordinate to RA, DEC space.
+	#
+	# @param [int] x the x pixel that you want translated.
+	# @param [int] y the y pixel that you want translated.
+	#
+	# @return [object] an object with {ra, dec}.
 	getCoordinate: (x,y) =>
-
 		#get the projection, model-view and viewport
 		matrices = this.getMatrices()
 
@@ -301,6 +307,7 @@ class SkyView extends WebGL
 
 		return raDec
 
+	# @private
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)
@@ -364,6 +371,7 @@ class SkyView extends WebGL
 		return
 
 class BoxOverlay
+	# @private
 	constructor: (canvas, view)->
 		@canvas = canvas
 		@ctx = @canvas.getContext('2d')
@@ -405,15 +413,19 @@ class BoxOverlay
 				@ctx.clearRect(0, 0, @canvas.width, @canvas.height)
 			setTimeout(drawEnd, 1000)
 
+	# Sets the events from pan to box mode.
 	setEvents:()=>
 		@view._inner_mouse_up = @boxup
 		@view._inner_mouse_down = @boxdown
 		@view._inner_mouse_move = ()-> return;
+
+	# @private
 	setPan: ()=>
 		@view._inner_mouse_up = @view.panUp
 		@view._inner_mouse_down = @view.panDown
 		@view._inner_mouse_move = @view.panMove
 
+	# Displays the box to the user. Used in the boxdown event.
 	display:()->
 		@ctx.clearRect(0, 0, @canvas.width, @canvas.height)
 		@ctx.fillRect(@start.x, @start.y, @end.x-@start.x, @end.y-@start.y);
