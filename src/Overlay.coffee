@@ -1,8 +1,11 @@
+###
+THIS IS SPARTA
+###
 class TextureProxy
-	###
-	A TextureProxy uses an already loaded temporary image while
-	another image is loading. 
-	###
+	
+	# A TextureProxy uses an already loaded temporary image while
+	# another image is loading. 
+	
 	constructor: (gl, img_url, temp_img_texture) ->
 		@texture = temp_img_texture
 
@@ -10,16 +13,14 @@ class TextureProxy
 			@texture = texture
 
 		@initTexture(gl, img_url, on_texture_load)
-
-	###
-	@function: initTexture
-	@description: Creates a GL_TEXTURE in GPU using the image specified.
-	@param: GL_CONTEXT gl- used to create a texture
-	@param: String image - URL of an image to be used.
-	@param: function load_callback- Use for callbacks when onload is triggered
-			to get the texture, all loaded.
-	@return: Nothing. Use the texture callback.
-	###
+	
+	# Used for initializing textures.
+	#
+	# @param [GLRenderingContext] gl - used to create a texture
+	# @param [Image] image - URL of an image to be used.
+	# @param [Function] load_callback Use for callbacks when onload is triggered to get the texture, all loaded.
+	# @return [void] Nothing. Use the texture callback to attach something
+	#
 	initTexture: (gl, image, load_callback) ->
 		texture = gl.createTexture()
 		texture.image = new Image()
@@ -254,7 +255,7 @@ class Overlay
 	createSDSSOverlay: ()=>
 
 		## retrieve RA and radius ##
-		radius = 45#((-@translation[2]+1)*15)*90
+		radius = 10#((-@translation[2]+1)*15)*90
 
 		if radius < 1.0
 			radius = 1.0
@@ -263,20 +264,20 @@ class Overlay
 		dec = -@SkyView.rotation[0]
 
 		# select the images
-
 		$.ajaxSetup({'async': false})	
 
 		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=
-			#{radius}&zoom=0", (data) =>
+			#{radius}&zoom=00", (data) =>
 				$.each(data, (key, val)=>
 					if key % 2 == 0
 						fitsFile = data[key+1]
 						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
 						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
-							"http://astro.cs.pitt.edu/sdss2degregion00/#{val}",
-							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/sdss2degregion00/headtext/#{fits}", null)
-				)	
+							"#{val}",
+							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/headers/#{fits}", null)
+				)
 		)
+		
 		$.ajaxSetup({'async': true})
 
 	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
