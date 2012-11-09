@@ -1,13 +1,13 @@
 <?php
 	
 	error_reporting(-1);
-	
+		
 	// $_GET["ra"] = 0;
 	// $_GET["dec"] = 0;	
 	// $_GET["radius"] = 10;	
 	// $_GET["zoom"] = 0;	
 	
-	$flag = false
+	$flag = false;
 		
 /* parse the xml to get the fields to wget with*/
 
@@ -127,11 +127,13 @@
 			$jpegname = "fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-" . $imageFields[1] . "-" . $imageFields[2] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . "-z00.jpeg";
 			$textname = "fpC-" . str_pad($imageFields[0],6,"0",STR_PAD_LEFT) . "-r" . $imageFields[1] . "-" . str_pad($imageFields[3],4,"0",STR_PAD_LEFT) . ".txt";
 			
-			if($flag == true)
+			if($flag == true){
 				array_push($ret_val, $jpegurl);
-			else
+			}
+			else{
 				array_push($ret_val, $jpegname);
-				
+			}
+			
 			array_push($ret_val, $textname);
 			
 			$jpegStringData = "$jpegurl\n";

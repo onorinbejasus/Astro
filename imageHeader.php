@@ -37,13 +37,13 @@ if($_GET['type'] == "JPEG"){
 		foreach($data as $line){						
 	        $values = explode(" : ", $line);
 				foreach($values as $v){
-	          		if(strncmp("CRVAL1 ",$v,7) == 0){
+	          		if(strncmp("CRVAL1",$v,7) == 0){
 	                	$value = explode("=",$v);
 						$newval = explode("/",$value[1]);
 	                	$float = floatval($newval[0]);
 	                	$ret_val["CRVAL_1"] = $float;
 	        		}
-	        		else if(strncmp("CRVAL2 ",$v,7) == 0){
+	        		else if(strncmp("CRVAL2",$v,7) == 0){
 	                	$value = explode("=",$v);
 						$newval = explode("/",$value[1]);
 	                	$float = floatval($newval[0]);
@@ -191,19 +191,19 @@ else if ($_GET['type'] == "TEXT" && $survey == "SDSS"){
 					$float = floatval($line[1]);
 					$ret_val["CRPIX_2"] = $float;
 				}
-				else if(strncmp("CD11",$line[0],5) == 0){
+				else if(strncmp("CD1_1",$line[0],5) == 0){
 					$float = floatval($line[1]);
 					$ret_val["CD1_1"] = $float;
 				}
-				else if(strncmp("CD12",$line[0],5) == 0){
+				else if(strncmp("CD1_2",$line[0],5) == 0){
 					$float = floatval($line[1]);
 					$ret_val["CD1_2"] = $float;
 				}
-				else if(strncmp("CD21",$line[0],5) == 0){
+				else if(strncmp("CD2_1",$line[0],5) == 0){
 					$float = floatval($line[1]);
 					$ret_val["CD2_1"] = $float;
 				}
-				else if(strncmp("CD22",$line[0],5) == 0){
+				else if(strncmp("CD2_2",$line[0],5) == 0){
 					$float = floatval($line[1]);
 					$ret_val["CD2_2"] = $float;
 				}
