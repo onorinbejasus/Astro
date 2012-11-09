@@ -1,14 +1,13 @@
 #= require WebGL
 class SkyView extends WebGL
 
-	@MOUSE_DOWN = 0
-	@MOUSE_UP = 0
-	@mouseState = @MOUSE_UP
-	@gridBlocks = 0
-	@rotation = null
-	@translation = null
-	@renderMode = 0
-	@Math = null
+	gridBlocks: 0
+	rotation: null
+	translation: null
+	renderMode: 0
+
+	# @property [Math] Useful for doing matrix math
+	Math: null
 
 	constructor: (options) ->
 
@@ -36,7 +35,6 @@ class SkyView extends WebGL
 		@translation = [0.0, 0.0, 0.99333]
 		@rotation = [0.0, -0.4, 0.0]
 		@renderMode = @gl.TRIANGLES
-		@MOUSE_DOWN = 1
 
 		# init math, grid and projection
 		@Math = new math()
@@ -52,12 +50,17 @@ class SkyView extends WebGL
 		
 		return
 
-	setScale:(value)=>
+	# Updates the scale and notifies all registered scale listeners of the change.
+	#
+	# @param [double] value what you want to change the scale value to.
+	#
+	setScale: (value)=>
 		@translation[2] = value
 		$('#Scale').text(((value+1)*15).toFixed(2))
 		@notify('scale', value)
 		return
 
+	#
 	addOverlay: (overlay)=>
 		@overlays.push overlay
 		return
@@ -70,11 +73,6 @@ class SkyView extends WebGL
 		this.preRender(@rotation, @translation) # set up matrices
 
 		# Refreshes all the overlay images by requesting them all again (For now it is just FIRST).
-		# TODO: Make it in a different timer to refresh, and only have that timer go off when movement
-		# occurs.
-		for overlay in @overlays
-			overlay.refresh()
-
 		for overlay in @overlays
 			for tile in overlay.tiles
 				if tile.getSet()
@@ -91,44 +89,46 @@ class SkyView extends WebGL
 					tile.render(@renderMode)
 		return
 
+	# @private
 	panDown:(event)=>
-		@mouseState = @MOUSE_DOWN
+		@_inner_mouse_move = @panMove
 		@mouse_coords.x = event.clientX
 		@mouse_coords.y = event.clientY
 
+	# @private
 	panMove:(event)=>
+		delta_x = event.clientX - @mouse_coords.x
+		delta_y = event.clientY - @mouse_coords.y
 
-		if @mouseState == @MOUSE_DOWN
-			delta_x = event.clientX - @mouse_coords.x
-			delta_y = event.clientY - @mouse_coords.y
+		# Update mouse coordinates.
+		@mouse_coords.x = event.clientX
+		@mouse_coords.y = event.clientY
 
-			# Update mouse coordinates.
-			@mouse_coords.x = event.clientX
-			@mouse_coords.y = event.clientY
+		# Assume this is the mouse going UP
+		if delta_y > 0
+			@rotation[0] -= delta_y * Config.PAN_SENSITIVITY  # Too much movement?
 
-			# Assume this is the mouse going UP
-			if delta_y > 0
-				@rotation[0] -= delta_y * Config.pan_sensitivity  # Too much movement?
+		# Assume the mouse is going DOWN
+		else if delta_y < 0
+			@rotation[0] += -delta_y * Config.PAN_SENSITIVITY
 
-			# Assume the mouse is going DOWN
-			else if delta_y < 0
-				@rotation[0] += -delta_y * Config.pan_sensitivity
+		if delta_x > 0
+			@rotation[1] -= delta_x * Config.PAN_SENSITIVITY
 
-			if delta_x > 0
-				@rotation[1] -= delta_x * Config.pan_sensitivity
+		else if delta_y < 0
+			@rotation[1] += -delta_x * Config.PAN_SENSITIVITY
+		#@translate((event.clientX-@mouse_coords.x)/ 1000 * 1.8 / @scale, (-event.clientY+@mouse_coords.y)/ 1000 * 1.8 / @scale)
 
-			else if delta_y < 0
-				@rotation[1] += -delta_x * Config.pan_sensitivity
-			#@translate((event.clientX-@mouse_coords.x)/ 1000 * 1.8 / @scale, (-event.clientY+@mouse_coords.y)/ 1000 * 1.8 / @scale)
+		# Update the RA-DEC numbers
+		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 
-			# Update the RA-DEC numbers
-			$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
+		this.render()
 
-			this.render()
-
+	# @private
 	panUp: (event)=>
-		@mouseState = 0
+		@_inner_mouse_move = @empty
 
+	# @private
 	panScroll: (event)=>
 		delta = 0;
 		if (!event) 
@@ -142,10 +142,10 @@ class SkyView extends WebGL
 
 		# Assume zoom out
 		if delta > 0
-			@translation[2] -= Config.scroll_sensitivity
+			@translation[2] -= Config.SCROLL_SENSITIVITY
 		# Assume Zoom in
 		else
-			@translation[2] += Config.scroll_sensitivity
+			@translation[2] += Config.SCROLL_SENSITIVITY
 
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		this.render()
@@ -160,12 +160,14 @@ class SkyView extends WebGL
 
 		this.render()
 
+	# @private
 	mouseHandler:()->
 		@hookEvent(@event_attach, "mousedown", @sky_view_mouse_down)
 		@hookEvent(@event_attach, "mouseup", @sky_view_mouse_up)
 		@hookEvent(@event_attach, "mousewheel", @panScroll)
 		@hookEvent(@event_attach, "mousemove", @sky_view_mouse_move)
 
+	# @private
 	hookEvent:(element, eventName, callback)->
 		if(typeof(element) == "string")
 			element = document.getElementById(element)
@@ -178,6 +180,7 @@ class SkyView extends WebGL
 		else if(element.attachEvent)
 			element.attachEvent("on" + eventName, callback)
 
+	# @private
 	unhookEvent:(element, eventName, callback)->
 		if(typeof(element) == "string")
 			element = document.getElementById(element)
@@ -190,12 +193,16 @@ class SkyView extends WebGL
 		else if(element.detachEvent)
 			element.detachEvent("on" + eventName, callback)	
 		return
+
+	# @private
 	sky_view_mouse_move: (event)=>
 		@_inner_mouse_move(event)
 
+	# @private
 	sky_view_mouse_up: (event)=>
 		@_inner_mouse_up(event)
 
+	# @private
 	sky_view_mouse_down: (event)=>
 		@_inner_mouse_down(event)
 
@@ -209,10 +216,12 @@ class SkyView extends WebGL
 		else
 			@handlers[type] = callback
 
+	# @private
 	notify:(type, info)=>
 		if(@handlers[type])
 			@handlers[type](info);
 
+	# @private
 	getBoundingBox:()=>
 
 		max = this.getCoordinate(@canvas.width, @canvas.height)
@@ -234,8 +243,13 @@ class SkyView extends WebGL
 		pos.dec = -@rotation[0]
 		return pos
 
+	# Translates a pixel coordinate to RA, DEC space.
+	#
+	# @param [int] x the x pixel that you want translated.
+	# @param [int] y the y pixel that you want translated.
+	#
+	# @return [object] an object with {ra, dec}.
 	getCoordinate: (x,y) =>
-
 		#get the projection, model-view and viewport
 		matrices = this.getMatrices()
 
@@ -300,6 +314,7 @@ class SkyView extends WebGL
 
 		return raDec
 
+	# @private
 	keyPressed: (key) =>
 
 		switch String.fromCharCode(key.which)
@@ -363,6 +378,7 @@ class SkyView extends WebGL
 		return
 
 class BoxOverlay
+	# @private
 	constructor: (canvas, view)->
 		@canvas = canvas
 		@ctx = @canvas.getContext('2d')
@@ -404,15 +420,19 @@ class BoxOverlay
 				@ctx.clearRect(0, 0, @canvas.width, @canvas.height)
 			setTimeout(drawEnd, 1000)
 
+	# Will change the event handlers from pan to box. 
 	setEvents:()=>
 		@view._inner_mouse_up = @boxup
 		@view._inner_mouse_down = @boxdown
 		@view._inner_mouse_move = ()-> return;
+
+	# @private
 	setPan: ()=>
 		@view._inner_mouse_up = @view.panUp
 		@view._inner_mouse_down = @view.panDown
 		@view._inner_mouse_move = @view.panMove
 
+	# Displays the box to the user. Used in the boxdown event.
 	display:()->
 		@ctx.clearRect(0, 0, @canvas.width, @canvas.height)
 		@ctx.fillRect(@start.x, @start.y, @end.x-@start.x, @end.y-@start.y);

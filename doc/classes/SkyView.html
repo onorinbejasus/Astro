@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset='UTF-8'>
+  <title>CoffeeScript API Documentation</title>
+  <link rel='stylesheet' href='..&#47;assets/codo.css' type='text/css'>
+  <script src='..&#47;assets/codo.js'></script>
+  <script src='..&#47;assets/search_data.js'></script>
+</head>
+  <body>
+    <div id='base' data-path='..&#47;'></div>
+<div id='header'>
+  <div id='menu'>
+    <a href='..&#47;class_index.html' title='Index'>Index</a>
+    &raquo;
+    <span class='title'>SkyView</span>
+    <nav>
+      <ul>
+        <li class='noframes'>
+          (<a class='noframes' href='#'>no frames</a>)
+        </li>
+      </ul>
+    </nav>
+    <div id='search'>
+      <a id='class_list_link' href='..&#47;class_list.html'>Classes</a>
+      <a id='method_list_link' href='..&#47;method_list.html'>Methods</a>
+      <a id='extra_list_link' href='..&#47;extra_list.html'>Extras</a>
+    </div>
+  </div>
+  <iframe id='search_frame'></iframe>
+  <div id='fuzzySearch'>
+    <input type='text'>
+    <ol></ol>
+  </div>
+  <div id='help'>
+    <p>
+      Quickly fuzzy find classes, mixins, methods, file:
+    </p>
+    <ul>
+      <li>
+        <span>Ctrl-T</span>
+        Open fuzzy finder dialog
+      </li>
+    </ul>
+    <p>
+      In frame mode you can toggle the list naviation frame on the left side:
+    </p>
+    <ul>
+      <li>
+        <span>Ctrl-L</span>
+        Toggle list view
+      </li>
+    </ul>
+    <p>
+      You can focus a list in frame mode or toggle a tab in frameless mode:
+    </p>
+    <ul>
+      <li>
+        <span>Ctrl-C</span>
+        Class list
+      </li>
+      <li>
+        <span>Ctrl-I</span>
+        Mixin list
+      </li>
+      <li>
+        <span>Ctrl-F</span>
+        File list
+      </li>
+      <li>
+        <span>Ctrl-M</span>
+        Method list
+      </li>
+      <li>
+        <span>Ctrl-E</span>
+        Extras list
+      </li>
+    </ul>
+    <p>
+      You can focus and blur the search input:
+    </p>
+    <ul>
+      <li>
+        <span>Ctrl-S</span>
+        Focus search input
+      </li>
+      <li>
+        <span>Esc</span>
+        Blur search input
+      </li>
+    </ul>
+    <p>
+      In frameless mode you can close the list tab:
+    </p>
+    <ul>
+      <li>
+        <span>Esc</span>
+        Close list tab
+      </li>
+    </ul>
+  </div>
+</div>
+    <div id='content'>
+      <h1>
+        Class:
+        SkyView
+      </h1>
+      <table class='box'>
+        <tr>
+          <td>Defined in:</td>
+          <td>src&#47;SkyView.coffee</td>
+        </tr>
+        <tr>
+          <td>Inherits:</td>
+          <td>
+            <a href='..&#47;classes/WebGL.html'>WebGL</a>
+          </td>
+        </tr>
+      </table>
+      <h2>Overview</h2>
+      <div class='docstring'>
+  <p>= require WebGL</p>
+</div>
+<div class='tags'>
+</div>
+      <h2>Property Summary</h2>
+      <dl class='properties'>
+        <dt id='Math-property'>
+          <span class='signature'>
+            (Math) <strong>Math</strong>
+          </span>
+        </dt>
+        <dd class='desc'>
+          <p>Useful for doing matrix math</p>
+        </dd>
+      </dl>
+      <h2>Instance Method Summary</h2>
+      <ul class='summary'>
+  <li>
+    <span class='signature'>
+      <a href='#constructor-instance'>
+        - (void) <strong>constructor</strong>(options)
+      </a>
+    </span>
+    <span class='constructor note title'>Constructor</span>
+    <span class='desc'>
+      
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#setScale-instance'>
+        - (void) <strong>setScale</strong>(value)
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      Updates the scale and notifies all registered scale listeners of the change.
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#addOverlay-instance'>
+        - (void) <strong>addOverlay</strong>(overlay)
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#deleteOverlay-instance'>
+        - (void) <strong>deleteOverlay</strong>(name)
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#render-instance'>
+        - (void) <strong>render</strong>()
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#jump-instance'>
+        - (void) <strong>jump</strong>(RA, Dec)
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#register-instance'>
+        - (void) <strong>register</strong>(type, callback)
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#getPosition-instance'>
+        - (void) <strong>getPosition</strong>()
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#getCoordinate-instance'>
+        - (object) <strong>getCoordinate</strong>(x, y)
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      Translates a pixel coordinate to RA, DEC space.
+    </span>
+  </li>
+</ul>
+      <h2>
+        <small>Inherited Method Summary</small>
+      </h2>
+      <h3 class='inherited'>
+        Methods inherited from
+        <a href='..&#47;classes/WebGL.html'>WebGL</a>
+      </h3>
+      <p class='inherited'>
+                <a href='..&#47;classes/WebGL.html#constructor-instance'>#constructor</a>,
+                <a href='..&#47;classes/WebGL.html#initGL-instance'>#initGL</a>,
+                <a href='..&#47;classes/WebGL.html#getShader-instance'>#getShader</a>,
+                <a href='..&#47;classes/WebGL.html#initShaders-instance'>#initShaders</a>,
+                <a href='..&#47;classes/WebGL.html#getMatrices-instance'>#getMatrices</a>,
+                <a href='..&#47;classes/WebGL.html#mvPushMatrix-instance'>#mvPushMatrix</a>,
+                <a href='..&#47;classes/WebGL.html#mvPopMatrix-instance'>#mvPopMatrix</a>,
+                <a href='..&#47;classes/WebGL.html#setMatrixUniforms-instance'>#setMatrixUniforms</a>,
+                <a href='..&#47;classes/WebGL.html#degToRad-instance'>#degToRad</a>,
+        <a href='..&#47;classes/WebGL.html#preRender-instance'>#preRender</a>
+      </p>
+      <h2>Constructor Details</h2>
+      <div class='methods'>
+  <div class='method_details'>
+    <p class='signature' id='constructor-instance'>
+      - (void) <strong>constructor</strong>(options)
+    </p>
+    <div class='tags'>
+</div>
+  </div>
+</div>
+      <h2>Instance Method Details</h2>
+      <div class='methods'>
+  <div class='method_details'>
+    <p class='signature' id='setScale-instance'>
+      - (void) <strong>setScale</strong>(value)
+      (bound)
+    </p>
+    <div class='docstring'>
+  <p>Updates the scale and notifies all registered scale listeners of the change.</p>
+</div>
+<div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>value</span>
+      <span class='type'>
+        (<tt>double</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>what you want to change the scale value to.</span>
+    </li>
+  </ul>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='addOverlay-instance'>
+      - (void) <strong>addOverlay</strong>(overlay)
+      (bound)
+    </p>
+    <div class='tags'>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='deleteOverlay-instance'>
+      - (void) <strong>deleteOverlay</strong>(name)
+      (bound)
+    </p>
+    <div class='tags'>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='render-instance'>
+      - (void) <strong>render</strong>()
+      (bound)
+    </p>
+    <div class='tags'>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='jump-instance'>
+      - (void) <strong>jump</strong>(RA, Dec)
+      (bound)
+    </p>
+    <div class='tags'>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='register-instance'>
+      - (void) <strong>register</strong>(type, callback)
+      (bound)
+    </p>
+    <div class='tags'>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='getPosition-instance'>
+      - (void) <strong>getPosition</strong>()
+      (bound)
+    </p>
+    <div class='tags'>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='getCoordinate-instance'>
+      - (object) <strong>getCoordinate</strong>(x, y)
+      (bound)
+    </p>
+    <div class='docstring'>
+  <p>Translates a pixel coordinate to RA, DEC space.</p>
+</div>
+<div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>x</span>
+      <span class='type'>
+        (<tt>int</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>the x pixel that you want translated.</span>
+    </li>
+    <li>
+      <span class='name'>y</span>
+      <span class='type'>
+        (<tt>int</tt>)
+      </span>
+      &mdash;
+      <span class='desc'>the y pixel that you want translated.</span>
+    </li>
+  </ul>
+  <h3>Returns:</h3>
+  <ul class='return'>
+    <li>
+      <span class='type'></span>
+      (<tt>object</tt>)
+      &mdash;
+      <span class='desc'>an object with {ra, dec}.</span>
+    </li>
+  </ul>
+</div>
+  </div>
+</div>
+    </div>
+    <div id='footer'>
+  Generated on
+  Thu Nov 08 2012 20:51:10 GMT-0500 (EST)
+  by
+  <a href='https://github.com/netzpirat/codo' title='CoffeeScript API documentation generator'>Codo</a>
+  v1.5.1
+  (Node.js v0.6.12).
+  &#10034;
+  Press Ctrl-h to see the keyboard shortcuts
+  &#10034;
+  <a href='http://twitter.com/#!/netzpirat'>@netzpirat</a>
+  &#10034;
+  <a href='https://mksoft.ch'>mksoft.ch</a>
+</div>
+  </body>
+</html>

@@ -1,9 +1,10 @@
 # Store all program-specific, loose variables in here to change them within the program later.
 class Config
-	@proxy_image_url = 'http://www.google.com/puppies.jpg'
-	###
-	Create a texture within init and set it to Config.proxy_default_texture
-	###
-	@proxy_default_texture = null
-	@scroll_sensitivity = .001
-	@pan_sensitivity = 0.005
+
+	# When we actually implement proxy images, this will be the default image to display.
+	@PROXY_IMAGE_URL = 'http://www.google.com/puppies.jpg'
+	# This will change the amount of scale changed when scrolling on a mouse.
+	@SCROLL_SENSITIVITY = .001
+
+	# Changes the amount of space moved when panning in any direction within the skyview
+	@PAN_SENSITIVITY = 0.005
