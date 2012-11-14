@@ -253,7 +253,7 @@ class Overlay
 		range = @SkyView.getBoundingBox()
 
 		getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
-		console.log getInfo
+
 		@refresh(getInfo)
 		
 		return
