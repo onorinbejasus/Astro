@@ -314,7 +314,7 @@ class Overlay
 							path,
 							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/headers/#{fits}", null)
 				)
-		$.getJSON("./lib/webgl/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=#{radius}&zoom=00", ret)
+		$.getJSON("./lib/db/remote/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=#{radius}&zoom=00", ret)
 		
 		$.ajaxSetup({'async': true})
 		

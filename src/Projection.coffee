@@ -19,7 +19,7 @@ class Projection
 			#read JPEG headers
 			$.ajaxSetup({'async': false})
 			# grab the image headers
-			$.getJSON("./lib/webgl/imageHeader.php?url=#{image}&survey=#{survey}&type=JPEG", (data) =>
+			$.getJSON("./lib/skyview/imageHeader.php?url=#{image}&survey=#{survey}&type=JPEG", (data) =>
 				$.each(data, (key, val) =>
 					if key == "CRVAL_1"
 						@parameters.crval1 = val
@@ -64,7 +64,7 @@ class Projection
 			$.ajaxSetup({'async': false})
 
 			# grab the image headers
-			$.getJSON("./lib/webgl/imageHeader.php?url=#{fits}&type=TEXT&survey=SDSS", (data) =>
+			$.getJSON("./lib/skyview/imageHeader.php?url=#{fits}&type=TEXT&survey=SDSS", (data) =>
 				$.each(data, (key, val) =>
 					if key == "CRVAL_1"
 						@parameters.crval1 = val

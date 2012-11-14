@@ -60,9 +60,11 @@ class SkyView extends WebGL
 	# @param [double] value what you want to change the scale value to.
 	#
 	setScale: (value)=>
+
 		$('#Scale').text(value.toFixed(2))
 		@translation[2] = (-value/15.0) + 1.0
 		@notify('scale', value)
+		this.render()
 		return
 
 	addOverlay: (overlay)=>
