@@ -204,6 +204,7 @@ class Tile
 #
 # Holds a list of tiles for a certain survey or annotations.
 #
+
 class Overlay
 	
 	@survey = null
@@ -258,7 +259,6 @@ class Overlay
 		
 		return
 
-
 	# Creates an LSST overlay.
 	#
 	# @todo make this a friggin factory! ~Sean
@@ -276,7 +276,6 @@ class Overlay
 			$.each(lines, (key,val) =>
 				@lsstarray.push val
 			)
-
 			for image in @lsstarray
 				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"LSST", "sky", 
 					"#{image}", "", null)
@@ -297,7 +296,7 @@ class Overlay
 
 		if radius < 1.0
 			radius = 1.0
-
+		
 		ra = -@SkyView.rotation[1]
 		dec = -@SkyView.rotation[0]
 
@@ -307,7 +306,8 @@ class Overlay
 		ret = (data) =>
 				$.each(data, (key, val)=>
 					if key % 2 == 0
-						path = if val.length < 30 then "/sdss2degregion00/#{val}" else "#{val}"
+						path = val #if val.length < 30 then "/sdss2degregion00/#{val}" else "#{val}"
+						console.log path
 						fitsFile = data[key+1]
 						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
 						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
@@ -319,10 +319,10 @@ class Overlay
 		$.ajaxSetup({'async': true})
 		
 		@SkyView.render()
-		
+
 	# Creates an annotation overlay to add to the skyview.
 	#
-	# @param [int] raDec What is this? ~Sean
+	# @param [int] raDec the table containing the points to plot
 	# @param [int] raMin the min for RA value
 	# @param [int] raMax the max value for RA
 	# @param [int] decMin the min value for DEC
