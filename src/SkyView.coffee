@@ -323,9 +323,9 @@ class SkyView extends WebGL
 
 	# @private
 	keyPressed: (key) =>
-
+		###
 		switch String.fromCharCode(key.which)
-
+		
 			when 'i'
 				@rotation[0] -= 0.1
 				@box.setEvents()
@@ -381,9 +381,9 @@ class SkyView extends WebGL
 
 			when 't'
 				this.getBoundingBox()
-
+			
 		return
-
+		###
 class BoxOverlay
 	# @private
 	constructor: (canvas, view)->
