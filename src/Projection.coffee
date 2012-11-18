@@ -5,7 +5,8 @@ class Projection
 	init:(image,fits,Tile,survey)=>
 
 		if survey == "SDSS"
-			size = [1984,1361]
+			size = [2048,1489]
+			console.log "init"
 		else if survey == "LSST"
 			size = [4072,4000]
 		else if survey == 'FIRST'
@@ -88,9 +89,11 @@ class Projection
 						@parameters.ctype2 = val
 				)
 			)
-
+			
 			$.ajaxSetup({'async': true})
-
+			
+			console.log @parameters
+			
 			coords = this.unprojectTAN(size[0],size[1])
 
 			Tile.initTexture(image)

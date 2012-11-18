@@ -18,6 +18,7 @@ class TextureProxy
 	# @param [Function] load_callback Use for callbacks when onload is triggered to get the texture, all loaded.
 	# @return [void] Nothing. Use the texture callback to attach something
 	#
+	
 	initTexture: (gl, image, load_callback) ->
 		texture = gl.createTexture()
 		texture.image = new Image()
@@ -60,8 +61,27 @@ class Tile
 
 			@proj = new Projection(@Math)
 			@set = false
-			@proj.init(texture,fits,this,survey)
-
+			
+			if survey == "FIRST"
+				@proj.init(texture,fits,this,survey)
+			
+			else if survey == "SDSS"
+				
+				imgURL = "./lib/db/remote/SDSS.php?url=#{texture}"
+				@proj.init(imgURL,fits,this,survey)
+				
+				###				
+				$.ajax(
+					type: 'GET',
+					url: "./lib/db/remote/SDSS.php",
+					data:
+						'url': texture
+					success:(data)=>
+							console.log data
+						@proj.init(data,fits,this,survey)
+				)
+				###
+				
 		else if type == "anno"
 			this.initTexture(texture)
 			this.createTile([range[1], range[0], range[0], range[1]],
@@ -85,11 +105,13 @@ class Tile
 
 	# @private
 	initTexture: (image) =>
+		
 		@Texture = @gl.createTexture()
 		@Texture.image = new Image()
+		
 		@Texture.image.onload = ()=> 
 			this.handleLoadedTexture(@Texture)
-
+		
 		@Texture.image.src = image
 
 	# What is this actually doing? Horrible name. ~Sean
@@ -281,7 +303,6 @@ class Overlay
 					"#{image}", "", null)
 
 		lfile.send()
-
 		return
 
 	# Creates a SDSS overlay.
@@ -307,7 +328,6 @@ class Overlay
 				$.each(data, (key, val)=>
 					if key % 2 == 0
 						path = val #if val.length < 30 then "/sdss2degregion00/#{val}" else "#{val}"
-						console.log path
 						fitsFile = data[key+1]
 						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
 						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",

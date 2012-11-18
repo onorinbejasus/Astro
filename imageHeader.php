@@ -101,7 +101,7 @@ if($_GET['type'] == "JPEG"){
 		$path = "/afs/cs.pitt.edu/projects/admt/web/sites/astro/FIRST/images/";
 		$path .= $url;
 		$url = $path;
-				exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/tim/timCurrent/bin/jhead $url", $data, $ret);
+				exec("/afs/cs.pitt.edu/projects/admt/web/sites/astro/jhead/jhead $url", $data, $ret);
 		
 		foreach($data as $line){
 			$values = explode(" : ", $line);
