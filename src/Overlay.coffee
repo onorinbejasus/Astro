@@ -55,18 +55,18 @@ class Tile
 	# @param [?] fits used for initializing the fits file.
 	# @param [Array<Int>] range an array of ints saying the min and max ranges of the tile
 	# 
-	constructor: (@gl, @Math, survey, type, texture, fits, range) ->
+	constructor: (@gl, @Math, @survey, type, texture, fits, range) ->
 
 		if type == "sky"
 
 			@proj = new Projection(@Math)
 			
-			if survey == "FIRST"
+			if @survey == "FIRST"
 				@proj.init(texture,fits,this,survey)
 			
-			else if survey == "SDSS"
+			else if @survey == "SDSS"
 				imgURL = "./lib/db/remote/SDSS.php?url=#{texture}"
-				@proj.init(imgURL,fits,this,survey)
+				@proj.init(imgURL,fits,this,@survey)
 				
 		else if type == "anno"
 			this.initTexture(texture)
@@ -77,7 +77,7 @@ class Tile
 
 	# @private
 	handleLoadedTexture: (texture)=>
-
+		
 		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
 
 		@gl.bindTexture(@gl.TEXTURE_2D, texture)

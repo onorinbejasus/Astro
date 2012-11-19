@@ -90,7 +90,7 @@ class SkyView extends WebGL
 					@gl.disable(@gl.DEPTH_TEST)
 					@gl.enable(@gl.BLEND)
 					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-					@gl.uniform1f(@shaderProgram.survey, 0.0)
+					@gl.uniform1f(@shaderProgram.survey, 1.0)
 
 				@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
 				tile.render(@renderMode)
@@ -128,7 +128,6 @@ class SkyView extends WebGL
 
 		# Update the RA-DEC numbers
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-		console.log "pan", @rotation
 				
 		this.render()
 
