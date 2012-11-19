@@ -103,21 +103,17 @@ class WebGL
 		@shaderProgram.vertexPositionAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexPosition")
 		@gl.enableVertexAttribArray(@shaderProgram.vertexPositionAttribute)
 
-#		@shaderProgram.vertexColorAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexColor")
-#		@gl.enableVertexAttribArray(@shaderProgram.vertexColorAttribute)
-
 		@shaderProgram.textureCoordAttribute = @gl.getAttribLocation(@shaderProgram, "aTextureCoord")
 		@gl.enableVertexAttribArray(@shaderProgram.textureCoordAttribute);
-
-#		@shaderProgram.vertexNormalAttribute = @gl.getAttribLocation(@shaderProgram, "aVertexNormal");
-#		@gl.enableVertexAttribArray(@shaderProgram.vertexNormalAttribute);
-
+		
+		@shaderProgram.survey = @gl.getUniformLocation(@shaderProgram, "uSurvey")
+		
 		@shaderProgram.pMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uPMatrix")
 		@shaderProgram.mvMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uMVMatrix")
-		@shaderProgram.nMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uNMatrix");
-		@shaderProgram.samplerUniform = @gl.getUniformLocation(@shaderProgram, "uSampler");
+		@shaderProgram.nMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uNMatrix")
+		@shaderProgram.samplerUniform = @gl.getUniformLocation(@shaderProgram, "uSampler")
 
-		@shaderProgram.alphaUniform = @gl.getUniformLocation(@shaderProgram, "alpha");
+		@shaderProgram.alphaUniform = @gl.getUniformLocation(@shaderProgram, "alpha")
 
 		return
 

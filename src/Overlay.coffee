@@ -60,33 +60,18 @@ class Tile
 		if type == "sky"
 
 			@proj = new Projection(@Math)
-			@set = false
 			
 			if survey == "FIRST"
 				@proj.init(texture,fits,this,survey)
 			
 			else if survey == "SDSS"
-				
 				imgURL = "./lib/db/remote/SDSS.php?url=#{texture}"
 				@proj.init(imgURL,fits,this,survey)
-				
-				###				
-				$.ajax(
-					type: 'GET',
-					url: "./lib/db/remote/SDSS.php",
-					data:
-						'url': texture
-					success:(data)=>
-							console.log data
-						@proj.init(data,fits,this,survey)
-				)
-				###
 				
 		else if type == "anno"
 			this.initTexture(texture)
 			this.createTile([range[1], range[0], range[0], range[1]],
 				[range[3], range[3], range[2], range[2]])
-			this.setFlag()
 
 		return
 
@@ -163,15 +148,15 @@ class Tile
 				vertexPositionData.push(radius * z)
 
 				textureCoordData = [
-
+				
 					0.0, 1.0,
 					0.0, 0.0,
 					1.0, 0.0,
 					1.0, 1.0,
 				]
 
-			indexData = [2,3,0, 1,2,0]
-
+			indexData = [0,3,2, 2,1,0]
+		
 		@VertexPositionBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), @gl.STATIC_DRAW)
@@ -214,15 +199,6 @@ class Tile
 	render: (renderMode) =>
 		@gl.drawElements(renderMode, @VertexIndexBuffer.numItems, @gl.UNSIGNED_SHORT, 0)
 
-	# What the hell is a flag? ~Sean
-	setFlag:()=>
-		@set = true
-		return
-
-	# Same question as above! ~Sean
-	getSet:()=>
-		return @set
-
 #
 # Holds a list of tiles for a certain survey or annotations.
 #
@@ -261,23 +237,21 @@ class Overlay
 		@firstflag = false
 		temp_this = this
 		
-		@refresh = (getInfo) =>
+		@refresh = () =>
 			url = 'lib/db/remote/SPATIALTREE.php' 
+			range = @SkyView.getBoundingBox()
+			getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
 			done = (e) =>
 				for image, index in e
 						name = image.split "../../images/"
-						if not temp_this.cache[name] and (not null or undefined)
+						if not temp_this.cache[name]
 							@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST", "sky",
 							"#{name[1]}", "", null)
 							temp_this.cache[name] = true
 				@SkyView.render()
 			$.get(url, getInfo, done, 'json')
 			
-		range = @SkyView.getBoundingBox()
-
-		getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
-
-		@refresh(getInfo)
+		@refresh()
 		
 		return
 
@@ -313,7 +287,9 @@ class Overlay
 	createSDSSOverlay: ()=>
 
 		## retrieve RA and radius ##
-		radius = 10 #((-@translation[2]+1)*15)*90
+		#radius = 30
+		temp_this = this
+		radius = ((-@SkyView.translation[2]+1)*15)*360
 
 		if radius < 1.0
 			radius = 1.0
@@ -322,22 +298,25 @@ class Overlay
 		dec = -@SkyView.rotation[0]
 
 		# select the images
-		$.ajaxSetup({'async': false})	
-
-		ret = (data) =>
-				$.each(data, (key, val)=>
-					if key % 2 == 0
-						path = val #if val.length < 30 then "/sdss2degregion00/#{val}" else "#{val}"
-						fitsFile = data[key+1]
-						fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
-						@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
-							path,
-							"/afs/cs.pitt.edu/projects/admt/web/sites/astro/headers/#{fits}", null)
-				)
-		$.getJSON("./lib/db/remote/SDSSFieldQuery.php?ra=#{ra}&dec=#{dec}&radius=#{radius}&zoom=00", ret)
 		
-		$.ajaxSetup({'async': true})
+		@refresh = ()=>
+			done = (data) =>
+					$.each(data, (key, val)=>
+						if key % 2 == 0 
+							path = val 
+							fitsFile = data[key+1]
+							fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
+							if not temp_this.cache[fits]
+								temp_this.cache[fits] = true
+								@tiles.push  new Tile(@SkyView.gl, @SkyView.Math, "SDSS", "sky",
+									path,
+									"/afs/cs.pitt.edu/projects/admt/web/sites/astro/headers/#{fits}", null)
+					@SkyView.render()
+					)
+			pos = @SkyView.getPosition()
+			$.get("./lib/db/remote/SDSSFieldQuery.php?ra=#{pos.ra}&dec=#{pos.dec}&radius=#{radius}&zoom=00", done, 'json')
 		
+		@refresh()
 		@SkyView.render()
 
 	# Creates an annotation overlay to add to the skyview.

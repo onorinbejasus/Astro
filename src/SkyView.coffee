@@ -51,7 +51,7 @@ class SkyView extends WebGL
 
 	# @private
 	refresh: ()=>
-		for overlay in overlays
+		for overlay in @overlays
 			overlay.refresh()
 		@refresh_timeout = setTimeout(@refresh, 500)
 
@@ -81,18 +81,19 @@ class SkyView extends WebGL
 		# Refreshes all the overlay images by requesting them all again (For now it is just FIRST).
 		for overlay in @overlays
 			for tile in overlay.tiles
-				if tile.getSet()
-					tile.bind(@shaderProgram)
-					if overlay.survey == "SDSS"
-						@gl.enable(@gl.DEPTH_TEST)
-						@gl.disable(@gl.BLEND)
-					else
-						@gl.disable(@gl.DEPTH_TEST)
-						@gl.enable(@gl.BLEND)
-						@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
+				tile.bind(@shaderProgram)
+				if overlay.survey == "SDSS"
+					@gl.enable(@gl.DEPTH_TEST)
+					@gl.disable(@gl.BLEND)
+					@gl.uniform1f(@shaderProgram.survey, 0.0)
+				else
+					@gl.disable(@gl.DEPTH_TEST)
+					@gl.enable(@gl.BLEND)
+					@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
+					@gl.uniform1f(@shaderProgram.survey, 0.0)
 
-					@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
-					tile.render(@renderMode)
+				@gl.uniform1f(@shaderProgram.alphaUniform, overlay.alpha)
+				tile.render(@renderMode)
 		return
 
 	# @private
@@ -127,7 +128,8 @@ class SkyView extends WebGL
 
 		# Update the RA-DEC numbers
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-
+		console.log "pan", @rotation
+				
 		this.render()
 
 	# @private
@@ -323,7 +325,7 @@ class SkyView extends WebGL
 
 	# @private
 	keyPressed: (key) =>
-		
+		###
 		switch String.fromCharCode(key.which)
 		
 			when 'i'
@@ -381,7 +383,7 @@ class SkyView extends WebGL
 
 			when 't'
 				this.getBoundingBox()
-		
+			###
 		return
 		
 class BoxOverlay

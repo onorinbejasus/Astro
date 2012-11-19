@@ -5,8 +5,7 @@ class Projection
 	init:(image,fits,Tile,survey)=>
 
 		if survey == "SDSS"
-			size = [2048,1489]
-			console.log "init"
+			size = [1984, 1361]
 		else if survey == "LSST"
 			size = [4072,4000]
 		else if survey == 'FIRST'
@@ -58,14 +57,13 @@ class Projection
 				Tile.initTexture("http://astro.cs.pitt.edu/FIRST/images/#{image}")
 
 			Tile.createTile(coords[0],coords[1])
-			Tile.setFlag()			
 
 		else if survey == "SDSS"
 
 			$.ajaxSetup({'async': false})
 
 			# grab the image headers
-			$.getJSON("./lib/skyview/imageHeader.php?url=#{fits}&type=TEXT&survey=SDSS", (data) =>
+			$.getJSON("./lib/skyview/imageHeader.php?url=#{fits}&type=TEXT&survey=#{survey}", (data) =>
 				$.each(data, (key, val) =>
 					if key == "CRVAL_1"
 						@parameters.crval1 = val
@@ -92,14 +90,11 @@ class Projection
 			
 			$.ajaxSetup({'async': true})
 			
-			console.log @parameters
-			
 			coords = this.unprojectTAN(size[0],size[1])
 
 			Tile.initTexture(image)
 			Tile.createTile(coords[0],coords[1])
-			Tile.setFlag()
-
+			
 		return
 	unprojectSIN: (xsize, ysize) =>
 
@@ -214,12 +209,14 @@ class Projection
 
 			 #FITS 
 			#flip for 0,0 region
-			if @parameters.ctype1 == "DEC--TAN"
+
+			if @parameters.ctype1 == " DEC--TAN"
 				tmp = x
 				x = y
 				y = tmp
 				if index == 0
-				       crval = @Math.rotate(crval)
+					crval = @Math.rotate(crval)
+			
 			###			
 			 #JPEG - do manually for some regions
 			tmp=x
@@ -240,7 +237,7 @@ class Projection
 			r = Math.sqrt(Math.pow(x,2) + Math.pow(y,2))
 
 			if r > 0.0
-			        lat = Math.atan((180.0/Math.PI)/r)
+				lat = Math.atan((180.0/Math.PI)/r)
 
 			#console.log "rtod", rtod
 			#console.log "r", r
