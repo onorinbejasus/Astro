@@ -290,6 +290,7 @@ class Overlay
 		#radius = 30
 		temp_this = this
 		radius = ((-@SkyView.translation[2]+1)*15)*360
+		radius /= 5 # Do this to reduce scope. @TODO: Why?
 
 		if radius < 1.0
 			radius = 1.0
@@ -314,11 +315,11 @@ class Overlay
 					@SkyView.render()
 					)
 			pos = @SkyView.getPosition()
-			$.get("./lib/db/remote/SDSSFieldQuery.php?ra=#{pos.ra}&dec=#{pos.dec}&radius=#{radius}&zoom=00", done, 'json')
+			$.get("./lib/db/remote/SDSSFieldQuery.php?ra=#{pos.ra}&dec=#{pos.dec}&radius=#{radius}&zoom=30", done, 'json')
 		
 		@refresh()
 		@SkyView.render()
-
+	###
 	# Creates an annotation overlay to add to the skyview.
 	#
 	# @param [int] raDec the table containing the points to plot
@@ -328,6 +329,7 @@ class Overlay
 	# @param [int] decMax the max value for DEC
 	# @param [String?] label the name for the annotation overlay?
 	#
+	###
 	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
 
 		scale = ((-@SkyView.translation[2]+1)*15) * 3600

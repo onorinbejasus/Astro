@@ -1,4 +1,15 @@
 #= require WebGL
+###
+# SkyView has two main methods when dealing with it:
+# First, the constructor has many options. 
+# @TODO: Actually write out the options here.
+#
+# Once properly constructed, use `SkyView.start()` for the main visual loop to activate. We will have this display
+# loop to make all lives easier.  
+#
+# You can attach event listeners to things, such as movement. You can setPan and setScale as well.
+#
+###
 class SkyView extends WebGL
 	gridBlocks: 0
 	rotation: null
@@ -7,11 +18,18 @@ class SkyView extends WebGL
 	refresh_timeout: 0
 	# @property [Math] Useful for doing matrix math
 	Math: null
-
+	requestAnimFrame = (window.requestAnimationFrame or
+			window.webkitRequestAnimationFrame    or
+			window.mozRequestAnimationFrame       or 
+			window.oRequestAnimationFrame         or 
+			window.msRequestAnimationFrame        or 
+			(callback)->window.setTimeout(callback, 1000 / 60)
+	) 
 	constructor: (options) ->
 
 		@empty = ()->return
 		#init webgl
+		# Put in initializing events for box canvas.
 		@box_canvas = document.createElement("canvas")
 		@box_canvas.width = options.clientWidth
 		@box_canvas.height = options.clientHeight
@@ -25,13 +43,16 @@ class SkyView extends WebGL
 		@_inner_mouse_move = @empty
 		@_inner_mouse_up = @panUp
 		@_inner_mouse_down = @panDown
-
 		super(options)
-
 		@mouse_coords = {'x':0, 'y':0}
 		@handlers = {'translate': @empty, 'scale':@empty, 'box':@empty}
-		#init htm variables
+
+		###
+		@TODO: What do these rotationd and translation variables do?
+		###
+		# Translation used for camera movement
 		@translation = [0.0, 0.0, 0.99333]
+		# Rotation is used for making the camera rotate in certain directions.
 		@rotation = [0.0, -0.4, 0.0]
 		@renderMode = @gl.TRIANGLES
 
@@ -42,6 +63,9 @@ class SkyView extends WebGL
 		@overlays = []
 
 		@box = new BoxOverlay(@box_canvas, this)
+		###
+		@TODO: @FIXME: This can't be static, that's bad. Veryyyy bad.
+		###
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		
@@ -49,16 +73,19 @@ class SkyView extends WebGL
 		
 		return
 
+
 	# @private
 	refresh: ()=>
 		for overlay in @overlays
 			overlay.refresh()
 		@refresh_timeout = setTimeout(@refresh, 500)
 
+	###
 	# Updates the scale and notifies all registered scale listeners of the change.
 	#
 	# @param [double] value what you want to change the scale value to.
-	#
+	# @return: void
+	###
 	setScale: (value)=>
 
 		$('#Scale').text(value.toFixed(2))
@@ -73,6 +100,24 @@ class SkyView extends WebGL
 
 	deleteOverlay: (name)=>
 		return
+
+	###
+	# Will start drawing and pulling data from the canvas. Needed to be
+	# separated from the constructor in case some person was all like "Yo, let's keep this in the background"
+	# so it won't start displaying or grabbing data until start is called.
+	# @return: void
+	###
+	start: ()=>
+		@update()
+
+	###
+	# The main graphics loop. Can be turned off by stop, and on with start.
+	# GOES FOREVER!
+	# @return void
+	###
+	update: ()=>
+
+		@get_next_frame()
 
 	render: ()=>
 
@@ -157,6 +202,13 @@ class SkyView extends WebGL
 
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		this.render()
+
+	###
+	# invalidates the canvas and causes a manual redraw on the next draw cycle.
+	# @return: void
+	###
+	invalidate: ()=>
+		return false
 
 	jump: (RA,Dec)=>
 
@@ -251,12 +303,14 @@ class SkyView extends WebGL
 		pos.dec = -@rotation[0]
 		return pos
 
+	###
 	# Translates a pixel coordinate to RA, DEC space.
 	#
 	# @param [int] x the x pixel that you want translated.
 	# @param [int] y the y pixel that you want translated.
 	#
 	# @return [object] an object with ra, dec.
+	###
 	getCoordinate: (x,y) =>
 		#get the projection, model-view and viewport
 		matrices = this.getMatrices()
@@ -307,6 +361,8 @@ class SkyView extends WebGL
 		theta = Math.atan(intersection[0]/intersection[2]) * 57.29577951308323
 
 		RA = theta
+
+		# What is this code doing? Why is it commented out ~Sean
 		###
 		if theta < 270
 			RA = 270 - RA
