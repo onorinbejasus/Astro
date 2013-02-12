@@ -1,8 +1,8 @@
 class TextureProxy
-	
+
 	# A TextureProxy uses an already loaded temporary image while
-	# another image is loading. 
-	
+	# another image is loading.
+
 	constructor: (gl, img_url, temp_img_texture) ->
 		@texture = temp_img_texture
 
@@ -10,7 +10,7 @@ class TextureProxy
 			@texture = texture
 
 		@initTexture(gl, img_url, on_texture_load)
-	
+
 	# Used for initializing textures.
 	#
 	# @param [GLRenderingContext] gl - used to create a texture
@@ -18,11 +18,11 @@ class TextureProxy
 	# @param [Function] load_callback Use for callbacks when onload is triggered to get the texture, all loaded.
 	# @return [void] Nothing. Use the texture callback to attach something
 	#
-	
+
 	initTexture: (gl, image, load_callback) ->
 		texture = gl.createTexture()
 		texture.image = new Image()
-		texture.image.onload = ()=> 
+		texture.image.onload = ()=>
 			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
 			gl.bindTexture(gl.TEXTURE_2D, texture)
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image)
@@ -30,7 +30,7 @@ class TextureProxy
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.bindTexture(gl.TEXTURE_2D, null)	
+			gl.bindTexture(gl.TEXTURE_2D, null)
 
 			if load_callback
 				load_callback(texture)
@@ -54,20 +54,20 @@ class Tile
 	# @param [GLTexture] texture the texture from the webglcontext
 	# @param [?] fits used for initializing the fits file.
 	# @param [Array<Int>] range an array of ints saying the min and max ranges of the tile
-	# 
+	#
 	constructor: (@gl, @Math, @survey, type, texture, fits, range) ->
 
 		if type == "sky"
 
 			@proj = new Projection(@Math)
-			
+
 			if @survey == "FIRST"
 				@proj.init(texture,fits,this,survey)
-			
+
 			else if @survey == "SDSS"
 				imgURL = "./lib/db/remote/SDSS.php?url=#{texture}"
 				@proj.init(imgURL,fits,this,@survey)
-				
+
 		else if type == "anno"
 			this.initTexture(texture)
 			this.createTile([range[1], range[0], range[0], range[1]],
@@ -77,7 +77,7 @@ class Tile
 
 	# @private
 	handleLoadedTexture: (texture)=>
-		
+
 		@gl.pixelStorei(@gl.UNPACK_FLIP_Y_WEBGL, true)
 
 		@gl.bindTexture(@gl.TEXTURE_2D, texture)
@@ -90,13 +90,13 @@ class Tile
 
 	# @private
 	initTexture: (image) =>
-		
+
 		@Texture = @gl.createTexture()
 		@Texture.image = new Image()
-		
-		@Texture.image.onload = ()=> 
+
+		@Texture.image.onload = ()=>
 			this.handleLoadedTexture(@Texture)
-		
+
 		@Texture.image.src = image
 
 	# What is this actually doing? Horrible name. ~Sean
@@ -109,7 +109,6 @@ class Tile
 		radius = 1
 
 		vertexPositionData = []
-		normalData = []
 
 		textureCoordData = []
 
@@ -125,13 +124,13 @@ class Tile
 
 			for coord in coords
 
-				phi = (90-coord[1]) * Math.PI/180.0 
+				phi = (90-coord[1]) * Math.PI/180.0
 				theta = 0
 
-				if coord[0] > 270 
-					theta = (270-coord[0]+360) * Math.PI/180.0 
-				else 
-					theta = (270-coord[0]) * Math.PI/180.0 
+				if coord[0] > 270
+					theta = (270-coord[0]+360) * Math.PI/180.0
+				else
+					theta = (270-coord[0]) * Math.PI/180.0
 
 				sinTheta = Math.sin(theta)
 				cosTheta = Math.cos(theta)
@@ -148,7 +147,7 @@ class Tile
 				vertexPositionData.push(radius * z)
 
 				textureCoordData = [
-				
+
 					0.0, 1.0,
 					0.0, 0.0,
 					1.0, 0.0,
@@ -156,7 +155,7 @@ class Tile
 				]
 
 			indexData = [0,3,2, 2,1,0]
-		
+
 		@VertexPositionBuffer = @gl.createBuffer()
 		@gl.bindBuffer(@gl.ARRAY_BUFFER, @VertexPositionBuffer)
 		@gl.bufferData(@gl.ARRAY_BUFFER, new Float32Array(vertexPositionData), @gl.STATIC_DRAW)
@@ -204,7 +203,7 @@ class Tile
 #
 
 class Overlay
-	
+
 	@survey = null
 	@set = null
 	@alpha = 1.0
@@ -236,23 +235,22 @@ class Overlay
 
 		@firstflag = false
 		temp_this = this
-		
+
 		@refresh = () =>
-			url = 'lib/db/remote/SPATIALTREE.php' 
+			url = 'lib/db/remote/SPATIALTREE.php'
 			range = @SkyView.getBoundingBox()
 			getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
 			done = (e) =>
-				for image, index in e
+				for image in e
 						name = image.split "../../images/"
 						if not temp_this.cache[name]
-							@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST", "sky",
-							"#{name[1]}", "", null)
+							@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"FIRST", "sky", "#{name[1]}", "", null)
 							temp_this.cache[name] = true
 				@SkyView.render()
 			$.get(url, getInfo, done, 'json')
-			
+
 		@refresh()
-		
+
 		return
 
 	# Creates an LSST overlay.
@@ -266,14 +264,14 @@ class Overlay
 		@lsstflag = false
 		lfile = new XMLHttpRequest()
 		lfile.open('GET', '../../lsstimages/filelist.txt',true)   #this path should change to the full path on astro server /u/astro/images/LSST/jpegfiles.txt
-		lfile.onload = (e) =>
+		lfile.onload = () =>
 			text = lfile.responseText
 			lines = text.split("\n")
 			$.each(lines, (key,val) =>
 				@lsstarray.push val
 			)
 			for image in @lsstarray
-				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"LSST", "sky", 
+				@tiles.push new Tile(@SkyView.gl, @SkyView.Math,"LSST", "sky",
 					"#{image}", "", null)
 
 		lfile.send()
@@ -294,17 +292,17 @@ class Overlay
 
 		if radius < 1.0
 			radius = 1.0
-		
+
 		ra = -@SkyView.rotation[1]
 		dec = -@SkyView.rotation[0]
 
 		# select the images
-		
+
 		@refresh = ()=>
 			done = (data) =>
 					$.each(data, (key, val)=>
-						if key % 2 == 0 
-							path = val 
+						if key % 2 == 0
+							path = val
 							fitsFile = data[key+1]
 							fits=fitsFile.split(".")[0].concat(".").concat(fitsFile.split(".")[1])
 							if not temp_this.cache[fits]
@@ -316,7 +314,7 @@ class Overlay
 					)
 			pos = @SkyView.getPosition()
 			$.get("./lib/db/remote/SDSSFieldQuery.php?ra=#{pos.ra}&dec=#{pos.dec}&radius=#{radius}&zoom=30", done, 'json')
-		
+
 		@refresh()
 		@SkyView.render()
 	###
@@ -332,22 +330,20 @@ class Overlay
 	###
 	createAnnoOverlay: (raDec, raMin, raMax, decMin, decMax, color, label)=>
 
-		scale = ((-@SkyView.translation[2]+1)*15) * 3600
-
 		img = ''
 
-		$.ajaxSetup({'async': false})	
+		$.ajaxSetup({'async': false})
 
 		width = Math.abs(raMax)-Math.abs(raMin)
 		height = Math.abs(decMax)-Math.abs(decMin)
 
 		width = 2024 * (360.0/width)
 		height = 2024 * (360.0/height)
-		
+
 		$.ajax(
 			type: 'POST',
 			url: "./lib/createOverlay.php",
-			data: 	
+			data:
 				'width':width,
 				'height':height,
 				'RAMin':raMin,
@@ -361,21 +357,21 @@ class Overlay
 			success:(data)=>
 				img = data
 				return
-		)		
+		)
 
-		$.ajaxSetup({'async': true})	
+		$.ajaxSetup({'async': true})
 
 		imgURL = "./lib/overlays/#{img}"
 
 		range = [raMin, raMax, decMin, decMax]
-		
-		tile =  new Tile(@SkyView.gl, @SkyView.Math, "anno", "anno", 
+
+		tile =  new Tile(@SkyView.gl, @SkyView.Math, "anno", "anno",
 			imgURL, null, range)
 
 		@tiles.push tile
-		
+
 		@SkyView.render()
-		
+
 		return
 
 	# Set's the opacity.

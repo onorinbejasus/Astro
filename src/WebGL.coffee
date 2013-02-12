@@ -8,9 +8,9 @@ class WebGL
 
 	constructor: (options) ->
 
-		@canvas = if options.canvas? then options.canvas 
+		@canvas = if options.canvas? then options.canvas
 
-		else 
+		else
 			@canvas = document.createElement("canvas")
 
 			@canvas.width = options.clientWidth
@@ -49,7 +49,7 @@ class WebGL
 
 	### initialize shaders programs ###
 
-	getShader:(id)=> 
+	getShader:(id)=>
 
 		source = null
 		shader = null
@@ -95,7 +95,7 @@ class WebGL
 		@gl.attachShader(@shaderProgram, fragmentShader)
 		@gl.linkProgram(@shaderProgram)
 
-		if not @gl.getProgramParameter(@shaderProgram, @gl.LINK_STATUS) 
+		if not @gl.getProgramParameter(@shaderProgram, @gl.LINK_STATUS)
 			alert "Could not initialise shaders"
 
 		@gl.useProgram(@shaderProgram)
@@ -105,9 +105,9 @@ class WebGL
 
 		@shaderProgram.textureCoordAttribute = @gl.getAttribLocation(@shaderProgram, "aTextureCoord")
 		@gl.enableVertexAttribArray(@shaderProgram.textureCoordAttribute);
-		
+
 		@shaderProgram.survey = @gl.getUniformLocation(@shaderProgram, "uSurvey")
-		
+
 		@shaderProgram.pMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uPMatrix")
 		@shaderProgram.mvMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uMVMatrix")
 		@shaderProgram.nMatrixUniform = @gl.getUniformLocation(@shaderProgram, "uNMatrix")
@@ -120,19 +120,19 @@ class WebGL
 	getMatrices: ()=>
 		[@mvMatrix, @pMatrix, [0,0,@gl.viewportWidth, @gl.viewportHeight] ]
 
-	mvPushMatrix: ()=> 
+	mvPushMatrix: ()=>
 		copy = mat4.create()
 		mat4.set(@mvMatrix, copy)
 		@mvMatrixStack.push(copy)
 		return
 
-	mvPopMatrix: ()=> 
-		if @mvMatrixStack.length is 0 
+	mvPopMatrix: ()=>
+		if @mvMatrixStack.length is 0
 			throw "Invalid popMatrix!"
 		@mvMatrix = @mvMatrixStack.pop()
 		return
-    
-	setMatrixUniforms: () => 
+
+	setMatrixUniforms: () =>
 		@gl.uniformMatrix4fv(@shaderProgram.pMatrixUniform, false, @pMatrix)
 		@gl.uniformMatrix4fv(@shaderProgram.mvMatrixUniform, false, @mvMatrix)
 		return
