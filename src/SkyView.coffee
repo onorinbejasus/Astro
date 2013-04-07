@@ -143,6 +143,9 @@ class SkyView extends WebGL
 			event = window.event;
 		#normalize the delta
 		if (event.wheelDelta)
+			# Dear Sean, 
+			#	IE does not support webGL. 
+			#	This will not run regardless. Ha
 			#IE and Opera
 			delta = event.wheelDelta / 60;
 		else if (event.detail) 

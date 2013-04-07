@@ -339,8 +339,8 @@ class Overlay
 		width = Math.abs(raMax)-Math.abs(raMin)
 		height = Math.abs(decMax)-Math.abs(decMin)
 
-		width = 2024 * (360.0/width)
-		height = 2024 * (360.0/height)
+		width = 16384 * (width/360.0)
+		height = 16384 * (height/180.0)
 		
 		$.ajax(
 			type: 'POST',
@@ -362,8 +362,8 @@ class Overlay
 		)		
 
 		$.ajaxSetup({'async': true})	
-
-		imgURL = "./lib/overlays/#{img}"
+		
+		imgURL = "/Anno/#{img}"
 
 		range = [raMin, raMax, decMin, decMax]
 		
