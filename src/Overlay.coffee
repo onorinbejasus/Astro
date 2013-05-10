@@ -65,7 +65,7 @@ class Tile
 				@proj.init(texture,fits,this,survey)
 			
 			else if @survey == "SDSS"
-				imgURL = "./lib/db/remote/SDSS.php?url=#{texture}"
+				imgURL = "./lib/db/remote/SDSS.php?url=#{texture}&zoom=4"
 				@proj.init(imgURL,fits,this,@survey)
 				
 		else if type == "anno"
@@ -84,8 +84,8 @@ class Tile
 		@gl.texImage2D(@gl.TEXTURE_2D, 0, @gl.RGBA, @gl.RGBA, @gl.UNSIGNED_BYTE, texture.image)
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MAG_FILTER, @gl.LINEAR)
 		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_MIN_FILTER, @gl.LINEAR)
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE);
-		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE);
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_S, @gl.CLAMP_TO_EDGE)
+		@gl.texParameteri(@gl.TEXTURE_2D, @gl.TEXTURE_WRAP_T, @gl.CLAMP_TO_EDGE)
 		@gl.bindTexture(@gl.TEXTURE_2D, null)
 
 	# @private
@@ -238,9 +238,11 @@ class Overlay
 		temp_this = this
 		
 		@refresh = () =>
-			url = 'lib/db/remote/SPATIALTREE.php' 
+			url = 'http://db8.cs.pitt.edu/duncan/queryMongodb.php' 
 			range = @SkyView.getBoundingBox()
+			console.log range
 			getInfo = {RAMin: range.maxRA, RAMax: range.minRA, DecMin: range.maxDec, DecMax: range.minDec};
+				
 			done = (e) =>
 				for image, index in e
 						name = image.split "../../images/"
@@ -363,7 +365,7 @@ class Overlay
 
 		$.ajaxSetup({'async': true})	
 		
-		imgURL = "/Anno/#{img}"
+		imgURL = "http://astro.cs.pitt.edu/Anno/#{img}"
 
 		range = [raMin, raMax, decMin, decMax]
 		
