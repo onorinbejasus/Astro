@@ -238,7 +238,7 @@ class SkyView extends WebGL
 		max = this.getCoordinate(@canvas.width, @canvas.height)
 		
 		min = this.getCoordinate(0,0)
-
+				
 		range = new Object()
 
 		range.maxRA = max.x
@@ -271,7 +271,7 @@ class SkyView extends WebGL
 		
 		success = GLU.unProject(x, @gl.viewportHeight - y,
 			0.0, matrices[0], matrices[1], matrices[2], near)
-
+		
 		success = GLU.unProject(x, @gl.viewportHeight - y,
 			1.0, matrices[0], matrices[1], matrices[2], far)
 				
