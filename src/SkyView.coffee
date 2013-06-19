@@ -45,8 +45,14 @@ class SkyView extends WebGL
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		
-		this.render()
+		mat4.identity(@mvMatrix)
+		mat4.perspective(45, @gl.viewportWidth / @gl.viewportHeight, 0.001, 1000.0, @pMatrix)
 		
+		@gl.viewport(0, 0, @gl.viewportWidth, @gl.viewportHeight)
+		@gl.uniformMatrix4fv(@shaderProgram.pMatrixUniform, false, @pMatrix)
+		
+		this.setTransforms(@translation, @rotation)
+				
 		return
 
 	# @private
@@ -64,6 +70,7 @@ class SkyView extends WebGL
 		$('#Scale').text(value.toFixed(2))
 		@translation[2] = (-value/15.0) + 1.0
 		@notify('scale', value)
+		
 		this.render()
 		return
 
@@ -75,9 +82,9 @@ class SkyView extends WebGL
 		return
 
 	render: ()=>
-
-		this.preRender(@rotation, @translation) # set up matrices
-
+		
+		@gl.clear(@gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT)
+		
 		# Refreshes all the overlay images by requesting them all again (For now it is just FIRST).
 		for overlay in @overlays
 			for tile in overlay.tiles
@@ -128,9 +135,10 @@ class SkyView extends WebGL
 
 		# Update the RA-DEC numbers
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				
+		
+		this.setTransforms(@translation, @rotation)
 		this.render()
-
+		
 	# @private
 	panUp: (event)=>
 		clearTimeout(@refresh_timeout)
@@ -159,6 +167,8 @@ class SkyView extends WebGL
 			@translation[2] += Config.SCROLL_SENSITIVITY
 
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
+		
+		this.setTransforms(@translation, @rotation)
 		this.render()
 
 	jump: (RA,Dec)=>
@@ -168,7 +178,8 @@ class SkyView extends WebGL
 
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-
+		
+		this.setTransforms(@translation, @rotation)
 		this.render()
 
 	# @private
@@ -234,11 +245,10 @@ class SkyView extends WebGL
 
 	# @private
 	getBoundingBox:()=>
-
-		max = this.getCoordinate(@canvas.width, @canvas.height)
-		
-		min = this.getCoordinate(0,0)
 				
+		max = this.getCoordinate(@canvas.width, @canvas.height)
+		min = this.getCoordinate(0,0)
+						
 		range = new Object()
 
 		range.maxRA = max.x
@@ -249,9 +259,11 @@ class SkyView extends WebGL
 		return range
 
 	getPosition: ()=>
-		pos = new Object;
+		
+		pos = new Object()
 		pos.ra = -@rotation[1]
 		pos.dec = -@rotation[0]
+		
 		return pos
 
 	# Translates a pixel coordinate to RA, DEC space.
@@ -263,7 +275,8 @@ class SkyView extends WebGL
 	getCoordinate: (x,y) =>
 		#get the projection, model-view and viewport
 		matrices = this.getMatrices()
-
+		console.log matrices
+		
 		#calculate the near and far clipping plane distances
 		near = []
 		far = []
@@ -327,65 +340,6 @@ class SkyView extends WebGL
 
 	# @private
 	keyPressed: (key) =>
-		###
-		switch String.fromCharCode(key.which)
-		
-			when 'i'
-				@rotation[0] -= 0.1
-				@box.setEvents()
-				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				this.render()
-			when 'k'
-				@rotation[0] += 0.1
-				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-				this.render()
-			when 'l'
-				@rotation[1] += 0.1
-				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-
-				if -@rotation[1] < 0
-					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-
-				else if -@rotation[1] > 360
-					$('#RA-Dec').text((this.rotation[1] + 360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-
-				this.render() 
-
-			when 'j'
-				@rotation[1] -= 0.1 
-				$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-
-				if -@rotation[1] > 360
-					$('#RA-Dec').text((this.rotation[1]+360).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-
-				else if -@rotation[1] < 0
-					$('#RA-Dec').text((360-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
-
-				this.render()
-
-			when 'w' 
-				@translation[2] += 0.001
-				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render()	
-
-			when 's'
-				@translation[2] -= 0.001
-				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render()	
-
-			when 'W' 
-				@translation[2] += 0.01
-				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render()	
-
-			when 'S'
-				@translation[2] -= 0.01
-				$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
-				this.render()
-
-			when 't'
-				this.getBoundingBox()
-			###
 		return
 		
 class BoxOverlay

@@ -8,8 +8,12 @@ class WebGL
 
 	constructor: (options) ->
 
-		@canvas = if options.canvas? then options.canvas 
+		@mvMatrix = mat4.create()
+		@pMatrix = mat4.create()
+		@mvMatrixStack = []
 
+		@canvas = if options.canvas? then options.canvas 
+				
 		else 
 			@canvas = document.createElement("canvas")
 
@@ -26,11 +30,6 @@ class WebGL
 		#@gl.enable(@gl.DEPTH_TEST)
 		#@gl.enable(@gl.BLEND)
 		#@gl.blendFunc(@gl.SRC_ALPHA, @gl.ONE)
-
-		@mvMatrix = mat4.create()
-		@pMatrix = mat4.create()
-		@mvMatrixStack = []
-
 		return
 
 	### initialize the webgl context in the canvas ###
@@ -43,6 +42,9 @@ class WebGL
 
 			@gl.viewportWidth = @canvas.width
 			@gl.viewportHeight = @canvas.height
+				
+			return
+			
 		catch e
 			if not @gl
 				alert "Could not initialize WebGL, sorry :-("
@@ -114,7 +116,7 @@ class WebGL
 		@shaderProgram.samplerUniform = @gl.getUniformLocation(@shaderProgram, "uSampler")
 
 		@shaderProgram.alphaUniform = @gl.getUniformLocation(@shaderProgram, "alpha")
-
+			
 		return
 
 	getMatrices: ()=>
@@ -133,31 +135,24 @@ class WebGL
 		return
     
 	setMatrixUniforms: () => 
-		@gl.uniformMatrix4fv(@shaderProgram.pMatrixUniform, false, @pMatrix)
 		@gl.uniformMatrix4fv(@shaderProgram.mvMatrixUniform, false, @mvMatrix)
 		return
-
-	degToRad: (deg)=>
-		deg * Math.PI / 180.0
-
-	preRender: (rotation, translation) =>
-
-		@gl.viewport(0, 0, @gl.viewportWidth, @gl.viewportHeight)
-		@gl.clear(@gl.COLOR_BUFFER_BIT | @gl.DEPTH_BUFFER_BIT)
-
-		mat4.perspective(45, @gl.viewportWidth / @gl.viewportHeight, 0.001, 1000.0, @pMatrix)
-		mat4.identity(@mvMatrix)
-
-		@gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
-#		mat4.scale(@mvMatrix, [100,100,100])
-
+	
+	setTransforms: (translation, rotation) =>
+		
+		this.mvPushMatrix()
+		
 		mat4.translate(@mvMatrix, translation)
-
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[0]), [1,0,0])
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[1]), [0,1,0])
 		mat4.rotate(@mvMatrix, this.degToRad(rotation[2]), [0,0,1])
-
+		
 		this.setMatrixUniforms()
-
+		
+		this.mvPopMatrix()
+		
 		return
+	
+	degToRad: (deg)=>
+		deg * Math.PI / 180.0
+		
