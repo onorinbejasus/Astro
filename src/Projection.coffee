@@ -54,7 +54,7 @@ class Projection
 				Tile.initTexture("http://astro.cs.pitt.edu/lsstimages/#{image}")
 			else if survey == "FIRST"
 				coords = this.unprojectSIN(size[0],size[1])
-				Tile.initTexture("http://astro.cs.pitt.edu/FIRST/images/#{image}")
+				Tile.initTexture("./lib/db/remote/FIRST.php?image=#{image}")
 
 			Tile.createTile(coords[0],coords[1])
 

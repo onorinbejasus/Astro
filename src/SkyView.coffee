@@ -179,8 +179,17 @@ class SkyView extends WebGL
 		$('#RA-Dec').text((-this.rotation[1]).toFixed(8)+", "+ (-this.rotation[0]).toFixed(8))
 		$('#Scale').text(((-@translation[2]+1)*15).toFixed(2))
 		
-		this.setTransforms(@translation, @rotation)
+		# new location
+		@refresh()
+		
+		#clear reset timer
+		clearTimeout(@refresh_timeout)
+		@_inner_mouse_move = @empty
+		
+		this.setTransforms(@translation, @rotation)		
 		this.render()
+		
+		return
 
 	# @private
 	mouseHandler:()->
